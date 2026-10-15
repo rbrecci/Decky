@@ -16,6 +16,7 @@
       }
     },
     "android": {
+      "package": "br.senai.decky",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -31,6 +32,12 @@
     "plugins": [
       "expo-router",
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "90161be0-e6bf-468a-a32f-23dadd7b779d"
+      }
+    }
   }
 }
