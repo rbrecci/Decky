@@ -20,9 +20,25 @@ const toRoom = (row: RoomRow): Room => ({
 });
 
 export async function createRoom(hostMode: HostMode = 'player'): Promise<Room> {
-  const { data, error } = await supabase.rpc('create_room', { p_host_mode: hostMode });
-  if (error) throw error;
-  return toRoom(data as RoomRow);
+  const controller = new AbortController();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const deadline = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      controller.abort();
+      reject(new Error('room_create_timeout'));
+    }, 15000);
+  });
+
+  try {
+    const { data, error } = await Promise.race([
+      supabase.rpc('create_room', { p_host_mode: hostMode }).abortSignal(controller.signal),
+      deadline,
+    ]);
+    if (error) throw error;
+    return toRoom(data as RoomRow);
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 export async function joinRoom(code: string): Promise<Room> {

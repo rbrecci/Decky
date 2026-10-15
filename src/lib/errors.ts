@@ -15,6 +15,7 @@ const MESSAGES: Record<string, string> = {
   seat_taken: 'Este lugar já está ocupado.',
   invalid_seat: 'Lugar inválido.',
   invalid_mode: 'Modo de sala inválido.',
+  room_create_timeout: 'A criação demorou demais. Feche e abra o app para tentar novamente.',
   not_host: 'Só quem criou a sala pode iniciar.',
   not_enough_players: 'São necessários 4 jogadores.',
   players_not_ready: 'Todos precisam marcar "Pronto".',
