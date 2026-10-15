@@ -2,7 +2,7 @@
 
 Sprint única de 1 dia (ver [SCRUM.md](SCRUM.md)). Meta: **fatia vertical funcionando em 4 aparelhos** (login, sala, mãos privadas, uma mão jogada, placar e CRUD), ampliando para partida inteira e mesa opcional só depois.
 
-Status: `TODO`, `DOING`, `BLOCKED`, `REVIEW`, `DONE`. Em 08/10/2026 o código de todas as tarefas de desenvolvimento P0 foi escrito e passou nos testes automatizados (`npm test`); por isso estão em `REVIEW`. Viram `DONE` quando a verificação for observada no Supabase real e nos aparelhos. T-CAI-06 teve o modo mesa implementado (QR code continua pendente). Só vira `DONE` depois que a coluna "Verificação" foi observada. Caminhos de arquivo são **sugestões**; o dono da tarefa pode ajustar, desde que avise no PR.
+Status: `TODO`, `DOING`, `BLOCKED`, `REVIEW`, `DONE`. Em 08/10/2026 o código de todas as tarefas de desenvolvimento P0 foi escrito e passou nos testes automatizados (`npm test`); por isso estão em `REVIEW`. Viram `DONE` quando a verificação for observada no Supabase real e nos aparelhos. T-CAI-06 tem o modo mesa e o QR code implementados, mas ainda requer verificação em aparelhos. Só vira `DONE` depois que a coluna "Verificação" foi observada. Caminhos de arquivo são **sugestões**; o dono da tarefa pode ajustar, desde que avise no PR.
 
 ## Caminho crítico
 
@@ -12,7 +12,7 @@ Status: `TODO`, `DOING`, `BLOCKED`, `REVIEW`, `DONE`. Em 08/10/2026 o código de
 
 Partida completa e automática em um dia é o item de maior risco: exige motor testado, transação no servidor, privacidade das mãos e sincronização em 4 clientes. Estimativa honesta: a fatia "uma mão completa, sem truco" é viável; truco com 4 níveis, empates, mão de 11 e reconexão é o que pode não caber. Ordem de corte, do primeiro a sacrificar para o último:
 
-1. QR code e modo mesa (P1).
+1. Verificar QR code e modo mesa em aparelhos (P1).
 2. Reconexão refinada (basta recarregar o estado persistido).
 3. Mão de 11 e empates raros (documentar a limitação e a convenção adotada).
 4. Truco além de 3 pontos (6, 9, 12).
@@ -66,7 +66,7 @@ Se a partida ao vivo não fechar, a demonstração usa fixture identificada como
 | T-CAI-03 | Lobby em tempo real: posições, duplas, pronto, botão Iniciar do dono | T-CAI-02 | `app/room/[code].tsx`, `src/rooms/useRoom.ts` | 4 aparelhos veem as mesmas posições em segundos | REVIEW |
 | T-CAI-04 | Assinar estado público da partida e projetar em `PublicGameState` | T-00, T-RAF-03 | `src/game/usePublicState.ts` | Jogada de um aparelho aparece nos outros 3 | REVIEW |
 | T-CAI-05 | Presença, estado "reconectando" e recarga do estado persistido | T-CAI-04 | `src/game/useConnection.ts` | Matar e reabrir o app restaura a vista sem ação duplicada | REVIEW |
-| T-CAI-06 | (P1) Modo mesa e QR code | T-CAI-04, T-RAF-07 | `app/room/create.tsx`, `src/game/TableGame.tsx`, migration `20261008180000_table_mode.sql` | Aparelho extra vê estado público e nenhuma mão | REVIEW (modo mesa); QR code TODO |
+| T-CAI-06 | (P1) Modo mesa e QR code | T-CAI-04, T-RAF-07 | `app/room/create.tsx`, `src/game/TableGame.tsx`, migration `20261008180000_table_mode.sql` | Aparelho extra vê estado público e nenhuma mão; QR abre entrada com código preenchido | REVIEW |
 | T-CAI-07 | Mesa visual compartilhada, distribuição animada, seleção e confirmação da carta, controles de truco contextuais | T-CAI-04, T-EDU-05 | `src/game/components/`, `src/game/deal.ts` | Distribuição anima uma vez por mão e não repete ao reconectar; carta aparece na posição de quem jogou nos 4 aparelhos | REVIEW |
 
 ## Eduardo Zanetti (motor de regras)

@@ -1,6 +1,6 @@
 # Carta escondida, jogada automática e limite de 20 s
 
-Data: 2026-10-09. Estado: **desenho aprovado**, ainda não implementado.
+Data: 2026-10-09. Estado: **implementado**, aguardando verificação em aparelhos.
 
 Três funcionalidades sobre a arquitetura atual (servidor autoritativo: motor puro em
 `supabase/functions/_shared/engine/`, Edge Function `submit-action`, Postgres com mãos em

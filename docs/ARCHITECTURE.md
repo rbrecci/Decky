@@ -242,7 +242,7 @@ O pedido corre dentro do prazo da decisão de baixo (20 s, ver "Carta escondida,
 
 ## Carta escondida, jogada automática e prazo
 
-Regras D-20 a D-28 em [RULES.md](RULES.md); desenho em `docs/superpowers/specs/2026-10-09-encoberta-auto-timer-design.md`.
+Regras D-20 a D-28 em [RULES.md](RULES.md).
 
 **Carta escondida.** `play_card { hidden: true }`. A carta sai da mão e vai para `private.private_hands.covered`; na mesa pública entra só `{ seat, card: null, hidden: true }`, e o evento sai sem `card`. Quando a vaza fecha, o motor junta as cartas reais, resolve a vaza e grava `lastTrick` com `hidden: true` nas que estavam viradas. A mesa central nunca recebe a carta; o dono a vê pelo `covered` de `get_my_hand` (face esmaecida com o selo do olho riscado). No app, a chave da carta escondida é `hidden-<lugar>-<vaza>` (`playedCardKey`), então o mesmo componente vira a carta (`HiddenPlayed`, `rotateY` simulado por `scaleX`, 420 ms) em vez de remontar. Montada já revelada (reconexão), aparece aberta, sem girar.
 

@@ -4,7 +4,7 @@ Aplicativo mobile que substitui as cartas físicas em partidas **presenciais** d
 
 Projeto da atividade de Desenvolvimento Mobile/Scrum do SENAI. Apresentação prevista: **09/10/2026**.
 
-> **Estado atual: implementado, aguardando teste em 4 e 5 aparelhos.** O app, o backend (migrations, RLS, RPCs, Edge Functions) e o motor de regras existem e passam nos testes automatizados, inclusive uma partida inteira até 12 pontos rodando o código das Edge Functions contra as migrations reais. Ainda não foram verificados no Supabase real com celulares. O status de cada tarefa fica em [docs/SPRINT_BACKLOG.md](docs/SPRINT_BACKLOG.md).
+> **Estado atual: código implementado, verificação em aparelhos em andamento.** O app, o backend (migrations, RLS, RPCs, Edge Functions) e o motor de regras existem e passam nos testes automatizados, inclusive uma partida inteira até 12 pontos rodando o código das Edge Functions contra as migrations reais. O grupo relatou uma partida real em quatro celulares; os critérios específicos dessa partida ainda não foram registrados no checklist. O modo mesa em um quinto aparelho e a leitura do QR code ainda aguardam verificação. O status de cada tarefa fica em [docs/SPRINT_BACKLOG.md](docs/SPRINT_BACKLOG.md).
 
 ## Funcionalidades do MVP
 
@@ -18,7 +18,7 @@ Projeto da atividade de Desenvolvimento Mobile/Scrum do SENAI. Apresentação pr
 - Manilhas da própria mão com contorno, halo e selo de estrela dourados; ao receber uma manilha, uma revelação especial (brilho e estrela central) roda uma única vez no aparelho do dono da carta.
 - Truco Paulista completo: manilha variável, vazas, pedidos 3/6/9/12, placar automático até 12 pontos.
 - Histórico com CRUD de notas ligadas às partidas.
-- **Não implementado (P1):** QR code da sala.
+- QR code no lobby para abrir a entrada da sala com o código preenchido.
 
 ## Equipe
 
@@ -46,6 +46,17 @@ React Native, Expo, TypeScript e Expo Router no cliente, com `react-native-svg` 
 1. `npm install`
 2. Copiar `.env.example` para `.env` e preencher com a URL e a chave anon do projeto Supabase (sem `/rest/v1/` no fim da URL).
 3. `npx expo start` e ler o QR code: no Android, com o Expo Go; no iPhone, com a câmera, que abre o Expo Go.
+
+### APK Android instalável
+
+O perfil `apk` de `eas.json` gera um aplicativo independente do Expo Go e do servidor de desenvolvimento. A partida continua precisando de internet e do projeto Supabase ativo.
+
+1. Entrar na conta Expo com `npx eas-cli login` e vincular o projeto com `npx eas-cli build:configure -p android`.
+2. No projeto EAS, cadastrar no ambiente `production` as variáveis `EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_ANON_KEY`. A segunda recebe a chave publicável do Supabase; o nome da variável foi mantido por compatibilidade com o código atual. Não cadastrar `service_role` no aplicativo.
+3. Confirmar que as migrations e as Edge Functions do backend estão publicadas no projeto Supabase indicado pela URL.
+4. Rodar `npx eas-cli build -p android --profile apk`. Ao terminar, abrir o link fornecido pelo EAS no celular e instalar o APK.
+
+O identificador Android é `br.senai.decky`. Para futuras versões instalarem por cima da atual, manter esse identificador e a mesma chave de assinatura gerenciada pelo EAS.
 
 ### iOS
 

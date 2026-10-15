@@ -2,7 +2,7 @@
 
 Dono do backlog: **Mariana Ribeiro (PO)**. Origem das histórias: [SPEC.md](../SPEC.md), seção 8.
 
-Legenda de estado: **Planejado** = nada implementado ainda. Este arquivo deve ser atualizado para **Implementado** somente quando o critério de aceite tiver sido observado (ver [QA_DEMO.md](QA_DEMO.md)). Estimativa em pontos de esforço relativo: 1 (horas curtas), 2, 3, 5 (metade do dia ou mais), 8 (risco alto, dividir).
+Legenda de estado: **Planejado** = nada implementado ainda; **REVIEW** = código implementado, aguardando critério de aceite; **Implementado** = critério de aceite observado (ver [QA_DEMO.md](QA_DEMO.md)). Estimativa em pontos de esforço relativo: 1 (horas curtas), 2, 3, 5 (metade do dia ou mais), 8 (risco alto, dividir).
 
 Prioridade: **P0** entra obrigatoriamente na demonstração. **P1** entra se o P0 estiver estável.
 
@@ -19,7 +19,7 @@ Prioridade: **P0** entra obrigatoriamente na demonstração. **P1** entra se o P
 | US-09 | Gerenciar notas do histórico (CRUD) | P0 | 3 | Rafael (dados), Nicoly (tela) | US-01, partida encerrada ou fixture | Planejado |
 | US-10 | Demonstração rastreável | P0 | 3 | Isabela, Mariana | todas | Planejado |
 | US-11 | Modo mesa (quinto aparelho) | P1 | 5 | Caio | US-08 | Planejado |
-| US-12 | QR code da sala | P1 | 1 | Caio | US-02 | Planejado |
+| US-12 | QR code da sala | P1 | 1 | Caio | US-02 | REVIEW |
 
 US-11 e US-12 vêm da seção 8 do SPEC ("P1"); os números são deste backlog, não do SPEC.
 
@@ -90,7 +90,7 @@ Cada critério é uma pergunta com resposta sim/não, executável por uma pessoa
 - [ ] Consultar mãos com a sessão desse aparelho retorna zero linhas.
 
 ### US-12 QR code (P1)
-- [ ] O código da sala também aparece como QR code, e ler o QR leva à entrada na sala.
+- [ ] O código da sala também aparece como QR code, e ler o QR leva à entrada na sala com o código preenchido. Código implementado; falta escanear em aparelho.
 
 ## Observação de escopo
 
