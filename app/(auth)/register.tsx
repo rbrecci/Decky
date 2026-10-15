@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { signUp } from '../../src/auth/AuthProvider';
 import {
@@ -16,6 +16,7 @@ import { TextField } from '../../src/ui/TextField';
 type Field = 'name' | 'email' | 'password' | 'confirmation';
 
 export default function Register() {
+  const { code } = useLocalSearchParams<{ code?: string }>();
   const [values, setValues] = useState<Record<Field, string>>({ name: '', email: '', password: '', confirmation: '' });
   const [errors, setErrors] = useState<Partial<Record<Field, string | null>>>({});
   const [serverError, setServerError] = useState<string | null>(null);
@@ -38,8 +39,8 @@ export default function Register() {
     setLoading(true);
     try {
       const result = await signUp(values.email, values.password, values.name);
-      // Com sessão criada, a guarda do layout leva direto para a tela inicial.
       if (result === 'confirm_email') setConfirmSent(true);
+      else router.replace(code ? { pathname: '/invite', params: { code } } : '/');
     } catch (error) {
       setServerError(errorMessage(error));
     } finally {
@@ -51,7 +52,7 @@ export default function Register() {
     return (
       <Screen title="Quase lá">
         <Notice kind="success" message={`Enviamos um link de confirmação para ${values.email.trim()}. Abra o e-mail e depois entre.`} />
-        <Button label="Ir para o login" onPress={() => router.replace('/login')} />
+        <Button label="Ir para o login" onPress={() => router.replace(code ? { pathname: '/login', params: { code } } : '/login')} />
       </Screen>
     );
   }
@@ -92,7 +93,7 @@ export default function Register() {
       />
       <Notice kind="error" message={serverError} />
       <Button label="Cadastrar" onPress={submit} loading={loading} />
-      <Button label="Já tenho conta" variant="secondary" onPress={() => router.back()} />
+      <Button label="Já tenho conta" variant="secondary" onPress={() => router.replace(code ? { pathname: '/login', params: { code } } : '/login')} />
     </Screen>
   );
 }

@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { signIn } from '../../src/auth/AuthProvider';
@@ -13,6 +13,7 @@ import { TextField } from '../../src/ui/TextField';
 import { colors, font, fonts, space } from '../../src/ui/theme';
 
 export default function Login() {
+  const { code } = useLocalSearchParams<{ code?: string }>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{ email?: string | null; password?: string | null }>({});
@@ -30,7 +31,7 @@ export default function Login() {
     setLoading(true);
     try {
       await signIn(email, password);
-      // A guarda de sessão do layout leva para a tela inicial.
+      router.replace(code ? { pathname: '/invite', params: { code } } : '/');
     } catch (error) {
       setServerError(errorMessage(error));
     } finally {
@@ -69,7 +70,7 @@ export default function Login() {
       />
       <Notice kind="error" message={serverError} />
       <Button label="Entrar" onPress={submit} loading={loading} />
-      <Button label="Criar conta" variant="secondary" onPress={() => router.push('/register')} />
+      <Button label="Criar conta" variant="secondary" onPress={() => router.push(code ? { pathname: '/register', params: { code } } : '/register')} />
     </Screen>
   );
 }

@@ -18,12 +18,11 @@ function RootStack() {
 
   if (loading) return <Loading />;
 
-  // Sem sessão, só as telas de login/cadastro existem; com sessão, só o app.
+  // O convite e as telas de conta ficam acessíveis antes da sessão.
   return (
     <Stack screenOptions={{ headerShown: false, animation: 'fade', contentStyle: { backgroundColor: colors.bg } }}>
-      <Stack.Protected guard={!session}>
-        <Stack.Screen name="(auth)" />
-      </Stack.Protected>
+      <Stack.Screen name="(auth)" />
+      <Stack.Screen name="invite" />
       <Stack.Protected guard={!!session}>
         <Stack.Screen name="index" />
         <Stack.Screen name="room/create" />

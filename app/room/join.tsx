@@ -1,5 +1,5 @@
-import { router } from 'expo-router';
-import { useState } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { errorCode, errorMessage } from '../../src/lib/errors';
 import { joinRoom } from '../../src/rooms/api';
@@ -12,9 +12,14 @@ import { colors, font } from '../../src/ui/theme';
 const CODE_REGEX = /^[A-HJ-NP-Z2-9]{6}$/;
 
 export default function JoinRoom() {
-  const [code, setCode] = useState('');
+  const { code: linkedCode } = useLocalSearchParams<{ code?: string }>();
+  const [code, setCode] = useState(() => linkedCode?.toUpperCase() ?? '');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (linkedCode) setCode(linkedCode.toUpperCase());
+  }, [linkedCode]);
 
   async function submit() {
     const normalized = code.trim().toUpperCase();

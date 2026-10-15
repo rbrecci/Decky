@@ -1,6 +1,8 @@
 import { router, useLocalSearchParams } from 'expo-router';
+import * as Linking from 'expo-linking';
 import { useEffect, useState } from 'react';
 import { Share, StyleSheet, Text, View } from 'react-native';
+import QRCode from 'react-native-qrcode-svg';
 import { useAuth } from '../../src/auth/AuthProvider';
 import type { HostMode } from '../../src/contracts/types';
 import { startMatch } from '../../src/game/api';
@@ -76,6 +78,11 @@ export default function Lobby() {
         <Text style={styles.code} accessibilityLabel={`Código ${code?.split('').join(' ')}`} selectable>
           {code}
         </Text>
+        {code ? (
+          <View style={styles.qrCode} accessible accessibilityLabel={`QR code para entrar na sala ${code}`}>
+            <QRCode value={Linking.createURL('invite', { queryParams: { code } })} size={176} />
+          </View>
+        ) : null}
         <Button
           label="Compartilhar código"
           variant="dark"
@@ -190,6 +197,7 @@ const styles = StyleSheet.create({
   codeBox: { alignItems: 'stretch' },
   codeLabel: { color: colors.textMuted, fontSize: font.tiny, fontWeight: '700', letterSpacing: 2, textAlign: 'center' },
   code: { color: colors.text, fontSize: font.huge + 4, fontWeight: '800', letterSpacing: 10, textAlign: 'center' },
+  qrCode: { alignSelf: 'center', padding: space.sm, backgroundColor: '#FFFFFF' },
   modeTexts: { gap: space.xs },
   modeKicker: { fontSize: font.tiny, fontWeight: '700', letterSpacing: 1.4, color: colors.textFaint },
   modeTitle: { fontFamily: fonts.display, fontSize: font.large - 2, lineHeight: 28, color: colors.text },
