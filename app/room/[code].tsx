@@ -31,7 +31,8 @@ export default function Lobby() {
   const me = seats.find((s) => s.userId === userId);
   const isHost = !!room && room.hostUserId === userId;
   const tableMode = room?.hostMode === 'table';
-  const allReady = seats.length === 4 && seats.every((s) => s.ready);
+  const capacity = room?.gameMode === '1v1' ? 2 : 4;
+  const allReady = seats.length === capacity && seats.every((s) => s.ready);
 
   async function run(key: string, action: () => Promise<unknown>) {
     setBusy(key);
@@ -96,6 +97,8 @@ export default function Lobby() {
       {room ? (
         <ModeBox
           mode={room.hostMode}
+          capacity={capacity}
+          gameMode={room.gameMode}
           isHost={isHost}
           busy={busy === 'mode'}
           disabled={!!busy}
@@ -105,6 +108,7 @@ export default function Lobby() {
 
       <SeatPicker
         seats={seats}
+        gameMode={room?.gameMode}
         mySeat={me?.seat ?? null}
         hostId={room?.hostUserId}
         disabled={!!busy}
@@ -129,9 +133,9 @@ export default function Lobby() {
           label={
             allReady
               ? 'Iniciar partida'
-              : seats.length < 4
-                ? `Aguardando jogadores (${seats.length}/4)`
-                : `Iniciar (${seats.filter((s) => s.ready).length}/4 prontos)`
+              : seats.length < capacity
+                ? `Aguardando jogadores (${seats.length}/${capacity})`
+                : `Iniciar (${seats.filter((s) => s.ready).length}/${capacity} prontos)`
           }
           disabled={!allReady}
           loading={busy === 'start'}
@@ -150,6 +154,8 @@ export default function Lobby() {
 
 interface ModeBoxProps {
   mode: HostMode;
+  capacity: number;
+  gameMode: string;
   isHost: boolean;
   busy: boolean;
   disabled: boolean;
@@ -157,7 +163,7 @@ interface ModeBoxProps {
 }
 
 /** Mostra como a sala funciona (dono joga ou é a mesa) e, para o dono, permite trocar no lobby. */
-function ModeBox({ mode, isHost, busy, disabled, onSwitch }: ModeBoxProps) {
+function ModeBox({ capacity, gameMode, mode, isHost, busy, disabled, onSwitch }: ModeBoxProps) {
   const table = mode === 'table';
   const title = table
     ? isHost
@@ -168,14 +174,14 @@ function ModeBox({ mode, isHost, busy, disabled, onSwitch }: ModeBoxProps) {
       : 'Quem criou a sala também joga';
   const description = table
     ? isHost
-      ? 'Ele mostra só a mesa e o placar, sem cartas de ninguém. Os 4 lugares são dos jogadores.'
+      ? `Ele mostra só a mesa e o placar, sem cartas de ninguém. Os ${capacity} lugares são dos jogadores.`
       : 'O celular de quem criou a sala mostra a mesa no centro. Sua mão aparece só no seu celular.'
-    : '4 celulares: cada um mostra a mesa em cima e a própria mão embaixo.';
+    : `${capacity} celulares: cada um mostra a mesa em cima e a própria mão embaixo.`;
 
   return (
     <Panel tone={table ? 'accent' : 'default'}>
       <View accessible={!isHost} accessibilityLabel={`${title}. ${description}`} style={styles.modeTexts}>
-        <Text style={styles.modeKicker}>{table ? '◎  MODO MESA · 5 APARELHOS' : '♠  MODO JOGADOR · 4 APARELHOS'}</Text>
+        <Text style={styles.modeKicker}>{gameMode.toUpperCase()} · {table ? `MODO MESA · ${capacity + 1} APARELHOS` : `MODO JOGADOR · ${capacity} APARELHOS`}</Text>
         <Text style={[styles.modeTitle, table && styles.modeTitleTable]}>{title}</Text>
         <Text style={styles.modeText}>{description}</Text>
       </View>

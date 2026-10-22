@@ -38,7 +38,7 @@ export const PlayerHud = memo(function PlayerHud({ state, players, mySeat, deal,
   const seats = seatSummaries(state, mySeat, nameOf, dealing);
   const myTeam = seatTeam(mySeat);
   // Primeira linha: a nossa dupla (eu e o parceiro); segunda: a outra dupla, na ordem em que jogam.
-  const rows = [
+  const rows = state.gameMode === '1v1' ? [seats] : [
     [seats[0], seats[2]],
     [seats[1], seats[3]],
   ];
@@ -89,7 +89,7 @@ export const PlayerHud = memo(function PlayerHud({ state, players, mySeat, deal,
               key={s.seat}
               seat={s}
               initials={initials(displayName(s.seat))}
-              teamText={teamLabel(s.team, myTeam)}
+              teamText={teamLabel(s.team, myTeam, state.gameMode)}
               speech={cue && cue.kind === 'speech' && cue.seat === s.seat ? cue : null}
               showCards={s.seat !== mySeat && !dealing}
             />

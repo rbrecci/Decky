@@ -312,7 +312,7 @@ export function HandPanel({
           ))}
         </View>
       ) : mode === 'waiting_answer' ? (
-        <WaitingLine text="Pedido feito. Aguardando a outra dupla responder…" />
+        <WaitingLine text={state.gameMode === '1v1' ? 'Pedido feito. Aguardando o adversário responder…' : 'Pedido feito. Aguardando a outra dupla responder…'} />
       ) : mode === 'play' ? (
         // Correr à esquerda, longe do polegar; jogar à direita, maior e preenchido: é a ação principal.
         <View style={styles.row}>

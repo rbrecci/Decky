@@ -112,8 +112,9 @@ function Board({
 }: TableBoardProps & { width: number; height: number; shape: number }) {
   const g = tableGeometry(width, height, variant, shape);
   const large = variant === 'large';
-  const positions = tablePositions(bottomSeat);
-  const sideOf = (seat: Seat) => SIDES.find((s) => positions[s] === seat)!;
+  const positions = tablePositions(bottomSeat, state.gameMode);
+  const sides = SIDES.filter((side) => positions[side] !== undefined);
+  const sideOf = (seat: Seat) => sides.find((s) => positions[s] === seat)!;
   const viewerTeam = viewerSeat ? seatTeam(viewerSeat) : null;
   const playing = state.status === 'playing';
   const dealing = deal.phase === 'intro' || deal.phase === 'dealing';
@@ -134,7 +135,7 @@ function Board({
   // Filete do prazo na etiqueta de quem decide: quem joga, ou quem responde ao truco pela dupla.
   const deadline = playing && !dealing ? (state.deadline ?? null) : null;
   const timerSeat =
-    deadline?.kind === 'play' ? deadline.seat : deadline && state.truco ? nextSeat(state.truco.requestedBySeat) : null;
+    deadline?.kind === 'play' ? deadline.seat : deadline && state.truco ? nextSeat(state.truco.requestedBySeat, state.gameMode) : null;
 
   const displayName = (seat: Seat) => players.find((p) => p.seat === seat)?.displayName ?? `Lugar ${seat}`;
   const nameOf = (seat: Seat) => (seat === viewerSeat ? 'Você' : displayName(seat));
@@ -147,8 +148,8 @@ function Board({
         <ManilhaBadge rect={g.manilha} manilhaRank={state.manilhaRank} large={large} />
       ) : null}
 
-      {SIDES.map((side) => {
-        const seat = positions[side];
+      {sides.map((side) => {
+        const seat = positions[side]!;
         const played = cards.find((c) => c.seat === seat);
         const isTurn = turnSeat === seat;
         return (
@@ -166,8 +167,8 @@ function Board({
         );
       })}
 
-      {SIDES.filter((side) => side !== 'bottom' || g.bottomChipVisible).map((side) => {
-        const seat = positions[side];
+      {sides.filter((side) => side !== 'bottom' || g.bottomChipVisible).map((side) => {
+        const seat = positions[side]!;
         const left = cardsLeft(seat, state.trickResults.length, tableSeats, !playing);
         return (
           <SeatChip
@@ -177,7 +178,7 @@ function Board({
             name={nameOf(seat)}
             initials={initials(displayName(seat))}
             team={seatTeam(seat)}
-            teamText={teamLabel(seatTeam(seat), viewerTeam)}
+            teamText={teamLabel(seatTeam(seat), viewerTeam, state.gameMode)}
             isTurn={turnSeat === seat}
             // A própria mão aparece embaixo; durante a distribuição os versos chegam voando.
             cardsLeft={seat === viewerSeat || dealing ? null : left}

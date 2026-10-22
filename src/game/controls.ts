@@ -43,7 +43,7 @@ export function trucoControls(
 
   // Botão de uma ação comum, já dizendo se ela vai precisar do parceiro.
   const control = (id: ControlId, label: string, hint: string, variant: Control['variant'], action: GameAction): Control => {
-    const needsPartner = teamDecisionFor(state, seat, action) !== null;
+    const needsPartner = state.gameMode !== '1v1' && teamDecisionFor(state, seat, action) !== null;
     return { id, label, hint: needsPartner ? hint + PARTNER_HINT : hint, variant, action, needsPartner };
   };
 
@@ -99,7 +99,7 @@ export function trucoControls(
       control(
         'refuse',
         'Correr',
-        `A outra dupla ganha ${state.handValue} ${state.handValue === 1 ? 'ponto' : 'pontos'}.`,
+        `${state.gameMode === '1v1' ? 'O adversário' : 'A outra dupla'} ganha ${state.handValue} ${state.handValue === 1 ? 'ponto' : 'pontos'}.`,
         'secondary',
         { type: 'respond_truco', response: 'refuse' },
       ),
@@ -128,7 +128,7 @@ export function trucoControls(
     );
   }
   if (legal.fold) {
-    controls.push(control('fold', 'Correr', 'Desiste da mão; a outra dupla ganha os pontos.', 'secondary', { type: 'fold' }));
+    controls.push(control('fold', 'Correr', state.gameMode === '1v1' ? 'Desiste da mão; o adversário ganha os pontos.' : 'Desiste da mão; a outra dupla ganha os pontos.', 'secondary', { type: 'fold' }));
   }
   return { mode: 'play', controls };
 }

@@ -24,10 +24,10 @@ export function FinishedOverlay({ state, viewerTeam, onRoom, onHome, onNote }: P
     winner === null
       ? 'Partida encerrada'
       : viewerTeam === null
-        ? `Dupla ${winner} venceu!`
+        ? `${teamLabel(winner, null, state.gameMode)} venceu!`
         : winner === viewerTeam
-          ? 'Vocês venceram!'
-          : 'Eles venceram';
+          ? state.gameMode === '1v1' ? 'Você venceu!' : 'Vocês venceram!'
+          : state.gameMode === '1v1' ? 'O adversário venceu' : 'Eles venceram';
   const left: Team = viewerTeam ?? 'A';
   const right: Team = left === 'A' ? 'B' : 'A';
 
@@ -42,7 +42,7 @@ export function FinishedOverlay({ state, viewerTeam, onRoom, onHome, onNote }: P
           <TitleRule />
         </View>
         <Text style={styles.score}>
-          {teamLabel(left, viewerTeam)} {state.score[left]} × {state.score[right]} {teamLabel(right, viewerTeam)}
+          {teamLabel(left, viewerTeam, state.gameMode)} {state.score[left]} × {state.score[right]} {teamLabel(right, viewerTeam, state.gameMode)}
         </Text>
         <Button label="Voltar para a sala" onPress={onRoom} />
         {onNote ? <Button label="Escrever nota sobre a partida" variant="dark" onPress={onNote} /> : null}

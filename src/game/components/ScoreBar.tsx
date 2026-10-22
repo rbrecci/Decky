@@ -20,7 +20,7 @@ export const ScoreBar = memo(function ScoreBar({ state, viewerTeam, players, lar
   // Tela estreita na visão neutra: "DUPLA A" não cabe ao lado do selo do valor e quebrava em duas
   // linhas; fica só a letra, junto do ponto da cor da dupla (o rótulo de acessibilidade segue completo).
   const { width } = useWindowDimensions();
-  const label = (team: Team) => (viewerTeam === null && width < 360 ? team : teamLabel(team, viewerTeam));
+  const label = (team: Team) => (viewerTeam === null && width < 360 ? team : teamLabel(team, viewerTeam, state.gameMode));
   const left: Team = viewerTeam ?? 'A';
   const right: Team = left === 'A' ? 'B' : 'A';
   const members = (team: Team) =>
@@ -50,7 +50,7 @@ export const ScoreBar = memo(function ScoreBar({ state, viewerTeam, players, lar
         <View
           style={styles.score}
           accessible
-          accessibilityLabel={`Placar: ${teamLabel(left, viewerTeam)} ${state.score[left]}, ${teamLabel(right, viewerTeam)} ${state.score[right]}. Partida até 12.`}
+          accessibilityLabel={`Placar: ${teamLabel(left, viewerTeam, state.gameMode)} ${state.score[left]}, ${teamLabel(right, viewerTeam, state.gameMode)} ${state.score[right]}. Partida até 12.`}
         >
           <TeamScore team={left} label={label(left)} points={state.score[left]} names={large ? members(left) : null} large={large} />
           <Text style={[styles.x, large && styles.xLarge]}>×</Text>
@@ -63,7 +63,7 @@ export const ScoreBar = memo(function ScoreBar({ state, viewerTeam, players, lar
           accessibilityLabel={`Mão ${state.handNumber}, vale ${state.handValue}${
             state.truco ? `, pedido de ${trucoName(state.truco.value).toLowerCase()} aguardando resposta` : ''
           }. Vazas: ${
-            state.trickResults.map((r) => describeTrick(r, viewerTeam)).join(', ') || 'nenhuma'
+            state.trickResults.map((r) => describeTrick(r, viewerTeam, state.gameMode)).join(', ') || 'nenhuma'
           }`}
         >
           {/* Troca de valor (pedido, aceite, mão nova) entra com um leve salto: o aceite de truco aparece

@@ -14,6 +14,7 @@ let rng: Rng;
 let actionCounter = 0;
 
 const ARGS: Record<string, string[]> = {
+  internal_room_game_mode: ['p_room_id', 'p_user_id'],
   internal_start_match: ['p_room_id', 'p_user_id', 'p_state', 'p_hands'],
   internal_get_match: ['p_match_id', 'p_user_id', 'p_client_action_id'],
   internal_commit_action: [

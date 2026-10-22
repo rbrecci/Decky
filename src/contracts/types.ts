@@ -4,6 +4,7 @@
 export type {
   ActionDeadline,
   Card,
+  GameMode,
   GameAction,
   GameActionType,
   HandSummary,
@@ -24,7 +25,7 @@ export type {
   TrucoResponse,
 } from '../../supabase/functions/_shared/engine/types.ts';
 
-import type { Card, GameAction, PublicGameState, Seat, Team } from '../../supabase/functions/_shared/engine/types.ts';
+import type { Card, GameMode, GameAction, PublicGameState, Seat, Team } from '../../supabase/functions/_shared/engine/types.ts';
 
 export interface UserProfile {
   id: string;
@@ -45,6 +46,7 @@ export interface Room {
   code: string;
   hostUserId: string;
   hostMode: HostMode;
+  gameMode: GameMode;
   status: RoomStatus;
 }
 

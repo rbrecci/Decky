@@ -1,5 +1,5 @@
 // Salas: toda escrita passa por RPC no servidor; aqui só chamadas e leituras.
-import type { HostMode, Room, RoomSeat, Seat, Team } from '../contracts/types';
+import type { GameMode, HostMode, Room, RoomSeat, Seat, Team } from '../contracts/types';
 import { supabase } from '../lib/supabase';
 
 interface RoomRow {
@@ -7,6 +7,7 @@ interface RoomRow {
   code: string;
   host_user_id: string;
   host_mode: HostMode;
+  game_mode: GameMode;
   status: Room['status'];
 }
 
@@ -16,10 +17,11 @@ const toRoom = (row: RoomRow): Room => ({
   hostUserId: row.host_user_id,
   // Salas criadas antes do modo mesa não têm a coluna preenchida na leitura antiga.
   hostMode: row.host_mode ?? 'player',
+  gameMode: row.game_mode ?? '2v2',
   status: row.status,
 });
 
-export async function createRoom(hostMode: HostMode = 'player'): Promise<Room> {
+export async function createRoom(hostMode: HostMode = 'player', gameMode: GameMode = '2v2'): Promise<Room> {
   const controller = new AbortController();
   let timer: ReturnType<typeof setTimeout> | undefined;
   const deadline = new Promise<never>((_, reject) => {
@@ -31,7 +33,7 @@ export async function createRoom(hostMode: HostMode = 'player'): Promise<Room> {
 
   try {
     const { data, error } = await Promise.race([
-      supabase.rpc('create_room', { p_host_mode: hostMode }).abortSignal(controller.signal),
+      supabase.rpc('create_room', { p_host_mode: hostMode, p_game_mode: gameMode }).abortSignal(controller.signal),
       deadline,
     ]);
     if (error) throw error;
@@ -69,7 +71,7 @@ export async function leaveRoom(roomId: string): Promise<void> {
 }
 
 export async function fetchRoomByCode(code: string): Promise<Room | null> {
-  const { data, error } = await supabase.from('rooms').select('id, code, host_user_id, host_mode, status').eq('code', code).maybeSingle();
+  const { data, error } = await supabase.from('rooms').select('id, code, host_user_id, host_mode, game_mode, status').eq('code', code).maybeSingle();
   if (error) throw error;
   return data ? toRoom(data as RoomRow) : null;
 }

@@ -1,7 +1,7 @@
 // Distribuição animada: só uma representação visual do estado que o servidor já gravou.
 // Nada aqui decide regra. A mão já existe no banco antes da animação começar; se a animação
 // for pulada (reconexão, aparelho lento), o jogo segue igual.
-import type { PublicGameState, Seat } from '../contracts/types';
+import type { GameMode, PublicGameState, Seat } from '../contracts/types';
 
 /** Duração das etapas, em ms. */
 export const DEAL_TIMING = {
@@ -26,11 +26,12 @@ export interface DealStep {
 }
 
 /** Ordem real de distribuição: começa à direita de quem embaralha, uma carta por vez, três voltas. */
-export function dealOrder(dealerSeat: Seat): DealStep[] {
+export function dealOrder(dealerSeat: Seat, gameMode: GameMode = '2v2'): DealStep[] {
+  const count = gameMode === '1v1' ? 2 : 4;
   const steps: DealStep[] = [];
   for (let round = 0; round < 3; round++) {
-    for (let i = 1; i <= 4; i++) {
-      const seat = (((dealerSeat - 1 + i) % 4) + 1) as Seat;
+    for (let i = 1; i <= count; i++) {
+      const seat = (((dealerSeat - 1 + i) % count) + 1) as Seat;
       steps.push({ seat, round, delay: steps.length * DEAL_TIMING.stagger });
     }
   }
@@ -38,13 +39,13 @@ export function dealOrder(dealerSeat: Seat): DealStep[] {
 }
 
 /** Duração total da etapa 'dealing' (última carta pousando). */
-export function dealingDuration(): number {
-  return 11 * DEAL_TIMING.stagger + DEAL_TIMING.flight;
+export function dealingDuration(gameMode: GameMode = '2v2'): number {
+  return (gameMode === '1v1' ? 5 : 11) * DEAL_TIMING.stagger + DEAL_TIMING.flight;
 }
 
 /** Instante, desde o início de 'dealing', em que cada carta de um assento pousa. */
-export function landingTimes(dealerSeat: Seat, seat: Seat): number[] {
-  return dealOrder(dealerSeat)
+export function landingTimes(dealerSeat: Seat, seat: Seat, gameMode: GameMode = '2v2'): number[] {
+  return dealOrder(dealerSeat, gameMode)
     .filter((step) => step.seat === seat)
     .map((step) => step.delay + DEAL_TIMING.flight);
 }
@@ -66,18 +67,19 @@ export interface DealRun {
   startedAt: number;
   /** Se a animação começa pela pausa mostrando a mão anterior. */
   intro: boolean;
+  gameMode?: GameMode;
 }
 
 /** Fronteiras das fases, em ms desde startedAt. */
-export function dealBoundaries(intro: boolean) {
+export function dealBoundaries(intro: boolean, gameMode: GameMode = '2v2') {
   const dealing = intro ? DEAL_TIMING.intro : 0;
-  const reveal = dealing + dealingDuration();
+  const reveal = dealing + dealingDuration(gameMode);
   return { dealing, reveal, done: reveal + DEAL_TIMING.reveal };
 }
 
 /** Fase da animação depois de `elapsed` ms. */
-export function dealPhaseAt(elapsed: number, intro: boolean): DealPhase {
-  const b = dealBoundaries(intro);
+export function dealPhaseAt(elapsed: number, intro: boolean, gameMode: GameMode = '2v2'): DealPhase {
+  const b = dealBoundaries(intro, gameMode);
   if (elapsed < b.dealing) return 'intro';
   if (elapsed < b.reveal) return 'dealing';
   if (elapsed < b.done) return 'reveal';
@@ -90,19 +92,19 @@ export function dealPhaseAt(elapsed: number, intro: boolean): DealPhase {
  * abertas antes de a animação começar.
  */
 export function dealPhaseNow(run: DealRun | null, now: number): DealPhase {
-  return run ? dealPhaseAt(now - run.startedAt, run.intro) : 'done';
+  return run ? dealPhaseAt(now - run.startedAt, run.intro, run.gameMode) : 'done';
 }
 
 /** Instantes (Date.now) em que a fase muda; a tela só precisa redesenhar nesses momentos. */
 export function dealPhaseChanges(run: DealRun): number[] {
-  const b = dealBoundaries(run.intro);
+  const b = dealBoundaries(run.intro, run.gameMode);
   return [b.dealing, b.reveal, b.done].map((at) => run.startedAt + at);
 }
 
 /** Instantes (Date.now) em que cada carta de `seat` pousa. */
 export function landingMoments(run: DealRun, dealerSeat: Seat, seat: Seat): number[] {
-  const start = run.startedAt + dealBoundaries(run.intro).dealing;
-  return landingTimes(dealerSeat, seat).map((t) => start + t);
+  const start = run.startedAt + dealBoundaries(run.intro, run.gameMode).dealing;
+  return landingTimes(dealerSeat, seat, run.gameMode).map((t) => start + t);
 }
 
 /**
@@ -124,7 +126,7 @@ export function createDealTracker() {
   const runs = new Map<string, DealRun | null>();
   return {
     start(key: string, state: PublicGameState, now: number): DealRun | null {
-      if (!runs.has(key)) runs.set(key, isFreshDeal(state) ? { startedAt: now, intro: hasIntro(state) } : null);
+      if (!runs.has(key)) runs.set(key, isFreshDeal(state) ? { startedAt: now, intro: hasIntro(state), ...(state.gameMode === '1v1' ? { gameMode: state.gameMode } : {}) } : null);
       return runs.get(key) ?? null;
     },
   };
