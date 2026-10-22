@@ -29,6 +29,21 @@ Nenhum item abaixo foi executado ainda. Marque `[x]` somente com evidência (fot
 
 Cada história tem seus critérios em [PRODUCT_BACKLOG.md](PRODUCT_BACKLOG.md). Aqui ficam os testes técnicos transversais.
 
+### Modo 1v1
+
+Estes itens exigem aparelhos e Supabase real; os testes automatizados não substituem esta verificação.
+
+- [ ] Aplicar `20261022190000_duel.sql` e publicar `start-match` e `submit-action` juntas.
+- [ ] Criar sala 1v1 com o dono jogando: mostrar apenas dois lugares; o segundo usuário entra e um terceiro recebe sala cheia.
+- [ ] Dois jogadores prontos iniciam; cada um recebe somente as próprias três cartas e vê o adversário do outro lado da mesa.
+- [ ] A vaza fecha na segunda carta; a distribuição seguinte e os turnos alternam apenas entre os dois jogadores.
+- [ ] Pedir, aceitar e aumentar 3, 6, 9 e 12; correr e recusar sem aguardar parceiro.
+- [ ] Conferir carta escondida na segunda vaza, jogada automática e prazo de 20 segundos.
+- [ ] Jogar até 12 pontos, conferir histórico e iniciar outra partida na mesma sala.
+- [ ] Reabrir o aplicativo durante a partida: restaurar o modo 1v1, a vez e a mão privada.
+- [ ] Criar 1v1 com mesa dedicada em um terceiro aparelho; a mesa não recebe cartas privadas nem pode jogar.
+- [ ] Criar uma sala 2v2 e conferir quatro lugares, início com quatro prontos e confirmação de parceiro nas decisões da dupla.
+
 ### Segurança das cartas
 
 - [ ] Com o token do jogador A, `select` em `private.private_hands` falha ou retorna 0 linhas.
