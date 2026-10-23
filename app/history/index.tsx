@@ -1,6 +1,6 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, Platform, StyleSheet, Text, View } from 'react-native';
 import { useAuth } from '../../src/auth/AuthProvider';
 import type { MatchNote, MatchSummary } from '../../src/contracts/types';
 import { deleteNote, fetchMyMatches, listNotes } from '../../src/history/api';
@@ -44,20 +44,25 @@ export default function History() {
   );
 
   function confirmDelete(note: MatchNote) {
+    const removeNote = async () => {
+      try {
+        await deleteNote(note.id);
+        setInfo('Nota excluída.');
+        await load();
+      } catch (e) {
+        setError(errorMessage(e));
+      }
+    };
+    if (Platform.OS === 'web') {
+      if (window.confirm(`Excluir nota?\n"${note.title}" será apagada. Não dá para desfazer.`)) void removeNote();
+      return;
+    }
     Alert.alert('Excluir nota?', `"${note.title}" será apagada. Não dá para desfazer.`, [
       { text: 'Cancelar', style: 'cancel' },
       {
         text: 'Excluir',
         style: 'destructive',
-        onPress: async () => {
-          try {
-            await deleteNote(note.id);
-            setInfo('Nota excluída.');
-            await load();
-          } catch (e) {
-            setError(errorMessage(e));
-          }
-        },
+        onPress: removeNote,
       },
     ]);
   }

@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert } from 'react-native';
+import { ActivityIndicator, Alert, Platform } from 'react-native';
 import { createNote, deleteNote, getNote, updateNote, validateNoteTitle } from '../../src/history/api';
 import { errorMessage } from '../../src/lib/errors';
 import { Button } from '../../src/ui/Button';
@@ -51,19 +51,24 @@ export default function NoteForm() {
   }
 
   function confirmDelete() {
+    const removeNote = async () => {
+      try {
+        await deleteNote(id!);
+        router.back();
+      } catch (e) {
+        setError(errorMessage(e));
+      }
+    };
+    if (Platform.OS === 'web') {
+      if (window.confirm('Excluir nota?\nNão dá para desfazer.')) void removeNote();
+      return;
+    }
     Alert.alert('Excluir nota?', 'Não dá para desfazer.', [
       { text: 'Cancelar', style: 'cancel' },
       {
         text: 'Excluir',
         style: 'destructive',
-        onPress: async () => {
-          try {
-            await deleteNote(id!);
-            router.back();
-          } catch (e) {
-            setError(errorMessage(e));
-          }
-        },
+        onPress: removeNote,
       },
     ]);
   }
