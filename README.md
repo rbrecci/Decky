@@ -59,6 +59,19 @@ O perfil `apk` de `eas.json` gera um aplicativo independente do Expo Go e do ser
 
 O identificador Android é `br.senai.decky`. Para futuras versões instalarem por cima da atual, manter esse identificador e a mesma chave de assinatura gerenciada pelo EAS.
 
+### Web no Safari
+
+[Abrir o Decky no navegador](https://decky-brecci.expo.app).
+
+A versão web usa o mesmo Supabase e as mesmas salas do aplicativo Android. No iPhone, o acesso é pelo Safari, sem instalar APK nem assinar o Apple Developer Program. As dependências `react-dom`, `react-native-web` e `@expo/metro-runtime` já estão no projeto e são instaladas com `npm install`.
+
+- Desenvolvimento: preencher o `.env` como acima e executar `npm run web`.
+- Build local: `npm run build:web` exporta o site para `dist/`, usando as variáveis locais.
+- Build de produção com as variáveis cadastradas no EAS: `npx eas-cli env:exec production "npm run build:web" --non-interactive`.
+- Publicação no EAS Hosting, após conferir a build: `npx eas-cli deploy --prod --environment production`. Usar o endereço retornado pelo comando para compartilhar o acesso.
+
+As variáveis `EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_ANON_KEY` precisam estar disponíveis durante a build, pois entram no código público do navegador. Nunca usar `service_role`. A partida requer internet. A validação em Safari de um iPhone real ainda está pendente.
+
 ### iOS
 
 O app é o mesmo nas duas plataformas (sem código nativo próprio). Configuração específica em `app.json`:
@@ -83,6 +96,8 @@ O Supabase está ligado ao repositório `rbrecci/Decky` pela integração GitHub
 A versão com modo mesa precisa da migration `20261008180000_table_mode.sql` e da **republicação das duas Edge Functions**.
 
 O modo 1v1 precisa da migration `20261022190000_duel.sql` e da **republicação de `start-match` e `submit-action` juntas**. Salas e partidas anteriores continuam no modo 2v2. O checklist de validação em aparelhos está em [docs/QA_DEMO.md](docs/QA_DEMO.md#modo-1v1).
+
+O ranking Elo exige a migration `20261023150000_ranked.sql` antes de publicar a nova interface. Toda nova partida finalizada vale Elo, com rankings separados de 1v1 e 2v2. O cálculo, o histórico e as pendências de verificação estão em [docs/RANKING.md](docs/RANKING.md). Esta mudança de ranking não exige republicar as Edge Functions.
 
 Para a demonstração, desligue **Confirm email** em Authentication > Providers > Email no painel do Supabase.
 
