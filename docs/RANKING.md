@@ -58,9 +58,17 @@ Verificações registradas:
 - `npm run typecheck`: aprovado.
 - `node ranked-smoke.cjs http://127.0.0.1:8091`: verificação local em WebKit aprovada nos tamanhos 390 x 844, 375 x 667 e 844 x 390. Ranking e histórico foram exercitados com respostas controladas, sem comprovar uma partida real no Supabase de produção.
 
-O ranking ainda não foi publicado. A migration ainda não foi aplicada em produção: a tentativa pelo CLI ficou bloqueada na inicialização do papel de login e no acesso de rede IPv6. As pendências de publicação e de aparelhos reais continuam abaixo:
+A migration foi publicada pela integração do Supabase após o merge do [PR #2](https://github.com/rbrecci/Decky/pull/2), no commit `360c9a4`. O check de produção do Supabase terminou com `success`. As chamadas anônimas às RPCs `get_rankings` e `get_my_match_history` retornaram HTTP 401, código PostgreSQL `42501` (`permission denied`), confirmando que as funções existem e recusam acesso anônimo. Essa verificação não comprova as consultas autenticadas nem uma partida real em produção.
 
-- [ ] Aplicar a migration no projeto Supabase de produção.
+A interface web foi publicada no EAS Hosting (publicação `mrjm92m7r8`, promovida para produção) em https://decky-brecci.expo.app, com o bundle `entry-67620f107600d85d90ff588186cf79fc.js`. As rotas `/`, `/ranking` e `/history` retornaram HTTP 200 com esse bundle. A mesma conferência foi repetida ao fechar esta documentação.
+
+O QA em WebKit na build publicada passou nos tamanhos 390 x 844, 375 x 667 e 844 x 390, sem erros de JavaScript, requisições falhas ou endpoints inesperados. Ele cobriu ranking e histórico com a sessão e as respostas do Supabase **controladas pelo Playwright**: não houve conta criada nem dado gravado no Supabase real. Isso valida a interface publicada, não substitui uma partida real contra o backend.
+
+Pendências reais:
+
+- [x] Aplicar a migration no projeto Supabase de produção.
 - [x] Confirmar Elo e idempotência com as migrations reais nos testes SQL.
-- [ ] Conferir ranking e histórico na build web publicada.
-- [ ] Concluir uma partida em aparelhos reais e conferir os registros de Elo dos participantes.
+- [x] Conferir ranking e histórico na build web publicada (respostas controladas, ver acima).
+- [ ] Concluir uma partida autenticada real e conferir os registros de Elo dos participantes. Não verificado: nenhuma partida real foi jogada no iPhone nem em outro aparelho.
+- [ ] Recompilar e instalar o APK Android. Não verificado: o APK atual é anterior ao Elo (commit `83ce38e`) e não tem a interface de ranking. O backend novo já contabiliza partidas novas.
+- [ ] Exercitar concorrência real entre conexões Postgres. Os testes cobrem idempotência e reversão, mas não carga concorrente.
