@@ -19,7 +19,8 @@ export default function Home() {
           Olá, {displayName}
         </Text>
         <Ornament width={240} />
-        <Text style={styles.tagline}>TRUCO PAULISTA · DUAS DUPLAS · UMA MESA</Text>
+        <Text style={styles.tagline}>TRUCO PAULISTA · DUELOS E DUPLAS</Text>
+        <Text style={styles.ranked}>Toda partida nova vale Elo. Confira sua evolução no ranking.</Text>
       </Animated.View>
 
       <Animated.View entering={FadeInDown.duration(350).delay(120)} style={styles.actions}>
@@ -30,6 +31,7 @@ export default function Home() {
         />
         <Button label="Entrar na sala" caption="Com o código de 6 letras" variant="dark" onPress={() => router.push('/room/join')} />
         <Button label="Histórico e notas" variant="secondary" onPress={() => router.push('/history')} />
+        <Button label="Ranking" caption="Seu Elo no 1v1 e no 2v2" variant="gold" onPress={() => router.push('/ranking')} />
       </Animated.View>
 
       <View style={styles.footer}>
@@ -43,6 +45,7 @@ const styles = StyleSheet.create({
   hero: { alignItems: 'center', gap: space.md, paddingTop: space.md, paddingBottom: space.sm },
   greeting: { fontFamily: fonts.display, fontSize: 30, lineHeight: 38, color: colors.text, textAlign: 'center' },
   tagline: { fontSize: 12, letterSpacing: 2, color: colors.textFaint, textAlign: 'center', fontWeight: '600' },
+  ranked: { fontSize: 14, lineHeight: 21, color: colors.textMuted, textAlign: 'center' },
   actions: { gap: space.sm + 4 },
   footer: { marginTop: 'auto', alignItems: 'center' },
 });

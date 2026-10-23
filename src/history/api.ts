@@ -1,26 +1,43 @@
 // Histórico: partidas jogadas (só leitura) e notas pessoais (CRUD com RLS por autor).
-import type { MatchNote, MatchSummary, Team } from '../contracts/types';
+import type { MatchNote, MatchPlayer, MatchSummary } from '../contracts/types';
 import { supabase } from '../lib/supabase';
 
-export async function fetchMyMatches(userId: string): Promise<MatchSummary[]> {
-  // RLS já limita `matches` às partidas do usuário; o join traz a dupla dele.
-  const { data, error } = await supabase
-    .from('match_players')
-    .select('team, matches(id, status, score_a, score_b, winner_team, started_at, ended_at)')
-    .eq('user_id', userId);
+interface MatchHistoryRow {
+  id: string;
+  status: MatchSummary['status'];
+  score_a: number;
+  score_b: number;
+  winner_team: MatchSummary['winnerTeam'];
+  my_team: MatchSummary['myTeam'];
+  started_at: string;
+  ended_at: string | null;
+  game_mode: MatchSummary['gameMode'];
+  ranked: boolean;
+  points_delta: number | null;
+  points_after: number | null;
+  players: { seat: MatchPlayer['seat']; team: MatchPlayer['team']; user_id: string; display_name: string }[];
+}
+
+export async function fetchMyMatches(): Promise<MatchSummary[]> {
+  const { data, error } = await supabase.rpc('get_my_match_history', { p_limit: 50, p_offset: 0 });
   if (error) throw error;
-  return (data ?? [])
-    .map((row: any) => ({
-      id: row.matches.id,
-      status: row.matches.status,
-      scoreA: row.matches.score_a,
-      scoreB: row.matches.score_b,
-      winnerTeam: row.matches.winner_team as Team | null,
-      myTeam: row.team as Team,
-      startedAt: row.matches.started_at,
-      endedAt: row.matches.ended_at,
-    }))
-    .sort((a, b) => b.startedAt.localeCompare(a.startedAt));
+  return ((data ?? []) as MatchHistoryRow[]).map((row) => ({
+    id: row.id,
+    status: row.status,
+    scoreA: row.score_a,
+    scoreB: row.score_b,
+    winnerTeam: row.winner_team,
+    myTeam: row.my_team,
+    startedAt: row.started_at,
+    endedAt: row.ended_at,
+    gameMode: row.game_mode,
+    ranked: row.ranked,
+    pointsDelta: row.points_delta,
+    pointsAfter: row.points_after,
+    players: row.players.map((player) => ({
+      seat: player.seat, team: player.team, userId: player.user_id, displayName: player.display_name,
+    })),
+  }));
 }
 
 interface NoteRow {

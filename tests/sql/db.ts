@@ -33,10 +33,10 @@ export interface TestDb {
   asService<T = Record<string, unknown>>(sql: string, params?: unknown[]): Promise<T[]>;
 }
 
-export async function createTestDb(): Promise<TestDb> {
+export async function createTestDb(beforeMigration?: string): Promise<TestDb> {
   const db = new PGlite();
   await db.exec(SUPABASE_STUB);
-  for (const file of readdirSync(MIGRATIONS_DIR).filter((f) => f.endsWith('.sql')).sort()) {
+  for (const file of readdirSync(MIGRATIONS_DIR).filter((f) => f.endsWith('.sql') && (!beforeMigration || f < beforeMigration)).sort()) {
     await db.exec(readFileSync(join(MIGRATIONS_DIR, file), 'utf8'));
   }
 
