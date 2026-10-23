@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
-import type { RoomSeat, Seat } from '../contracts/types';
+import type { GameMode, RoomSeat, Seat } from '../contracts/types';
 import { PlayerAvatar, TeamTag } from '../game/components/PlayerIdentity';
 import { initials, seatTeam } from '../game/describe';
 import { FeltPanel } from '../ui/TableSurface';
@@ -15,6 +15,7 @@ const GRID: Seat[][] = [
 
 interface Props {
   seats: RoomSeat[];
+  gameMode?: GameMode;
   /** Lugar de quem olha (null para a mesa central, que não senta). */
   mySeat: Seat | null;
   hostId: string | undefined;
@@ -32,7 +33,7 @@ interface Props {
  * "VOCÊ" solto no pé do cartão.
  * A bandeja tem cantos de raio fixo e recuo próprio: nenhum lugar encosta no aro, em qualquer tela.
  */
-export function SeatPicker({ seats, mySeat, hostId, disabled, canSit, onSit }: Props) {
+export function SeatPicker({ gameMode = '2v2', seats, mySeat, hostId, disabled, canSit, onSit }: Props) {
   const [gridW, setGridW] = useState<number | null>(null);
   function onLayout(e: LayoutChangeEvent) {
     const w = e.nativeEvent.layout.width;
@@ -44,14 +45,15 @@ export function SeatPicker({ seats, mySeat, hostId, disabled, canSit, onSit }: P
 
   return (
     <FeltPanel>
-      <Text style={styles.teams}>Dupla A: lugares 1 e 3 · Dupla B: lugares 2 e 4</Text>
+      <Text style={styles.teams}>{gameMode === '1v1' ? '1v1: um jogador de cada lado' : 'Dupla A: lugares 1 e 3 · Dupla B: lugares 2 e 4'}</Text>
       <View style={styles.grid} onLayout={onLayout}>
-        {GRID.map((row, i) => (
+        {(gameMode === '1v1' ? [[1, 2] as Seat[]] : GRID).map((row, i) => (
           <View key={i} style={styles.row}>
             {row.map((seat) => (
               <SeatBox
                 key={seat}
                 seat={seat}
+                gameMode={gameMode}
                 player={seats.find((s) => s.seat === seat)}
                 isMe={mySeat === seat}
                 narrow={narrow}
@@ -69,6 +71,7 @@ export function SeatPicker({ seats, mySeat, hostId, disabled, canSit, onSit }: P
 }
 
 interface SeatBoxProps {
+  gameMode: GameMode;
   seat: Seat;
   player: RoomSeat | undefined;
   isMe: boolean;
@@ -79,10 +82,11 @@ interface SeatBoxProps {
   onSit: () => void;
 }
 
-function SeatBox({ seat, player, isMe, narrow, hostId, disabled, canSit, onSit }: SeatBoxProps) {
+function SeatBox({ gameMode, seat, player, isMe, narrow, hostId, disabled, canSit, onSit }: SeatBoxProps) {
   const team = seatTeam(seat);
   const teamColor = team === 'A' ? colors.teamA : colors.teamB;
-  const header = `Lugar ${seat}, dupla ${team}`;
+  const label = gameMode === '1v1' ? `Jogador ${team}` : `Dupla ${team}`;
+  const header = `Lugar ${seat}, ${label}`;
 
   if (!player) {
     // Mesma estrutura do lugar ocupado (cabeçalho com o estado, marca no lugar do avatar, "Livre" no
@@ -114,7 +118,7 @@ function SeatBox({ seat, player, isMe, narrow, hostId, disabled, canSit, onSit }
               Livre
             </Text>
             <View style={[styles.meta, narrow && styles.metaNarrow]}>
-              <TeamTag team={team} text={`Dupla ${team}`} large />
+              <TeamTag team={team} text={label} large />
             </View>
           </View>
         </View>
@@ -150,7 +154,7 @@ function SeatBox({ seat, player, isMe, narrow, hostId, disabled, canSit, onSit }
             {player.displayName}
           </Text>
           <View style={[styles.meta, narrow && styles.metaNarrow]}>
-            <TeamTag team={team} text={`Dupla ${team}`} large />
+            <TeamTag team={team} text={label} large />
             {isMe ? <Text style={[styles.tag, styles.tagMe]}>VOCÊ</Text> : null}
             {isHost ? <Text style={[styles.tag, styles.tagHost]}>DONO</Text> : null}
           </View>

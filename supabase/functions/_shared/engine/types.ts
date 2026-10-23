@@ -11,6 +11,7 @@ export interface Card {
 
 export type Team = 'A' | 'B';
 export type Seat = 1 | 2 | 3 | 4;
+export type GameMode = '1v1' | '2v2';
 export type HandValue = 1 | 3 | 6 | 9 | 12;
 export type TrickResult = Team | 'tie';
 
@@ -83,6 +84,8 @@ export interface HandSummary {
 
 /** Estado que qualquer membro da partida pode ver. Nunca contém mãos. */
 export interface PublicGameState {
+  /** Ausente em partidas antigas, que usam 2v2. */
+  gameMode?: GameMode;
   status: 'playing' | 'finished';
   handNumber: number;
   dealerSeat: Seat;

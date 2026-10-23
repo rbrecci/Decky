@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
-import type { HostMode } from '../../src/contracts/types';
+import type { GameMode, HostMode } from '../../src/contracts/types';
 import { errorMessage } from '../../src/lib/errors';
 import { createRoom } from '../../src/rooms/api';
 import { Button } from '../../src/ui/Button';
@@ -29,6 +29,8 @@ const OPTIONS: { mode: HostMode; glyph: string; title: string; devices: string; 
 
 /** Criar sala: o dono escolhe se joga ou se o aparelho dele vira a mesa central. */
 export default function CreateRoom() {
+  const [gameMode, setGameMode] = useState<GameMode>('2v2');
+  const count = gameMode === '1v1' ? 2 : 4;
   const [creating, setCreating] = useState<HostMode | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,7 +39,7 @@ export default function CreateRoom() {
     setCreating(mode);
     setError(null);
     try {
-      const room = await createRoom(mode);
+      const room = await createRoom(mode, gameMode);
       router.replace(`/room/${room.code}`);
     } catch (e) {
       setError(errorMessage(e));
@@ -48,6 +50,12 @@ export default function CreateRoom() {
 
   return (
     <Screen title="Criar sala" subtitle="Como este celular vai participar?">
+      <View style={styles.gameModes}>
+        {(['1v1', '2v2'] as GameMode[]).map((mode) => (
+          <Button key={mode} label={mode === '1v1' ? '1v1: duelo' : '2v2: duplas'} variant={gameMode === mode ? 'gold' : 'secondary'} disabled={!!creating} onPress={() => setGameMode(mode)} />
+        ))}
+      </View>
+      <Text style={styles.note}>{count} jogadores. O formato fica fixo nesta sala.</Text>
       {OPTIONS.map((option) => {
         const isCreating = creating === option.mode;
         return (
@@ -56,7 +64,7 @@ export default function CreateRoom() {
             onPress={() => create(option.mode)}
             disabled={!!creating}
             accessibilityRole="button"
-            accessibilityLabel={`${option.title}. ${option.devices}. ${option.description}`}
+            accessibilityLabel={`${option.title}. ${option.devices.replaceAll('4', String(count))}. ${option.description.replaceAll('4', String(count))}`}
             accessibilityState={{ busy: isCreating, disabled: !!creating }}
             style={({ pressed }) => [styles.option, pressed && styles.pressed, creating && !isCreating && styles.faded]}
           >
@@ -64,8 +72,8 @@ export default function CreateRoom() {
               <Text style={styles.glyph}>{option.glyph}</Text>
               <Text style={styles.optionTitle}>{option.title}</Text>
             </View>
-            <Text style={styles.devices}>{option.devices}</Text>
-            <Text style={styles.description}>{option.description}</Text>
+            <Text style={styles.devices}>{option.devices.replaceAll('4', String(count))}</Text>
+            <Text style={styles.description}>{option.description.replaceAll('4', String(count))}</Text>
             <View style={styles.ctaRow}>
               {isCreating ? <ActivityIndicator color={colors.redText} size="small" /> : null}
               <Text style={styles.cta}>{isCreating ? 'Criando sala…' : 'Criar assim ›'}</Text>
@@ -73,7 +81,7 @@ export default function CreateRoom() {
           </Pressable>
         );
       })}
-      <Text style={styles.note}>Dá para trocar no lobby, antes de começar.</Text>
+      <Text style={styles.note}>Dá para trocar o papel deste celular no lobby, antes de começar.</Text>
       <Notice kind="error" message={error} />
       <Button label="Voltar" variant="ghost" onPress={() => router.back()} />
     </Screen>
@@ -81,6 +89,7 @@ export default function CreateRoom() {
 }
 
 const styles = StyleSheet.create({
+  gameModes: { flexDirection: 'row', justifyContent: 'center', gap: space.sm },
   option: {
     backgroundColor: colors.surface,
     borderRadius: radius.lg,

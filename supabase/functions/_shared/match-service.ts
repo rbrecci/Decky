@@ -61,9 +61,12 @@ export async function startMatchService(rpc: Rpc, userId: string, body: any, rng
   const roomId = body?.roomId;
   if (typeof roomId !== 'string') return badRequest();
 
+  const room = await rpc('internal_room_game_mode', { p_room_id: roomId, p_user_id: userId });
+  if (!room.ok) return ok({ ok: false, error: room.error });
+
   // O primeiro prazo sai do relógio do banco, o mesmo que confere as expirações.
   const now = Number(await rpc('server_now', {}));
-  const state = newMatch(rng, now);
+  const state = newMatch(rng, now, room.gameMode);
   const data = await rpc('internal_start_match', {
     p_room_id: roomId,
     p_user_id: userId,

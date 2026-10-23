@@ -1,6 +1,7 @@
 // Textos curtos da mesa. Para um jogador, do ponto de vista dele ("Nós" e "Eles");
 // para a mesa central (viewerTeam = null), neutros ("Dupla A" e "Dupla B").
 import type {
+  GameMode,
   HandSummary,
   PublicEvent,
   PublicGameState,
@@ -28,18 +29,26 @@ export function seatTeam(seat: Seat): Team {
   return seat % 2 === 1 ? 'A' : 'B';
 }
 
-export function teamLabel(team: Team, viewerTeam: Team | null): string {
+export function teamLabel(team: Team, viewerTeam: Team | null, gameMode: GameMode = '2v2'): string {
+  if (gameMode === '1v1') return viewerTeam === null ? `Jogador ${team}` : team === viewerTeam ? 'Você' : 'Adversário';
   if (viewerTeam === null) return `Dupla ${team}`;
   return team === viewerTeam ? 'Nós' : 'Eles';
 }
 
-export function describeTrick(result: TrickResult, viewerTeam: Team | null): string {
+export function describeTrick(result: TrickResult, viewerTeam: Team | null, gameMode: GameMode = '2v2'): string {
+  if (gameMode === '1v1' && result !== 'tie') return `${teamLabel(result, viewerTeam, gameMode)} ganhou a vaza`;
   if (result === 'tie') return 'Vaza empatada';
   if (viewerTeam === null) return `Vaza da dupla ${result}`;
   return result === viewerTeam ? 'Vaza nossa' : 'Vaza deles';
 }
 
-export function describeHand(summary: HandSummary, viewerTeam: Team | null): string {
+export function describeHand(summary: HandSummary, viewerTeam: Team | null, gameMode: GameMode = '2v2'): string {
+  if (gameMode === '1v1' && summary.winner !== null) {
+    const winner = teamLabel(summary.winner, viewerTeam, gameMode);
+    const loser = teamLabel(summary.winner === 'A' ? 'B' : 'A', viewerTeam, gameMode);
+    const plus = `+${summary.points} ${summary.points === 1 ? 'ponto' : 'pontos'}`;
+    return summary.reason === 'tricks' ? `${winner} ganhou a mão (${plus})` : `${loser} correu${summary.reason === 'refused' ? ' do truco' : ''} (${plus} para ${winner})`;
+  }
   if (summary.winner === null) return 'Mão empatada: ninguém pontua';
   const plus = `+${summary.points} ${summary.points === 1 ? 'ponto' : 'pontos'}`;
 
@@ -158,7 +167,10 @@ export function proposalNote(event: PublicEvent | null | undefined, viewerSeat: 
 export type Side = 'bottom' | 'right' | 'top' | 'left';
 
 /** Posição de cada assento na tela, com quem olha sempre embaixo (a mesa central usa o assento 1). */
-export function tablePositions(bottomSeat: Seat): Record<Side, Seat> {
+export function tablePositions(bottomSeat: Seat): Record<Side, Seat>;
+export function tablePositions(bottomSeat: Seat, gameMode: GameMode | undefined): Partial<Record<Side, Seat>>;
+export function tablePositions(bottomSeat: Seat, gameMode: GameMode = '2v2'): Partial<Record<Side, Seat>> {
+  if (gameMode === '1v1') return { bottom: bottomSeat, top: bottomSeat === 1 ? 2 : 1 };
   const next = (s: Seat, n: number) => (((s - 1 + n) % 4) + 1) as Seat;
   return { bottom: bottomSeat, right: next(bottomSeat, 1), top: next(bottomSeat, 2), left: next(bottomSeat, 3) };
 }
@@ -205,9 +217,9 @@ export function seatSummaries(
   const playing = state.status === 'playing';
   const turnSeat = activeTurnSeat(state, dealing);
   const tableSeats = state.tableCards.map((c) => c.seat);
-  const positions = tablePositions(viewerSeat);
-  return (['bottom', 'right', 'top', 'left'] as Side[]).map((side) => {
-    const seat = positions[side];
+  const positions = tablePositions(viewerSeat, state.gameMode);
+  return (['bottom', 'right', 'top', 'left'] as Side[]).filter((side) => positions[side] !== undefined).map((side) => {
+    const seat = positions[side]!;
     return {
       seat,
       name: nameOf(seat),

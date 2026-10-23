@@ -23,9 +23,9 @@ interface Props {
  * Puramente visual: o servidor já distribuiu; isto só conta a história na tela.
  */
 export function DealLayer({ geometry, dealerSeat, sideOf, run, bottomTarget, height }: Props) {
-  const steps = useMemo(() => dealOrder(dealerSeat), [dealerSeat]);
+  const steps = useMemo(() => dealOrder(dealerSeat, run.gameMode), [dealerSeat, run.gameMode]);
   // Se a tela foi remontada no meio da distribuição, continua do ponto em que estava.
-  const offset = Math.max(0, Date.now() - run.startedAt - dealBoundaries(run.intro).dealing);
+  const offset = Math.max(0, Date.now() - run.startedAt - dealBoundaries(run.intro, run.gameMode).dealing);
   const from = center(geometry.deck);
 
   return (

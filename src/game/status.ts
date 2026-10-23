@@ -34,14 +34,14 @@ export function statusText({ state, viewerSeat, nameOf, canRespond, phase }: Inp
 
   let recap: string | null = null;
   if (state.tableCards.length === 0) {
-    if (state.trickResults.length === 0 && state.lastHand) recap = describeHand(state.lastHand, viewerTeam);
-    else if (state.lastTrick) recap = describeTrick(state.lastTrick.result, viewerTeam);
+    if (state.trickResults.length === 0 && state.lastHand) recap = describeHand(state.lastHand, viewerTeam, state.gameMode);
+    else if (state.lastTrick) recap = describeTrick(state.lastTrick.result, viewerTeam, state.gameMode);
   }
 
   const extra = state.maoDeOnze
     ? state.maoDeOnze === 'both'
       ? 'Mão de ferro: vale 1, sem truco.'
-      : `Mão de 11 (${teamLabel(state.maoDeOnze, viewerTeam)}): vale 3, sem truco.`
+      : `Mão de 11 (${teamLabel(state.maoDeOnze, viewerTeam, state.gameMode)}): vale 3, sem truco.`
     : null;
 
   if (phase === 'intro' || phase === 'dealing') {
@@ -72,9 +72,9 @@ export function statusText({ state, viewerSeat, nameOf, canRespond, phase }: Inp
   if (state.truco) {
     const who = shortName(nameOf(state.truco.requestedBySeat));
     const call = trucoName(state.truco.value);
-    const answering = teamLabel(state.truco.requestedBy === 'A' ? 'B' : 'A', viewerTeam);
+    const answering = teamLabel(state.truco.requestedBy === 'A' ? 'B' : 'A', viewerTeam, state.gameMode);
     // A linha principal fica curta para caber numa linha; quem responde vai no complemento.
-    const detail = viewerTeam === null ? `${answering} responde` : canRespond ? 'Responda abaixo' : 'Aguardando a resposta deles';
+    const detail = viewerTeam === null ? `${answering} responde` : canRespond ? 'Responda abaixo' : state.gameMode === '1v1' ? 'Aguardando a resposta do adversário' : 'Aguardando a resposta deles';
     return { main: `${who} pediu ${call}!`, tone: 'truco', detail, recap, extra };
   }
 

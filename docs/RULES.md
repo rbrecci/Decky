@@ -8,7 +8,7 @@ Este arquivo separa o que está **confirmado no SPEC** do que está **pendente**
 
 | Item | Regra |
 |---|---|
-| Jogadores | 4, em 2 duplas; posições alternadas (1 e 3 contra 2 e 4) |
+| Jogadores | 1v1: 2 jogadores, posições 1 contra 2. 2v2: 4 jogadores, posições alternadas (1 e 3 contra 2 e 4) |
 | Baralho | 40 cartas: sem 8, 9, 10 e curingas |
 | Mão | 3 cartas por jogador |
 | Vira | Uma carta exposta por mão |
@@ -59,6 +59,18 @@ Outras escolhas do motor:
 - Carta igual (mesmo valor, sem ser manilha) da mesma dupla não empata: a dupla vence a vaza.
 
 ## Testes
+
+### Modo 1v1
+
+- O formato é escolhido ao criar a sala. Dois jogadores prontos bastam para começar; não existem lugares 3 e 4 nesse modo.
+- Cada jogador recebe três cartas, e cada vaza fecha depois de duas jogadas.
+- A abertura da primeira mão é do lugar 1; o distribuidor alterna entre os dois lugares a cada mão.
+- Placar até 12, empates, manilhas, carta escondida, jogada automática, prazo e mão de 11 seguem as mesmas regras do 2v2.
+- Correr e pedir, aceitar ou aumentar 6, 9 e 12 têm efeito individual imediato. A regra D-09 continua exclusiva do 2v2.
+- Um aparelho adicional pode funcionar como mesa pública, sem receber mão nem permissão para jogar.
+- Salas antigas e estados sem `gameMode` são interpretados como 2v2.
+
+### Cobertura automatizada
 
 Implementados em `tests/engine/` (Vitest, `npm test`). Todos os itens abaixo têm caso de teste, além de 200 partidas aleatórias jogadas até o fim conferindo que nenhuma carta some ou duplica e que o placar termina em 12:
 

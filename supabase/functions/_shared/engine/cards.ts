@@ -1,4 +1,4 @@
-import type { Card, Rank, Rng, Seat, Suit, Team } from './types.ts';
+import type { Card, GameMode, Rank, Rng, Seat, Suit, Team } from './types.ts';
 
 /** Ordem de força das cartas comuns no Truco Paulista, da mais fraca à mais forte. */
 export const RANKS: readonly Rank[] = ['4', '5', '6', '7', 'Q', 'J', 'K', 'A', '2', '3'];
@@ -7,6 +7,11 @@ export const RANKS: readonly Rank[] = ['4', '5', '6', '7', 'Q', 'J', 'K', 'A', '
 export const SUITS: readonly Suit[] = ['ouros', 'espadas', 'copas', 'paus'];
 
 export const SEATS: readonly Seat[] = [1, 2, 3, 4];
+const DUEL_SEATS: readonly Seat[] = [1, 2];
+
+export function seatsFor(gameMode: GameMode = '2v2'): readonly Seat[] {
+  return gameMode === '1v1' ? DUEL_SEATS : SEATS;
+}
 
 export function sameCard(a: Card, b: Card): boolean {
   return a.rank === b.rank && a.suit === b.suit;
@@ -21,9 +26,10 @@ export function otherTeam(team: Team): Team {
   return team === 'A' ? 'B' : 'A';
 }
 
-/** Próximo assento no sentido do jogo (1 > 2 > 3 > 4 > 1). */
-export function nextSeat(seat: Seat): Seat {
-  return ((seat % 4) + 1) as Seat;
+/** Próximo assento ativo no sentido do jogo. */
+export function nextSeat(seat: Seat, gameMode: GameMode = '2v2'): Seat {
+  const seats = seatsFor(gameMode);
+  return seats[(seats.indexOf(seat) + 1) % seats.length];
 }
 
 /** Baralho de 40 cartas: sem 8, 9, 10 e curingas. */
@@ -42,10 +48,11 @@ export function shuffle(deck: readonly Card[], rng: Rng): Card[] {
 }
 
 /** Distribui 3 cartas para cada assento e revela a vira. */
-export function deal(rng: Rng): { hands: Card[][]; vira: Card } {
+export function deal(rng: Rng, gameMode: GameMode = '2v2'): { hands: Card[][]; vira: Card } {
   const deck = shuffle(createDeck(), rng);
-  const hands = SEATS.map((_, i) => deck.slice(i * 3, i * 3 + 3));
-  return { hands, vira: deck[12] };
+  const seats = seatsFor(gameMode);
+  const hands = SEATS.map((seat, i) => seats.includes(seat) ? deck.slice(i * 3, i * 3 + 3) : []);
+  return { hands, vira: deck[seats.length * 3] };
 }
 
 /** Gerador com semente (mulberry32), para testes reproduzíveis. */

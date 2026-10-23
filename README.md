@@ -1,6 +1,6 @@
 # Decky
 
-Aplicativo mobile que substitui as cartas físicas em partidas **presenciais** de Truco Paulista. Quatro pessoas, em duas duplas, entram na mesma sala pela internet. Cada jogador vê somente as próprias cartas; todos acompanham a mesa, a vira, as manilhas, a vez, os pedidos de truco e o placar. Opcionalmente, um quinto celular fica no centro como mesa.
+Aplicativo mobile que substitui as cartas físicas em partidas **presenciais** de Truco Paulista. Duas pessoas no modo **1v1**, ou quatro em duas duplas no modo **2v2**, entram na mesma sala pela internet. Cada jogador vê somente as próprias cartas; todos acompanham a mesa, a vira, as manilhas, a vez, os pedidos de truco e o placar. Opcionalmente, um aparelho adicional fica no centro como mesa.
 
 Projeto da atividade de Desenvolvimento Mobile/Scrum do SENAI. Apresentação prevista: **09/10/2026**.
 
@@ -9,8 +9,9 @@ Projeto da atividade de Desenvolvimento Mobile/Scrum do SENAI. Apresentação pr
 ## Funcionalidades do MVP
 
 - Cadastro, login e logout com validação por REGEX e mensagens de erro claras.
-- Criar sala com código curto escolhendo o modo: **o dono joga** (4 celulares) ou **o celular do dono vira a mesa** (5 celulares). Dá para trocar no lobby.
-- Entrar por código, quatro posições fixas e duas duplas.
+- Criar sala com código curto escolhendo **1v1** ou **2v2** e o papel do dono: **jogador** ou **mesa**. O papel pode mudar no lobby; o formato da partida é escolhido na criação.
+- Entrar por código: dois lugares no 1v1, quatro lugares e duas duplas no 2v2.
+- No 1v1, correr e pedir, aceitar ou aumentar as apostas são decisões individuais, sem confirmação de parceiro.
 - Início de partida pelo dono da sala, com distribuição de cartas feita **no servidor**.
 - Tela do jogador dividida: mesa pública em cima, mão privada embaixo, com seleção e confirmação da carta e controles de truco contextuais.
 - Mesa central (modo mesa): só informações públicas, em tela cheia, sem mão e sem poder jogar (garantido pelo servidor). Nesse modo os 4 celulares dos jogadores mostram só a própria mão, os controles e o essencial público; a mesa completa fica no aparelho da mesa.
@@ -80,6 +81,8 @@ O que foi verificado sem Mac e o que ainda precisa de aparelho Apple está em [d
 O Supabase está ligado ao repositório `rbrecci/Decky` pela integração GitHub. Quando `supabase/` chega na branch de produção de lá, as migrations são aplicadas e as Edge Functions de `supabase/config.toml` são publicadas. Detalhes e plano B em [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#deploy).
 
 A versão com modo mesa precisa da migration `20261008180000_table_mode.sql` e da **republicação das duas Edge Functions**.
+
+O modo 1v1 precisa da migration `20261022190000_duel.sql` e da **republicação de `start-match` e `submit-action` juntas**. Salas e partidas anteriores continuam no modo 2v2. O checklist de validação em aparelhos está em [docs/QA_DEMO.md](docs/QA_DEMO.md#modo-1v1).
 
 Para a demonstração, desligue **Confirm email** em Authentication > Providers > Email no painel do Supabase.
 

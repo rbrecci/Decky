@@ -38,7 +38,7 @@ export interface ManilhaReveal {
  */
 export function manilhaReveals(run: DealRun | null, cards: Card[], manilhaRank: Rank): ManilhaReveal[] {
   if (!run) return [];
-  const first = run.startedAt + dealBoundaries(run.intro).done + MANILHA_REVEAL.delay;
+  const first = run.startedAt + dealBoundaries(run.intro, run.gameMode).done + MANILHA_REVEAL.delay;
   return cards
     .filter((card) => isManilha(card, manilhaRank))
     .map((card, i) => {

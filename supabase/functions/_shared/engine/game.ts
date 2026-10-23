@@ -1,4 +1,4 @@
-import { deal, nextSeat, otherTeam, sameCard, teamOf } from './cards.ts';
+import { deal, nextSeat, otherTeam, sameCard, seatsFor, teamOf } from './cards.ts';
 import { handOutcome } from './hand.ts';
 import { manilhaRankFor, resolveTrick } from './strength.ts';
 import { deadlineFor, weakestCard } from './turns.ts';
@@ -6,6 +6,7 @@ import type {
   ApplyResult,
   Card,
   GameAction,
+  GameMode,
   HandSummary,
   HandValue,
   MatchState,
@@ -63,7 +64,7 @@ export function getLegalActions(state: PublicGameState, seat: Seat): LegalAction
     confirmProposal: false,
     rejectProposal: false,
   };
-  if (state.status !== 'playing') return none;
+  if (state.status !== 'playing' || !seatsFor(state.gameMode).includes(seat)) return none;
 
   const team = teamOf(seat);
   const myTurn = state.currentTurnSeat === seat;
@@ -101,9 +102,10 @@ export function getLegalActions(state: PublicGameState, seat: Seat): LegalAction
   };
 }
 
-/** Começa uma partida nova: placar zerado, assento 4 embaralha, assento 1 abre. `now` abre o primeiro prazo. */
-export function newMatch(rng: Rng, now: number = Date.now()): MatchState {
-  const match = startHand({ A: 0, B: 0 }, 4, 1, rng);
+/** Começa uma partida nova: último assento ativo embaralha, assento 1 abre. `now` abre o primeiro prazo. */
+export function newMatch(rng: Rng, now: number = Date.now(), gameMode: GameMode = '2v2'): MatchState {
+  const seats = seatsFor(gameMode);
+  const match = startHand({ A: 0, B: 0 }, seats[seats.length - 1], 1, rng, null, gameMode);
   return { ...match, public: { ...match.public, deadline: deadlineFor(null, match.public, now) } };
 }
 
@@ -114,8 +116,9 @@ export function startHand(
   handNumber: number,
   rng: Rng,
   lastHand: HandSummary | null = null,
+  gameMode: GameMode = '2v2',
 ): MatchState {
-  const { hands, vira } = deal(rng);
+  const { hands, vira } = deal(rng, gameMode);
   const maoDeOnze = maoDeOnzeFor(score);
   return {
     hands,
@@ -123,13 +126,14 @@ export function startHand(
     covered: emptySlots(),
     autoCards: emptySlots(),
     public: {
+      gameMode,
       status: 'playing',
       handNumber,
       dealerSeat,
       score: { ...score },
       vira,
       manilhaRank: manilhaRankFor(vira),
-      currentTurnSeat: nextSeat(dealerSeat),
+      currentTurnSeat: nextSeat(dealerSeat, gameMode),
       // Mão de 11 vale 3; mão de ferro (11 x 11) vale 1. Decisões D-05 e D-06.
       handValue: maoDeOnze === null ? 1 : maoDeOnze === 'both' ? 1 : 3,
       truco: null,
@@ -248,7 +252,7 @@ function expireRule(
 
   if (deadline.kind === 'truco') {
     if (!pub.truco) return { ok: false, error: 'illegal_action' };
-    result = executeRule(base, nextSeat(pub.truco.requestedBySeat), { type: 'respond_truco', response: 'refuse' }, rng);
+    result = executeRule(base, nextSeat(pub.truco.requestedBySeat, pub.gameMode), { type: 'respond_truco', response: 'refuse' }, rng);
   } else {
     const seat = deadline.seat;
     if (seat === null) return { ok: false, error: 'illegal_action' };
@@ -277,6 +281,7 @@ export function teamDecisionFor(
   seat: Seat,
   action: GameAction,
 ): { decision: TeamDecision; value: number } | null {
+  if (state.gameMode === '1v1') return null;
   switch (action.type) {
     case 'fold':
       return { decision: 'fold', value: foldPoints(state, teamOf(seat)) };
@@ -413,11 +418,11 @@ function executeRule(state: MatchState, seat: Seat, action: GameAction, rng: Rng
         ? { seat, action: action.type, hidden: true }
         : { seat, action: action.type, card };
 
-      if (tableCards.length < 4) {
+      if (tableCards.length < seatsFor(pub.gameMode).length) {
         return {
           ok: true,
           event,
-          state: { ...state, hands, covered, public: { ...pub, tableCards, currentTurnSeat: nextSeat(seat) } },
+          state: { ...state, hands, covered, public: { ...pub, tableCards, currentTurnSeat: nextSeat(seat, pub.gameMode) } },
         };
       }
 
@@ -540,8 +545,8 @@ function finishHand(pub: PublicGameState, summary: HandSummary, rng: Rng): Match
     };
   }
 
-  const next = startHand(score, nextSeat(pub.dealerSeat), pub.handNumber + 1, rng, summary);
-  // Mantém a última vaza visível para quem não viu a 4ª carta cair. A numeração dos pedidos
+  const next = startHand(score, nextSeat(pub.dealerSeat, pub.gameMode), pub.handNumber + 1, rng, summary, pub.gameMode);
+  // Mantém a última vaza visível para quem não viu a última carta cair. A numeração dos pedidos
   // continua de onde parou: um número nunca volta a valer em outra mão.
   return { ...next, public: { ...next.public, lastTrick: pub.lastTrick, proposalSeq: pub.proposalSeq ?? 0 } };
 }
