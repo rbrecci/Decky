@@ -1,6 +1,6 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, Platform, StyleSheet, Text, View } from 'react-native';
 import { useAuth } from '../../src/auth/AuthProvider';
 import type { MatchNote, MatchSummary } from '../../src/contracts/types';
 import { deleteNote, fetchMyMatches, listNotes } from '../../src/history/api';
@@ -26,7 +26,7 @@ export default function History() {
     if (!userId) return;
     setError(null);
     try {
-      const [m, n] = await Promise.all([fetchMyMatches(userId), listNotes()]);
+      const [m, n] = await Promise.all([fetchMyMatches(), listNotes()]);
       setMatches(m);
       setNotes(n);
     } catch (e) {
@@ -44,20 +44,25 @@ export default function History() {
   );
 
   function confirmDelete(note: MatchNote) {
+    const removeNote = async () => {
+      try {
+        await deleteNote(note.id);
+        setInfo('Nota excluída.');
+        await load();
+      } catch (e) {
+        setError(errorMessage(e));
+      }
+    };
+    if (Platform.OS === 'web') {
+      if (window.confirm(`Excluir nota?\n"${note.title}" será apagada. Não dá para desfazer.`)) void removeNote();
+      return;
+    }
     Alert.alert('Excluir nota?', `"${note.title}" será apagada. Não dá para desfazer.`, [
       { text: 'Cancelar', style: 'cancel' },
       {
         text: 'Excluir',
         style: 'destructive',
-        onPress: async () => {
-          try {
-            await deleteNote(note.id);
-            setInfo('Nota excluída.');
-            await load();
-          } catch (e) {
-            setError(errorMessage(e));
-          }
-        },
+        onPress: removeNote,
       },
     ]);
   }
@@ -99,7 +104,7 @@ export default function History() {
       })}
 
       <Text style={styles.section} accessibilityRole="header">
-        Minhas partidas
+        Últimas 50 partidas
       </Text>
       {!loading && matches.length === 0 ? <Text style={styles.empty}>Você ainda não jogou nenhuma partida.</Text> : null}
       {matches.map((match) => {
@@ -107,15 +112,30 @@ export default function History() {
         const theirs = match.myTeam === 'A' ? match.scoreB : match.scoreA;
         const result =
           match.status === 'playing' ? 'Em andamento' : match.winnerTeam === match.myTeam ? 'Vitória' : 'Derrota';
+        const myPlayers = match.players.filter((player) => player.team === match.myTeam).map((player) => player.displayName).join(' e ');
+        const opponents = match.players.filter((player) => player.team !== match.myTeam).map((player) => player.displayName).join(' e ');
         return (
           <Panel key={match.id} tone={result === 'Vitória' ? 'accent' : 'default'}>
+            <Text style={styles.meta}>{match.gameMode} · {match.ranked ? 'Ranqueada' : 'Anterior ao ranking'}</Text>
             <View style={styles.rowBetween}>
               <Text style={[styles.cardTitle, result === 'Vitória' && styles.win]}>{result}</Text>
               <Text style={styles.score}>
-                Nós {mine} × {theirs} Eles
+                {match.gameMode === '1v1' ? 'Você' : 'Sua dupla'} {mine} × {theirs}
               </Text>
             </View>
-            <Text style={styles.meta}>{formatDate(match.startedAt)}</Text>
+            <Text style={styles.cardBody}>{match.gameMode === '1v1' ? 'Você' : 'Sua dupla'}: {myPlayers}</Text>
+            <Text style={styles.cardBody}>{match.gameMode === '1v1' ? 'Adversário' : 'Adversários'}: {opponents}</Text>
+            <Text style={styles.meta}>Início: {formatDate(match.startedAt)}</Text>
+            {match.endedAt ? <Text style={styles.meta}>Fim: {formatDate(match.endedAt)}</Text> : null}
+            {match.ranked ? (
+              match.pointsDelta !== null && match.pointsAfter !== null ? (
+                <Text style={match.pointsDelta > 0 ? styles.win : styles.meta}>
+                  {match.pointsDelta > 0 ? '+' : ''}{match.pointsDelta} Elo · Elo após a partida: {match.pointsAfter}
+                </Text>
+              ) : (
+                <Text style={styles.meta}>{match.status === 'playing' ? 'Elo calculado ao concluir a partida.' : 'Elo não disponível.'}</Text>
+              )
+            ) : <Text style={styles.meta}>Não altera o ranking.</Text>}
             <Button
               label="Nova nota"
               variant="secondary"

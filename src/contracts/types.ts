@@ -68,7 +68,7 @@ export interface MatchPlayer {
 /** Estado público como o app recebe: projeção do motor mais a revisão do banco. */
 export interface MatchView {
   matchId: string;
-  roomId: string;
+  roomId: string | null;
   /** Código da sala, para voltar ao lobby no fim. */
   roomCode: string | null;
   revision: number;
@@ -145,4 +145,24 @@ export interface MatchSummary {
   myTeam: Team;
   startedAt: string;
   endedAt: string | null;
+  gameMode: GameMode;
+  ranked: boolean;
+  pointsDelta: number | null;
+  pointsAfter: number | null;
+  players: MatchPlayer[];
+}
+
+export interface RankingEntry {
+  position: number;
+  userId: string;
+  displayName: string;
+  points: number;
+  played: number;
+  wins: number;
+  losses: number;
+}
+
+export interface Ranking {
+  entries: RankingEntry[];
+  myEntry: RankingEntry | null;
 }

@@ -26,6 +26,10 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
+      "output": "single",
+      "bundler": "metro",
+      "lang": "pt-BR",
+      "themeColor": "#0A0A0B",
       "favicon": "./assets/favicon.png"
     },
     "scheme": "decky",

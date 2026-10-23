@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useCallback } from 'react';
-import { Alert, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Alert, Platform, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { MatchPlayer, MatchView, Seat } from '../contracts/types';
 import type { ConnectionStatus } from '../lib/useLiveRefresh';
@@ -42,6 +42,10 @@ export function TableGame({ match, players, connection, fetchNow }: Props) {
   const nameOf = (seat: Seat) => players.find((p) => p.seat === seat)?.displayName ?? `Lugar ${seat}`;
 
   const leaveTable = useCallback(() => {
+    if (Platform.OS === 'web') {
+      if (window.confirm('Sair da mesa?\nA partida continua nos celulares dos jogadores. Você pode abrir a mesa de novo pela sala.')) router.replace('/');
+      return;
+    }
     Alert.alert('Sair da mesa?', 'A partida continua nos celulares dos jogadores. Você pode abrir a mesa de novo pela sala.', [
       { text: 'Ficar', style: 'cancel' },
       { text: 'Sair', onPress: () => router.replace('/') },

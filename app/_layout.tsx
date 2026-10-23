@@ -31,6 +31,7 @@ function RootStack() {
         <Stack.Screen name="game/[matchId]" options={{ gestureEnabled: false }} />
         <Stack.Screen name="history/index" />
         <Stack.Screen name="history/note" />
+        <Stack.Screen name="ranking" />
       </Stack.Protected>
     </Stack>
   );

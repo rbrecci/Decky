@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { Alert, Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getLegalActions } from '../../supabase/functions/_shared/engine/game.ts';
 import type {
@@ -147,6 +147,10 @@ export function PlayerGame({
 
   // Estável: o placar (memo) não redesenha a cada toque na mão.
   const leaveTable = useCallback(() => {
+    if (Platform.OS === 'web') {
+      if (window.confirm('Sair da mesa?\nA partida continua. Para voltar, abra a sala de novo pelo código.')) router.replace('/');
+      return;
+    }
     Alert.alert('Sair da mesa?', 'A partida continua. Para voltar, abra a sala de novo pelo código.', [
       { text: 'Ficar', style: 'cancel' },
       { text: 'Sair', onPress: () => router.replace('/') },
