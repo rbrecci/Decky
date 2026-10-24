@@ -83,6 +83,8 @@ Preparação administrativa adicional: [VIRADA_V2.md](VIRADA_V2.md) começa com 
 
 Reset global não ocorreu. Dados antigos e novos de QA continuam no projeto. Conferir inventário e separar recursos de teste; não excluir dados existentes como limpeza incidental.
 
+Saker confirmou em 24/10/2026 que o projeto está no plano gratuito e não possui backups disponíveis no painel. A conferência de plano está concluída; não solicitá-la novamente. O caminho preparado é backup manual cifrado fora do Supabase. A cópia final e a recuperação operacional hospedada permanecem por comprovar, sem contratação de serviço pago ou autorização de reset.
+
 Backup DPAPI `CurrentUser`: `C:\Users\fbrec\AppData\Local\Decky\backups\20261024\decky-pre-reset.dump.dpapi`. Fotografia anterior aos testes posteriores, restaurada em PostgreSQL local com 47 tabelas/57 funções/23 políticas. Depende do mesmo perfil Windows. Não há prova de recuperação operacional completa do Supabase hospedado nem retenção definida.
 
 Faltam recuperação operacional, retenção, backup atualizado na janela e aviso público com janela real. Seguir [VIRADA_V2.md](VIRADA_V2.md), sem `supabase db reset` em produção. Só executar o procedimento único após condições satisfeitas; conferir inventário, tokens antigos, contas novas em 500/modalidade, histórico vazio e reabertura. Deploy não dispara reset.
