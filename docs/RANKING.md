@@ -1,74 +1,56 @@
-# Ranking e histórico de partidas
+﻿# MMR, Elos e histórico
 
-Esta referência define a pontuação Elo do Decky. Toda nova partida participa do ranking da sua modalidade: **1v1** ou **2v2**. Não existe seleção de partida casual.
+A V2 chama a pontuação de MMR. Elo identifica o título derivado desse número. Duelo (1v1) e Duplas (2v2) mantêm pontuação e estatísticas independentes. Todas as partidas novas são ranqueadas; a mesa não pontua.
 
-## Cálculo de Elo
+## Regra aprovada
 
-Cada jogador começa com **1000 Elo em cada modalidade**, de forma independente. O cálculo usa `K = 32` e diferença de escala `D = 400`.
-
-No 1v1, `RA` e `RB` são os Elos dos dois jogadores. No 2v2, são as médias dos Elos individuais de cada dupla. O servidor usa os valores anteriores à atualização daquela partida para calcular a expectativa de vitória de cada lado:
+Novos perfis recebem 500 MMR em cada modalidade. O saldo final nunca fica abaixo de 500. RW é o MMR do vencedor no Duelo ou a média dos parceiros nas Duplas; RL representa o lado derrotado. A média não é arredondada.
 
 ```text
-EA = 1 / (1 + 10 ^ ((RB - RA) / 400))
-EB = 1 - EA
-ganho do vencedor = ROUND(32 * (1 - expectativa do vencedor))
-perda do derrotado = -ganho do vencedor
+d = RL - RW
+q = min(9, ceil(max(0, abs(d) - 100) / 100))
+ganho = max(5, 10 + sign(d) * 5 * q)
+delta nominal = +ganho para vencedor, -ganho para derrotado
+saldo final = max(500, saldo anterior + delta nominal)
+delta real = saldo final - saldo anterior
 ```
 
-Todos os jogadores da dupla recebem o mesmo delta, aplicado ao seu Elo individual. O Elo da dupla não é um cadastro separado: a média serve apenas para calcular a expectativa.
+Diferenças de até 100 mantêm ganho 10. A diferença 101 concede 15 ao azarão e 5 ao favorito; 201 concede 20 ao azarão. A partir de 901, o azarão recebe 55. Uma diferença fracionária de 100,5 já ativa o primeiro degrau. O ganho está sempre entre 5 e 55 e não depende de placar, truco ou vazas.
 
-| Resultado | Variação do vencedor | Variação do derrotado |
-|---|---|---|
-| Dois lados com 1000 Elo | +16 | -16 |
-| Lado com 1200 vence lado com 1000 | +8 | -8 |
-| Lado com 1000 vence lado com 1200 | +24 | -24 |
+Os dois parceiros recebem a mesma variação nominal. O piso pode limitar as perdas reais: em 500 a perda real é zero; em 506 uma perda nominal de 10 termina em 500, com delta real -6. O vencedor recebe seu ganho integral. O piso cria MMR líquido, portanto não há promessa de soma zero.
 
-A margem do placar não muda o Elo: vencer por 12 a 0 e por 12 a 11 tem o mesmo efeito quando os Elos anteriores são iguais. Não há pontuação fixa extra por vitória. O arredondamento pode produzir variação zero em confrontos de forças muito diferentes.
+## Títulos
 
-## Quais partidas contam
+Cada divisão cobre 100 MMR, incluindo seus limites:
 
-- Somente partidas finalizadas pelo servidor alteram o Elo.
-- O aparelho que atua como mesa não ganha nem perde Elo.
-- Partidas criadas antes da migration do ranking não recebem pontos retroativos. O histórico as identifica como **Anterior ao ranking**.
-- Uma partida em andamento não recebe resultado presumido pelo tempo decorrido. Sair do aplicativo não conclui a partida nem aplica derrota automática.
-- O ranking de 1v1 e o ranking de 2v2 têm pontuação e estatísticas independentes.
+- Beta 1, 2 e 3: 500-599, 600-699 e 700-799.
+- Delta 1, 2 e 3: 800-899, 900-999 e 1000-1099.
+- Alfa 1, 2 e 3: 1100-1199, 1200-1299 e 1300-1399.
+- Sigma 1, 2 e 3: 1400-1499, 1500-1599 e 1600-1699.
+- Omega: 1700 ou mais, sem divisão e sem teto.
 
-## Registro no servidor
+`src/ranking/elo.ts` deriva o título e rejeita números inválidos. Promoção e rebaixamento são imediatos após o resultado oficial, sem séries ou temporadas. Até a virada, saldo legado inferior a 500 é identificado como anterior à V2 na interface.
 
-O servidor registra a modalidade e a participação no ranking ao criar a partida. Ao finalizar, a atualização do Elo e o registro individual de cada participante fazem parte da mesma transação do resultado.
+## Transação e auditoria
 
-O registro individual é único por partida e jogador. Reenviar a mesma ação ou reler uma partida concluída não concede pontos novamente. O cliente exibe a variação e o saldo oficiais; não calcula nem envia um Elo escolhido pelo jogador.
+A modalidade e a participação no ranking ficam congeladas na criação da partida. Ao finalizar, o trigger trava os ratings dos participantes em ordem estável, captura as médias antes de escrever qualquer saldo e registra o extrato na mesma transação do resultado.
 
-As tabelas de pontuação e os registros individuais não aceitam escrita direta de usuários autenticados. As consultas respeitam a identidade da sessão: o ranking expõe a classificação e as estatísticas, enquanto o histórico retorna as partidas do próprio jogador. Excluir uma sala não apaga o histórico das partidas nem seus registros de Elo.
+`match_ratings` registra `points_before`, `points_delta` real, `points_after`, `nominal_delta`, `rating_rule = decky-v2-step5`, `winner_average` e `loser_average`. A chave única por partida/jogador e a idempotência de ação impedem pontuação repetida. Falha posterior no commit reverte resultado e ratings integralmente.
 
-## Ranking e histórico no app
+O cliente não escreve ratings nem calcula seu próprio saldo. Partidas em andamento não recebem resultado presumido. Mesa, abandono e desconexão não geram pontuação nova por si sós. Excluir a sala mantém partidas e notas.
 
-O ranking permite alternar entre 1v1 e 2v2 e mostra posição, Elo, partidas, vitórias e derrotas. A própria posição também aparece quando o jogador está fora do topo exibido.
+## Histórico e notas
 
-O histórico mostra as **últimas 50 partidas**, com formato, resultado, placar, participantes, datas de início e fim e, quando houver, a variação oficial e o Elo após a partida. As notas pessoais continuam ligadas às partidas.
+`get_my_match_history(p_limit, p_offset)` retorna somente partidas da identidade atual, ordenadas por início e ID. O app pede seis registros, mostra cinco e usa o sexto para detectar próxima página. Não existe teto de cinquenta partidas na navegação.
 
-## Publicação e verificação
+`get_my_notes_page(p_limit, p_offset)` retorna notas do autor por criação e ID, já associadas aos metadados e ao extrato autorizado da partida. A página de notas é independente da página de partidas. O CRUD mantém RLS por autor e participação.
 
-A mudança de banco fica em `supabase/migrations/20261023150000_ranked.sql`. Ela precisa ser aplicada no Supabase antes de publicar a interface que consulta o ranking. O cálculo fica no banco; esta mudança não exige republicar as Edge Functions `start-match` e `submit-action`.
+## Atualização da base e virada
 
-Verificações registradas:
+A migration nova é `supabase/migrations/20261023230536_v2_mmr_public_rooms_history.sql`. Ela não altera migrations anteriores e não executa reset. Cria ratings ausentes em 500, sem sobrescrever saldos existentes. Registros antigos mantêm `rating_rule` e campos novos de auditoria nulos.
 
-- `node node_modules/vitest/vitest.mjs run tests/app tests/engine --maxWorkers 1`: 262 testes aprovados.
-- Testes SQL executados em grupos: 82 testes aprovados, incluindo os 14 de `tests/sql/ranked.test.ts`. Os casos cobrem atualização de banco existente, Elo, médias das duplas, idempotência, isolamento das leituras e reversão da pontuação quando a transação falha. Somando os grupos de app, motor e SQL, 344 testes foram aprovados; não foi uma execução única da suíte inteira.
-- `npm run typecheck`: aprovado.
-- `node ranked-smoke.cjs http://127.0.0.1:8091`: verificação local em WebKit aprovada nos tamanhos 390 x 844, 375 x 667 e 844 x 390. Ranking e histórico foram exercitados com respostas controladas, sem comprovar uma partida real no Supabase de produção.
+A constraint `player_ratings_mmr_floor` é criada como `NOT VALID`: protege toda nova escrita sem fingir que houve limpeza dos dados antigos. A validação completa dessa constraint pertence ao procedimento aprovado da virada, depois da exclusão dos dados de usuários/jogo. O piso dos novos resultados é aplicado desde a migration.
 
-A migration foi publicada pela integração do Supabase após o merge do [PR #2](https://github.com/rbrecci/Decky/pull/2), no commit `360c9a4`. O check de produção do Supabase terminou com `success`. As chamadas anônimas às RPCs `get_rankings` e `get_my_match_history` retornaram HTTP 401, código PostgreSQL `42501` (`permission denied`), confirmando que as funções existem e recusam acesso anônimo. Essa verificação não comprova as consultas autenticadas nem uma partida real em produção.
+Em 24/10/2026, a migration V2 foi aplicada e `start-match` e `submit-action` foram publicadas na versão 14. A web V2 também foi publicada. Os registros anteriores do ranking V1, com inicial 1000 e K=32, são históricos: o PR #2 e a publicação web `mrjm92m7r8` não comprovam a V2. As evidências atuais estão em [VALIDACAO_SERVIDOR_V2.md](VALIDACAO_SERVIDOR_V2.md).
 
-A interface web foi publicada no EAS Hosting (publicação `mrjm92m7r8`, promovida para produção) em https://decky-brecci.expo.app, com o bundle `entry-67620f107600d85d90ff588186cf79fc.js`. As rotas `/`, `/ranking` e `/history` retornaram HTTP 200 com esse bundle. A mesma conferência foi repetida ao fechar esta documentação.
-
-O QA em WebKit na build publicada passou nos tamanhos 390 x 844, 375 x 667 e 844 x 390, sem erros de JavaScript, requisições falhas ou endpoints inesperados. Ele cobriu ranking e histórico com a sessão e as respostas do Supabase **controladas pelo Playwright**: não houve conta criada nem dado gravado no Supabase real. Isso valida a interface publicada, não substitui uma partida real contra o backend.
-
-Pendências reais:
-
-- [x] Aplicar a migration no projeto Supabase de produção.
-- [x] Confirmar Elo e idempotência com as migrations reais nos testes SQL.
-- [x] Conferir ranking e histórico na build web publicada (respostas controladas, ver acima).
-- [ ] Concluir uma partida autenticada real e conferir os registros de Elo dos participantes. Não verificado: nenhuma partida real foi jogada no iPhone nem em outro aparelho.
-- [ ] Recompilar e instalar o APK Android. Não verificado: o APK atual é anterior ao Elo (commit `83ce38e`) e não tem a interface de ranking. O backend novo já contabiliza partidas novas.
-- [ ] Exercitar concorrência real entre conexões Postgres. Os testes cobrem idempotência e reversão, mas não carga concorrente.
+Além do ensaio PGlite de uma conexão, duas conexões PostgreSQL reais comprovaram corrida pela última vaga, serialização de MMR, reenvio e rollback. Realtime entre duas identidades, consultas autenticadas, partida finalizada e seu extrato foram exercitados no Supabase hospedado com contas sintéticas segregadas. Essas provas não executam nem aprovam a virada global, que continua condicionada a [VIRADA_V2.md](VIRADA_V2.md).

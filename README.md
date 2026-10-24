@@ -2,15 +2,17 @@
 
 Aplicativo mobile que substitui as cartas físicas em partidas **presenciais** de Truco Paulista. Duas pessoas no modo **1v1**, ou quatro em duas duplas no modo **2v2**, entram na mesma sala pela internet. Cada jogador vê somente as próprias cartas; todos acompanham a mesa, a vira, as manilhas, a vez, os pedidos de truco e o placar. Opcionalmente, um aparelho adicional fica no centro como mesa.
 
-Projeto da atividade de Desenvolvimento Mobile/Scrum do SENAI. Apresentação prevista: **09/10/2026**.
+Projeto da atividade de Desenvolvimento Mobile/Scrum do SENAI. Na sprint original do MVP, a apresentação estava prevista para **09/10/2026**.
 
-> **Estado atual: código implementado, verificação em aparelhos em andamento.** O app, o backend (migrations, RLS, RPCs, Edge Functions) e o motor de regras existem e passam nos testes automatizados, inclusive uma partida inteira até 12 pontos rodando o código das Edge Functions contra as migrations reais. O grupo relatou uma partida real em quatro celulares; os critérios específicos dessa partida ainda não foram registrados no checklist. O modo mesa em um quinto aparelho e a leitura do QR code ainda aguardam verificação. O status de cada tarefa fica em [docs/SPRINT_BACKLOG.md](docs/SPRINT_BACKLOG.md).
+> **Estado em 24/10/2026: web e backend V2 publicados; APK 2.0.0/build 7 disponível na [release v2.0.0](https://github.com/rbrecci/Decky/releases/tag/v2.0.0), com download público conferido.** O mesmo APK foi instalado e validado no Redmi. A migration V2 e as duas Edge Functions v14 estão publicadas. Google web/APK, e-mails reais e leitura óptica Android têm evidências. Manifesto e landing publicados e conferidos em [GitHub Pages](https://rbrecci.github.io/Decky/). A V2 ainda não está concluída e não houve reset.
 
-## Funcionalidades do MVP
+Para retomar, começar pelo estado canônico em [docs/VALIDACAO_V2.md](docs/VALIDACAO_V2.md) e pela passagem de trabalho em [docs/PREPARO_V2.md](docs/PREPARO_V2.md). Continuam pendentes: cenários restantes de QR, Google com conta nova e Branding público, Safari em aparelho Apple, aviso de atualização entre builds com verificador e reset de lançamento. Na retomada de 24/10/2026, Saker autorizou explicitamente commit/push da V2 no seu nome e participou da leitura óptica Android. Os registros da sprint original descrevem o MVP e não substituem o estado atual da V2.
 
-- Cadastro, login e logout com validação por REGEX e mensagens de erro claras.
+## Funcionalidades
+
+- Cadastro com confirmação e reenvio, login por senha ou Google, recuperação de senha por e-mail e logout. Retornos e templates estão configurados; os fluxos reais aprovados e as provas ainda pendentes estão em [docs/AUTH_V2.md](docs/AUTH_V2.md).
 - Criar sala com código curto escolhendo **1v1** ou **2v2** e o papel do dono: **jogador** ou **mesa**. O papel pode mudar no lobby; o formato da partida é escolhido na criação.
-- Entrar por código: dois lugares no 1v1, quatro lugares e duas duplas no 2v2.
+- Salas privadas por padrão ou públicas com descoberta em tempo real. Entrada por código ou leitor QR: dois lugares no 1v1, quatro lugares e duas duplas no 2v2.
 - No 1v1, correr e pedir, aceitar ou aumentar as apostas são decisões individuais, sem confirmação de parceiro.
 - Início de partida pelo dono da sala, com distribuição de cartas feita **no servidor**.
 - Tela do jogador dividida: mesa pública em cima, mão privada embaixo, com seleção e confirmação da carta e controles de truco contextuais.
@@ -18,8 +20,11 @@ Projeto da atividade de Desenvolvimento Mobile/Scrum do SENAI. Apresentação pr
 - Distribuição animada: as cartas saem do baralho até cada jogador, a vira é revelada e a manilha indicada; anima uma vez por mão e não se repete ao reconectar.
 - Manilhas da própria mão com contorno, halo e selo de estrela dourados; ao receber uma manilha, uma revelação especial (brilho e estrela central) roda uma única vez no aparelho do dono da carta.
 - Truco Paulista completo: manilha variável, vazas, pedidos 3/6/9/12, placar automático até 12 pontos.
-- Histórico com CRUD de notas ligadas às partidas.
+- Carta oculta como descarte, sem disputar a vaza nem ser revelada aos demais depois dela; primeira vaza sempre aberta.
+- MMR independente por modalidade, inicial e piso de 500, títulos de Beta 1 a Omega e extrato oficial por partida.
+- Histórico com CRUD de notas, paginações independentes de cinco itens, skeleton e cabeçalho fixo.
 - QR code no lobby para abrir a entrada da sala com o código preenchido.
+- Interface web responsiva, landing estática em `site/` e aviso opcional de atualização Android. O manifesto registra o APK público 2.0.0/build 7; a landing publicada usa esse mesmo manifesto.
 
 ## Equipe
 
@@ -45,25 +50,27 @@ React Native, Expo, TypeScript e Expo Router no cliente, com `react-native-svg` 
 ## Como executar
 
 1. `npm install`
-2. Copiar `.env.example` para `.env` e preencher com a URL e a chave anon do projeto Supabase (sem `/rest/v1/` no fim da URL).
+2. Criar `.env` com `EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_ANON_KEY`, descritas abaixo. Usar a URL do projeto sem `/rest/v1/`. A exclusão local preexistente de `.env.example` foi preservada.
 3. `npx expo start` e ler o QR code: no Android, com o Expo Go; no iPhone, com a câmera, que abre o Expo Go.
 
 ### APK Android instalável
 
 O perfil `apk` de `eas.json` gera um aplicativo independente do Expo Go e do servidor de desenvolvimento. A partida continua precisando de internet e do projeto Supabase ativo.
 
-1. Entrar na conta Expo com `npx eas-cli login` e vincular o projeto com `npx eas-cli build:configure -p android`.
-2. No projeto EAS, cadastrar no ambiente `production` as variáveis `EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_ANON_KEY`. A segunda recebe a chave publicável do Supabase; o nome da variável foi mantido por compatibilidade com o código atual. Não cadastrar `service_role` no aplicativo.
+O APK V2 2.0.0/build 7 foi instalado sobre a V1 no Redmi, com assinatura e sessão preservadas. Permissão de câmera, leitura óptica e liberação em background passaram no aparelho. O mesmo artefato está na [release v2.0.0](https://github.com/rbrecci/Decky/releases/tag/v2.0.0), com download anônimo, tamanho, hash e assinatura conferidos. O manifesto real e a landing estão publicados e conferidos no [Pages](https://rbrecci.github.io/Decky/). Provas e limites em [docs/VALIDACAO_V2.md](docs/VALIDACAO_V2.md) e [docs/DISTRIBUICAO_V2.md](docs/DISTRIBUICAO_V2.md).
+
+1. O projeto EAS já está vinculado e as credenciais estão cadastradas. Conferir a conta existente; não refazer `build:configure` nem criar outra keystore. Para este projeto, seguir [docs/DISTRIBUICAO_V2.md](docs/DISTRIBUICAO_V2.md).
+2. No projeto EAS, conferir as variáveis já cadastradas no ambiente `production`: `EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_ANON_KEY`. A segunda recebe a chave publicável do Supabase; o nome da variável foi mantido por compatibilidade com o código atual. Não cadastrar `service_role` no aplicativo.
 3. Confirmar que as migrations e as Edge Functions do backend estão publicadas no projeto Supabase indicado pela URL.
 4. Rodar `npx eas-cli build -p android --profile apk`. Ao terminar, abrir o link fornecido pelo EAS no celular e instalar o APK.
 
 O identificador Android é `br.senai.decky`. Para futuras versões instalarem por cima da atual, manter esse identificador e a mesma chave de assinatura gerenciada pelo EAS.
 
-### Web no Safari
+### Web no navegador
 
 [Abrir o Decky no navegador](https://decky-brecci.expo.app).
 
-A versão web usa o mesmo Supabase e as mesmas salas do aplicativo Android. No iPhone, o acesso é pelo Safari, sem instalar APK nem assinar o Apple Developer Program. As dependências `react-dom`, `react-native-web` e `@expo/metro-runtime` já estão no projeto e são instaladas com `npm install`.
+A versão web publicada já é a V2 e usa o mesmo Supabase e as mesmas salas do aplicativo Android. No iPhone, o acesso previsto é pelo Safari, sem instalar APK nem assinar o Apple Developer Program; a validação física nesse aparelho ainda está pendente. As dependências `react-dom`, `react-native-web` e `@expo/metro-runtime` já estão no projeto e são instaladas com `npm install`.
 
 - Desenvolvimento: preencher o `.env` como acima e executar `npm run web`.
 - Build local: `npm run build:web` exporta o site para `dist/`, usando as variáveis locais.
@@ -97,9 +104,9 @@ A versão com modo mesa precisa da migration `20261008180000_table_mode.sql` e d
 
 O modo 1v1 precisa da migration `20261022190000_duel.sql` e da **republicação de `start-match` e `submit-action` juntas**. Salas e partidas anteriores continuam no modo 2v2. O checklist de validação em aparelhos está em [docs/QA_DEMO.md](docs/QA_DEMO.md#modo-1v1).
 
-O ranking Elo exige a migration `20261023150000_ranked.sql` antes de publicar a nova interface. Toda nova partida finalizada vale Elo, com rankings separados de 1v1 e 2v2. O cálculo, o histórico e as pendências de verificação estão em [docs/RANKING.md](docs/RANKING.md). Esta mudança de ranking não exige republicar as Edge Functions.
+O ranking original usa a migration `20261023150000_ranked.sql`. A V2 acrescenta `20261023230536_v2_mmr_public_rooms_history.sql` para MMR, descoberta pública, paginação e proteção da virada. Essa migration já foi aplicada e `start-match`/`submit-action` estão publicadas na versão v14 para o descarte oculto. O cálculo está em [docs/RANKING.md](docs/RANKING.md); as provas do backend e seus limites estão em [docs/VALIDACAO_V2.md](docs/VALIDACAO_V2.md).
 
-Para a demonstração, desligue **Confirm email** em Authentication > Providers > Email no painel do Supabase.
+Na V2, confirmação de cadastro, retornos e templates já foram configurados e exercitados com e-mails reais, conforme [docs/AUTH_V2.md](docs/AUTH_V2.md). O formulário real de recuperação foi concluído por Saker em handoff, com senha anterior recusada, identidade/dados preservados e novo acesso comprovado por servidor e UI. Os demais cenários de Auth nomeados nesse documento continuam pendentes. O reset não foi executado: pertence à janela de lançamento aprovada, pelo procedimento [docs/VIRADA_V2.md](docs/VIRADA_V2.md), fora das migrations automáticas.
 
 ### Testes
 
@@ -142,3 +149,5 @@ A chave `service_role` e quaisquer secrets de função ficam apenas no painel do
 | [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) | Branches, commits, PRs e segredos |
 
 O documento ABNT é produzido pelo grupo separadamente e não faz parte deste repositório.
+
+Documentação da V2: [especificação](DeckyV2Spec.md), [estado canônico, evidências e pendências](docs/VALIDACAO_V2.md), [passagem para retomada](docs/PREPARO_V2.md), [autenticação e painéis](docs/AUTH_V2.md), [interface](docs/UI_V2.md), [servidor](docs/VALIDACAO_SERVIDOR_V2.md), [distribuição e assinatura](docs/DISTRIBUICAO_V2.md) e [virada administrativa](docs/VIRADA_V2.md). As notas datadas da implementação inicial são históricas; conferir o estado atual e a passagem antes de continuar a publicação.

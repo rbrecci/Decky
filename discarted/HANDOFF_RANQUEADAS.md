@@ -1,4 +1,6 @@
-# Passagem de trabalho: Decky web, Elo e historico
+# Registro histórico V1: Decky web, Elo e histórico
+
+Arquivado em 23/10/2026. Esta passagem foi substituída pela implementação V2 e pelos documentos ativos em `docs/`. Autorizações, caminhos locais, fórmulas e comandos abaixo registram somente aquela sessão da V1. Não são instruções para a virada V2.
 
 Data: 2026-10-23.
 

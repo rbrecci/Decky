@@ -244,7 +244,7 @@ O pedido corre dentro do prazo da decisão de baixo (20 s, ver "Carta escondida,
 
 Regras D-20 a D-28 em [RULES.md](RULES.md).
 
-**Carta escondida.** `play_card { hidden: true }`. A carta sai da mão e vai para `private.private_hands.covered`; na mesa pública entra só `{ seat, card: null, hidden: true }`, e o evento sai sem `card`. Quando a vaza fecha, o motor junta as cartas reais, resolve a vaza e grava `lastTrick` com `hidden: true` nas que estavam viradas. A mesa central nunca recebe a carta; o dono a vê pelo `covered` de `get_my_hand` (face esmaecida com o selo do olho riscado). No app, a chave da carta escondida é `hidden-<lugar>-<vaza>` (`playedCardKey`), então o mesmo componente vira a carta (`HiddenPlayed`, `rotateY` simulado por `scaleX`, 420 ms) em vez de remontar. Montada já revelada (reconexão), aparece aberta, sem girar.
+**Carta escondida (V2).** `play_card { hidden: true }` consome carta e vez a partir da segunda vaza. Na mesa e em `lastTrick` permanece `{ seat, card: null, hidden: true }`; eventos não recebem identidade. `resolveTrick` compara exclusivamente cartas abertas, e todas ocultas resultam em empate. O dono vê sua carta em `get_my_hand.covered` enquanto a vaza está aberta. Ao fechar, o servidor limpa `covered`; não há revelação nem animação de virar o descarte. Reenvios seguem a idempotência por ação/revisão e não consomem a carta novamente.
 
 **Jogada automática.** A marcação fica em `private.private_hands.auto_card` e é gravada por `set_my_auto_card` (RPC para `authenticated`): confere carta na própria mão e que não é a própria vez com jogada livre, trava a partida, **não muda a revisão** nem gera evento. Depois de toda ação aceita, `runAutoPlays` joga em cadeia as cartas marcadas de quem recebe a vez (pela mesma `executeRule` da jogada manual; até 4). `lastEvent` continua sendo a ação pedida (os avisos da mesa não mudam); `match_events` recebe a ação e as jogadas automáticas (`auto: true`), com o `clientActionId` só na primeira. Se a marcação muda entre a leitura e o commit, `internal_commit_action` devolve `auto_changed` (confere `auto_card` contra o que o motor leu, dentro do `FOR UPDATE`) e o serviço refaz a ação, até 2 vezes, sem erro para o usuário. No app: arrastar a carta para cima (`PanResponder`, limite de 60% da altura da carta, mínimo 56 pt; só captura movimento vertical, o toque continua selecionando); contorno azul-aço e selo de relâmpago no canto superior esquerdo; tocar no selo ou arrastar de novo cancela.
 
@@ -319,3 +319,16 @@ A versão das bibliotecas de animação é a que o Expo 57 espera (`react-native
 - Não publicar mãos em Realtime nem em coluna lida por todos.
 - Não colocar `service_role` no app, no `.env.example` ou no Git.
 - Não deixar o cliente enviar placar.
+
+
+## Contratos de dados V2
+
+A migration `20261023230536_v2_mmr_public_rooms_history.sql` estende a base existente sem executar limpeza de lançamento. Clientes antigos que omitem visibilidade continuam criando salas privadas. `create_room(p_host_mode, p_game_mode, p_visibility)` valida as três opções e mantém entrada sob lock da sala.
+
+A descoberta usa `public_room_directory`, projeção contendo apenas código, nome atual do host, modalidade, ocupação, capacidade e data de criação de lobbies públicos. Triggers de sala, lugares e nome do perfil atualizam a projeção na transação. A tabela tem RLS para leitura autenticada, sem escrita direta, e integra a publicação Realtime. Nenhuma permissão foi aberta sobre mãos, eventos ou participantes para essa descoberta. O app reconcilia invalidações pela releitura autorizada e polling.
+
+O histórico mantém ordenação por início e ID e pagina no servidor. `get_my_notes_page` pagina por criação e ID e associa somente as partidas do autor, incluindo seu extrato oficial. Assim uma nota independe da página atual de partidas. A API solicita seis itens para renderizar cinco e detectar continuação.
+
+MMR é calculado exclusivamente no trigger transacional de resultado. As linhas de rating são travadas em ordem de usuário, as médias de equipe são capturadas antes de qualquer saldo ser alterado, e o extrato registra regra, médias, saldo anterior, delta nominal, delta real e saldo final. Novos perfis recebem 500 em ambas modalidades; [RANKING.md](RANKING.md) detalha fórmula e compatibilidade temporária dos saldos anteriores.
+
+A manutenção usa `private.app_settings`, inicialmente desligada, e `set_decky_maintenance(p_enabled)` com execução exclusiva de `service_role`. RPCs sensíveis conferem manutenção e existência atual de `auth.users`; políticas restritivas bloqueiam acesso direto durante a virada. O trigger de perfil impede novos cadastros enquanto a manutenção estiver ativa. A Edge Function já valida o token por `auth.getUser`. Um JWT de conta removida não recria identidade nem reutiliza acesso. O procedimento de limpeza e a execução de produção são separados da migration.

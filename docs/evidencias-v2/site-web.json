@@ -1,0 +1,14 @@
+{
+  "prefix": "/Decky/",
+  "invalidManifest": true,
+  "sharedDownloadLinks": 2,
+  "font200PercentWidths": [
+    320,
+    1366
+  ],
+  "keyboardSkipLink": true,
+  "iosCtaUserAgentSimulation": true,
+  "noJavaScriptWebAccess": true,
+  "resourceFailures": [],
+  "pageErrors": []
+}

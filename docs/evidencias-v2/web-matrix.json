@@ -1,0 +1,711 @@
+{
+  "source": "Edge headless, backend simulado local, sem validação de produção",
+  "findings": [
+    {
+      "screen": "/login",
+      "width": 320,
+      "height": 568,
+      "scroll": 320,
+      "body": 320,
+      "controls": 6
+    },
+    {
+      "screen": "/login",
+      "width": 375,
+      "height": 667,
+      "scroll": 375,
+      "body": 375,
+      "controls": 6
+    },
+    {
+      "screen": "/login",
+      "width": 390,
+      "height": 844,
+      "scroll": 390,
+      "body": 390,
+      "controls": 6
+    },
+    {
+      "screen": "/login",
+      "width": 667,
+      "height": 375,
+      "scroll": 667,
+      "body": 667,
+      "controls": 6
+    },
+    {
+      "screen": "/login",
+      "width": 768,
+      "height": 1024,
+      "scroll": 768,
+      "body": 768,
+      "controls": 6
+    },
+    {
+      "screen": "/login",
+      "width": 1024,
+      "height": 768,
+      "scroll": 1024,
+      "body": 1024,
+      "controls": 6
+    },
+    {
+      "screen": "/login",
+      "width": 1366,
+      "height": 768,
+      "scroll": 1366,
+      "body": 1366,
+      "controls": 6
+    },
+    {
+      "screen": "/login",
+      "width": 1920,
+      "height": 1080,
+      "scroll": 1920,
+      "body": 1920,
+      "controls": 6
+    },
+    {
+      "screen": "/register",
+      "width": 320,
+      "height": 568,
+      "scroll": 320,
+      "body": 320,
+      "controls": 6
+    },
+    {
+      "screen": "/register",
+      "width": 375,
+      "height": 667,
+      "scroll": 375,
+      "body": 375,
+      "controls": 6
+    },
+    {
+      "screen": "/register",
+      "width": 390,
+      "height": 844,
+      "scroll": 390,
+      "body": 390,
+      "controls": 6
+    },
+    {
+      "screen": "/register",
+      "width": 667,
+      "height": 375,
+      "scroll": 667,
+      "body": 667,
+      "controls": 6
+    },
+    {
+      "screen": "/register",
+      "width": 768,
+      "height": 1024,
+      "scroll": 768,
+      "body": 768,
+      "controls": 6
+    },
+    {
+      "screen": "/register",
+      "width": 1024,
+      "height": 768,
+      "scroll": 1024,
+      "body": 1024,
+      "controls": 6
+    },
+    {
+      "screen": "/register",
+      "width": 1366,
+      "height": 768,
+      "scroll": 1366,
+      "body": 1366,
+      "controls": 6
+    },
+    {
+      "screen": "/register",
+      "width": 1920,
+      "height": 1080,
+      "scroll": 1920,
+      "body": 1920,
+      "controls": 6
+    },
+    {
+      "screen": "/forgot-password",
+      "width": 320,
+      "height": 568,
+      "scroll": 320,
+      "body": 320,
+      "controls": 3
+    },
+    {
+      "screen": "/forgot-password",
+      "width": 375,
+      "height": 667,
+      "scroll": 375,
+      "body": 375,
+      "controls": 3
+    },
+    {
+      "screen": "/forgot-password",
+      "width": 390,
+      "height": 844,
+      "scroll": 390,
+      "body": 390,
+      "controls": 3
+    },
+    {
+      "screen": "/forgot-password",
+      "width": 667,
+      "height": 375,
+      "scroll": 667,
+      "body": 667,
+      "controls": 3
+    },
+    {
+      "screen": "/forgot-password",
+      "width": 768,
+      "height": 1024,
+      "scroll": 768,
+      "body": 768,
+      "controls": 3
+    },
+    {
+      "screen": "/forgot-password",
+      "width": 1024,
+      "height": 768,
+      "scroll": 1024,
+      "body": 1024,
+      "controls": 3
+    },
+    {
+      "screen": "/forgot-password",
+      "width": 1366,
+      "height": 768,
+      "scroll": 1366,
+      "body": 1366,
+      "controls": 3
+    },
+    {
+      "screen": "/forgot-password",
+      "width": 1920,
+      "height": 1080,
+      "scroll": 1920,
+      "body": 1920,
+      "controls": 3
+    },
+    {
+      "screen": "/auth/recovery#token_hash=invalid-demo",
+      "width": 320,
+      "height": 568,
+      "scroll": 320,
+      "body": 320,
+      "controls": 5
+    },
+    {
+      "screen": "/auth/recovery#token_hash=invalid-demo",
+      "width": 375,
+      "height": 667,
+      "scroll": 375,
+      "body": 375,
+      "controls": 5
+    },
+    {
+      "screen": "/auth/recovery#token_hash=invalid-demo",
+      "width": 390,
+      "height": 844,
+      "scroll": 390,
+      "body": 390,
+      "controls": 5
+    },
+    {
+      "screen": "/auth/recovery#token_hash=invalid-demo",
+      "width": 667,
+      "height": 375,
+      "scroll": 667,
+      "body": 667,
+      "controls": 5
+    },
+    {
+      "screen": "/auth/recovery#token_hash=invalid-demo",
+      "width": 768,
+      "height": 1024,
+      "scroll": 768,
+      "body": 768,
+      "controls": 5
+    },
+    {
+      "screen": "/auth/recovery#token_hash=invalid-demo",
+      "width": 1024,
+      "height": 768,
+      "scroll": 1024,
+      "body": 1024,
+      "controls": 5
+    },
+    {
+      "screen": "/auth/recovery#token_hash=invalid-demo",
+      "width": 1366,
+      "height": 768,
+      "scroll": 1366,
+      "body": 1366,
+      "controls": 5
+    },
+    {
+      "screen": "/auth/recovery#token_hash=invalid-demo",
+      "width": 1920,
+      "height": 1080,
+      "scroll": 1920,
+      "body": 1920,
+      "controls": 5
+    },
+    {
+      "screen": "/auth/confirm#token_hash=invalid-demo",
+      "width": 320,
+      "height": 568,
+      "scroll": 320,
+      "body": 320,
+      "controls": 2
+    },
+    {
+      "screen": "/auth/confirm#token_hash=invalid-demo",
+      "width": 375,
+      "height": 667,
+      "scroll": 375,
+      "body": 375,
+      "controls": 2
+    },
+    {
+      "screen": "/auth/confirm#token_hash=invalid-demo",
+      "width": 390,
+      "height": 844,
+      "scroll": 390,
+      "body": 390,
+      "controls": 2
+    },
+    {
+      "screen": "/auth/confirm#token_hash=invalid-demo",
+      "width": 667,
+      "height": 375,
+      "scroll": 667,
+      "body": 667,
+      "controls": 2
+    },
+    {
+      "screen": "/auth/confirm#token_hash=invalid-demo",
+      "width": 768,
+      "height": 1024,
+      "scroll": 768,
+      "body": 768,
+      "controls": 2
+    },
+    {
+      "screen": "/auth/confirm#token_hash=invalid-demo",
+      "width": 1024,
+      "height": 768,
+      "scroll": 1024,
+      "body": 1024,
+      "controls": 2
+    },
+    {
+      "screen": "/auth/confirm#token_hash=invalid-demo",
+      "width": 1366,
+      "height": 768,
+      "scroll": 1366,
+      "body": 1366,
+      "controls": 2
+    },
+    {
+      "screen": "/auth/confirm#token_hash=invalid-demo",
+      "width": 1920,
+      "height": 1080,
+      "scroll": 1920,
+      "body": 1920,
+      "controls": 2
+    },
+    {
+      "screen": "/",
+      "width": 320,
+      "height": 568,
+      "scroll": 320,
+      "body": 320,
+      "controls": 6
+    },
+    {
+      "screen": "/",
+      "width": 375,
+      "height": 667,
+      "scroll": 375,
+      "body": 375,
+      "controls": 6
+    },
+    {
+      "screen": "/",
+      "width": 390,
+      "height": 844,
+      "scroll": 390,
+      "body": 390,
+      "controls": 6
+    },
+    {
+      "screen": "/",
+      "width": 667,
+      "height": 375,
+      "scroll": 667,
+      "body": 667,
+      "controls": 6
+    },
+    {
+      "screen": "/",
+      "width": 768,
+      "height": 1024,
+      "scroll": 768,
+      "body": 768,
+      "controls": 6
+    },
+    {
+      "screen": "/",
+      "width": 1024,
+      "height": 768,
+      "scroll": 1024,
+      "body": 1024,
+      "controls": 6
+    },
+    {
+      "screen": "/",
+      "width": 1366,
+      "height": 768,
+      "scroll": 1366,
+      "body": 1366,
+      "controls": 6
+    },
+    {
+      "screen": "/",
+      "width": 1920,
+      "height": 1080,
+      "scroll": 1920,
+      "body": 1920,
+      "controls": 6
+    },
+    {
+      "screen": "/room/create",
+      "width": 320,
+      "height": 568,
+      "scroll": 320,
+      "body": 320,
+      "controls": 7
+    },
+    {
+      "screen": "/room/create",
+      "width": 375,
+      "height": 667,
+      "scroll": 375,
+      "body": 375,
+      "controls": 7
+    },
+    {
+      "screen": "/room/create",
+      "width": 390,
+      "height": 844,
+      "scroll": 390,
+      "body": 390,
+      "controls": 7
+    },
+    {
+      "screen": "/room/create",
+      "width": 667,
+      "height": 375,
+      "scroll": 667,
+      "body": 667,
+      "controls": 7
+    },
+    {
+      "screen": "/room/create",
+      "width": 768,
+      "height": 1024,
+      "scroll": 768,
+      "body": 768,
+      "controls": 7
+    },
+    {
+      "screen": "/room/create",
+      "width": 1024,
+      "height": 768,
+      "scroll": 1024,
+      "body": 1024,
+      "controls": 7
+    },
+    {
+      "screen": "/room/create",
+      "width": 1366,
+      "height": 768,
+      "scroll": 1366,
+      "body": 1366,
+      "controls": 7
+    },
+    {
+      "screen": "/room/create",
+      "width": 1920,
+      "height": 1080,
+      "scroll": 1920,
+      "body": 1920,
+      "controls": 7
+    },
+    {
+      "screen": "/room/join",
+      "width": 320,
+      "height": 568,
+      "scroll": 320,
+      "body": 320,
+      "controls": 7
+    },
+    {
+      "screen": "/room/join",
+      "width": 375,
+      "height": 667,
+      "scroll": 375,
+      "body": 375,
+      "controls": 7
+    },
+    {
+      "screen": "/room/join",
+      "width": 390,
+      "height": 844,
+      "scroll": 390,
+      "body": 390,
+      "controls": 7
+    },
+    {
+      "screen": "/room/join",
+      "width": 667,
+      "height": 375,
+      "scroll": 667,
+      "body": 667,
+      "controls": 7
+    },
+    {
+      "screen": "/room/join",
+      "width": 768,
+      "height": 1024,
+      "scroll": 768,
+      "body": 768,
+      "controls": 7
+    },
+    {
+      "screen": "/room/join",
+      "width": 1024,
+      "height": 768,
+      "scroll": 1024,
+      "body": 1024,
+      "controls": 7
+    },
+    {
+      "screen": "/room/join",
+      "width": 1366,
+      "height": 768,
+      "scroll": 1366,
+      "body": 1366,
+      "controls": 7
+    },
+    {
+      "screen": "/room/join",
+      "width": 1920,
+      "height": 1080,
+      "scroll": 1920,
+      "body": 1920,
+      "controls": 7
+    },
+    {
+      "screen": "/ranking",
+      "width": 320,
+      "height": 568,
+      "scroll": 320,
+      "body": 320,
+      "controls": 4
+    },
+    {
+      "screen": "/ranking",
+      "width": 375,
+      "height": 667,
+      "scroll": 375,
+      "body": 375,
+      "controls": 4
+    },
+    {
+      "screen": "/ranking",
+      "width": 390,
+      "height": 844,
+      "scroll": 390,
+      "body": 390,
+      "controls": 4
+    },
+    {
+      "screen": "/ranking",
+      "width": 667,
+      "height": 375,
+      "scroll": 667,
+      "body": 667,
+      "controls": 4
+    },
+    {
+      "screen": "/ranking",
+      "width": 768,
+      "height": 1024,
+      "scroll": 768,
+      "body": 768,
+      "controls": 4
+    },
+    {
+      "screen": "/ranking",
+      "width": 1024,
+      "height": 768,
+      "scroll": 1024,
+      "body": 1024,
+      "controls": 4
+    },
+    {
+      "screen": "/ranking",
+      "width": 1366,
+      "height": 768,
+      "scroll": 1366,
+      "body": 1366,
+      "controls": 4
+    },
+    {
+      "screen": "/ranking",
+      "width": 1920,
+      "height": 1080,
+      "scroll": 1920,
+      "body": 1920,
+      "controls": 4
+    },
+    {
+      "screen": "/history",
+      "width": 320,
+      "height": 568,
+      "scroll": 320,
+      "body": 320,
+      "controls": 12
+    },
+    {
+      "screen": "/history",
+      "width": 375,
+      "height": 667,
+      "scroll": 375,
+      "body": 375,
+      "controls": 12
+    },
+    {
+      "screen": "/history",
+      "width": 390,
+      "height": 844,
+      "scroll": 390,
+      "body": 390,
+      "controls": 12
+    },
+    {
+      "screen": "/history",
+      "width": 667,
+      "height": 375,
+      "scroll": 667,
+      "body": 667,
+      "controls": 12
+    },
+    {
+      "screen": "/history",
+      "width": 768,
+      "height": 1024,
+      "scroll": 768,
+      "body": 768,
+      "controls": 12
+    },
+    {
+      "screen": "/history",
+      "width": 1024,
+      "height": 768,
+      "scroll": 1024,
+      "body": 1024,
+      "controls": 12
+    },
+    {
+      "screen": "/history",
+      "width": 1366,
+      "height": 768,
+      "scroll": 1366,
+      "body": 1366,
+      "controls": 12
+    },
+    {
+      "screen": "/history",
+      "width": 1920,
+      "height": 1080,
+      "scroll": 1920,
+      "body": 1920,
+      "controls": 12
+    },
+    {
+      "screen": "landing",
+      "width": 320,
+      "height": 568,
+      "scroll": 320,
+      "body": 320,
+      "controls": 11
+    },
+    {
+      "screen": "landing",
+      "width": 375,
+      "height": 667,
+      "scroll": 375,
+      "body": 375,
+      "controls": 11
+    },
+    {
+      "screen": "landing",
+      "width": 390,
+      "height": 844,
+      "scroll": 390,
+      "body": 390,
+      "controls": 11
+    },
+    {
+      "screen": "landing",
+      "width": 667,
+      "height": 375,
+      "scroll": 667,
+      "body": 667,
+      "controls": 11
+    },
+    {
+      "screen": "landing",
+      "width": 768,
+      "height": 1024,
+      "scroll": 768,
+      "body": 768,
+      "controls": 11
+    },
+    {
+      "screen": "landing",
+      "width": 1024,
+      "height": 768,
+      "scroll": 1024,
+      "body": 1024,
+      "controls": 11
+    },
+    {
+      "screen": "landing",
+      "width": 1366,
+      "height": 768,
+      "scroll": 1366,
+      "body": 1366,
+      "controls": 11
+    },
+    {
+      "screen": "landing",
+      "width": 1920,
+      "height": 1080,
+      "scroll": 1920,
+      "body": 1920,
+      "controls": 11
+    }
+  ],
+  "pageErrors": [],
+  "tokenAutoConsumption": 0
+}
