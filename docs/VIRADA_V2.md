@@ -1,14 +1,16 @@
 # Virada administrativa única da V2
 
-Atualizado em 24/10/2026. O usuário autorizou avançar na entrega da V2. Backend e clientes têm publicação e validação registradas nos documentos próprios. Saker executou o guia e a leitura posterior confirmou manutenção ligada e novos cadastros desativados. A exclusão global ainda não foi executada. As provas históricas abaixo usam recursos de QA ou restauração local; a decisão atual de seguir sem backup está registrada separadamente.
+Atualizado em 24/10/2026. Saker autorizou expressamente apagar as contas e os dados antigos sem backup novo. O reset global foi executado entre `20:07:15Z` e `20:07:29.713Z`, com exit 0, e as verificações independentes posteriores estão registradas abaixo. Depois da limpeza das QA e das conferências finais, o serviço foi reaberto às `20:10Z` (`17:10 BRT`), com manutenção desligada e novos cadastros habilitados. Isso não declara a V2 concluída; os demais limites continuam em `VALIDACAO_V2.md`.
 
 ## Decisão atual: virada sem backup
 
 Em 24/10/2026, Saker decidiu expressamente: `vamos seguir sem backup, me faz o passo a passo pra eu já colocar em manutenção`. A dispensa de backup final, retenção, segunda cópia e comprovação de restauração hospedada substitui as condições anteriores para esta virada. O descarte dos dados antigos foi aceito sem promessa de recuperação atual. Os backups e temporários existentes serão preservados; não são uma fotografia final nem uma garantia de reversão.
 
-Saker executou os passos e informou sucesso. A conferência independente retornou `maintenance=true`; Auth respondeu HTTP 200 com `disable_signup=true`, Google/Email habilitados e confirmação de e-mail preservada. O inventário contou 27 usuários e perfis, 40 salas, 32 partidas, 6 notas e zero buckets/objetos Storage. O agente não executou reset nem exclusão. A autorização de preparar ou ativar manutenção não autoriza a exclusão: o reset exige autorização explícita da execução.
+Antes da exclusão, Saker ativou a manutenção e informou sucesso. A conferência independente retornou `maintenance=true`; Auth respondeu HTTP 200 com `disable_signup=true`, Google/Email habilitados e confirmação de e-mail preservada. Depois, Saker autorizou explicitamente a execução do reset. O aviso público de manutenção foi enviado no commit `b807fd1`; o workflow Pages `40128299477` terminou com `success`, e a página retornou HTTP 200 com HTML igual ao publicado. A exclusão autorizada e suas provas estão na seção de execução global; não repetir essa operação em outro deploy.
 
 ## Ativação concluída: roteiro de referência
+
+Esta sequência documenta a ativação anterior à exclusão. O serviço já foi reaberto; não executar novamente sem nova solicitação.
 
 1. Abrir o [projeto Decky no Supabase](https://supabase.com/dashboard/project/yfijjtibyblzuplhtxbd) e conferir o ref `yfijjtibyblzuplhtxbd` antes de operar.
 2. Abrir `SQL Editor`, criar uma consulta e selecionar a role `postgres`. A leitura administrativa confirmou `operator=postgres`, `function_owner=postgres` e `operator_can_execute=true`. Não executar com a role de cliente `authenticated` e não alterar grants para contornar erro de permissão.
@@ -25,11 +27,13 @@ select maintenance from private.app_settings where singleton;
 
 A manutenção bloqueia as operações de jogo e dados protegidas pelas RPCs/RLS do Decky. Não promete logout imediato, encerramento de toda sessão Auth ou uma tela automática de manutenção. Uma interface já aberta pode continuar exibindo dados carregados anteriormente.
 
-## Próximo passo antes da exclusão
+## Estado após o reset e limite de conclusão
 
-Conferir o inventário atualizado, os recursos que pertencem ao Decky e o estado de manutenção. Registrar o aviso público com a janela real, sem inventar horário de reabertura. Só executar o reset após autorização explícita de Saker para essa execução; o pedido atual termina na ativação da manutenção pelo usuário. As checagens de contagens, tokens antigos, novos cadastros em 500 e reabertura permanecem obrigatórias.
+O reset único autorizado já ocorreu. As contas e salas descritas nos ensaios anteriores são registros históricos: seus dados foram removidos pela virada. Não reutilizar credenciais ou tokens antigos como se fossem sessões ativas. As QA novas da aceitação pós-reset também foram removidas depois dos testes.
 
-Os limites funcionais em `VALIDACAO_V2.md` permanecem registrados. As rodadas adicionais de aparelhos encerradas por Saker não devem ser reabertas. A decisão de dispensar backup não transforma validações ausentes em aprovação nem declara a V2 concluída.
+As verificações pós-reset comprovaram limpeza, preservação da infraestrutura, recusa de tokens antigos, duas contas QA novas em 500 e primeira partida com a regra nova. Após remover as QA, o SQL das `20:09:59Z` confirmou todas as 15 contagens em zero, Storage vazio e estrutura preservada. Auth confirmou cadastros habilitados às `20:10:53Z`; o SQL das `20:10Z` confirmou `maintenance=false`, zero usuários e constraint de piso validada. A reabertura está comprovada, sem depender de nova participação do usuário.
+
+Os limites funcionais em `VALIDACAO_V2.md` permanecem registrados. As rodadas adicionais de aparelhos encerradas por Saker não devem ser reabertas. A decisão de dispensar backup e o reset executado não transformam validações ausentes em aprovação nem declaram a V2 concluída.
 
 Branding continua uma frente separada: somente em 25/10/2026 após 10:49 BRT, abrir o projeto Google existente em [Branding](https://console.developers.google.com/auth/branding), usar `Verify branding` e publicar se o console permitir. Preservar cliente, segredo, callback, escopos e metatag; não antecipar nem contornar a espera.
 
@@ -49,7 +53,7 @@ O utilitário e seu teste permanecem disponíveis fora do fluxo desta virada. N�
 
 Uma cópia privada já foi criada e restaurada em PostgreSQL local. O dump de `public`, `private`, `auth` e `storage`, fotografado em 24/10 às 03:44 UTC, está protegido por DPAPI `CurrentUser` em `C:\Users\fbrec\AppData\Local\Decky\backups\20261024\decky-pre-reset.dump.dpapi`. A decifragem e a restauração local com `pg_restore --exit-on-error` retornaram exit 0, com 47 tabelas, 57 funções e 23 políticas. A proteção depende do mesmo perfil Windows; não foi preparado um procedimento independente de recuperação da chave.
 
-Saker informou plano gratuito e backups indisponíveis no painel. Não contratar serviço nem pedir novamente essa conferência. O backup anterior precede testes posteriores e foi obtido sem manutenção; sua restauração local comprova estrutura e dados daquela fotografia, sem comprovar a recuperação dos serviços hospedados ou a reversão desta virada. Não contar com esse arquivo para recuperar os dados que serão descartados.
+Saker informou plano gratuito e backups indisponíveis no painel. Não contratar serviço nem pedir novamente essa conferência. O backup anterior precede testes posteriores e foi obtido sem manutenção; sua restauração local comprova estrutura e dados daquela fotografia, sem comprovar a recuperação dos serviços hospedados ou a reversão desta virada. Não contar com esse arquivo como garantia de recuperar os dados descartados pela virada.
 
 ## Inventário obrigatório
 
@@ -79,39 +83,31 @@ node scripts/admin/reset-v2.mjs --project yfijjtibyblzuplhtxbd
 
 O inventário REST complementa o SQL, não o substitui. Os logs ficam no diretório ignorado `.expo/validation-v2/`, com projeto, horário, etapa e contagens. Não registram e-mails, senhas, tokens, IDs de usuários nem chaves.
 
-## Execução futura, exclusivamente após autorização da janela
+## Execução global autorizada em 24/10/2026
 
-1. Confirmar `maintenance=true` pelo SQL acima e o salvamento de `Allow new users to sign up` desligado. Preservar os provedores Google e Email e suas configurações; o bloqueio é de novos cadastros, sem promessa de encerrar sessões existentes.
-2. Conferir alvo, inventário, buckets e autorização explícita da execução do reset. Saker dispensou backup e recuperação dos dados antigos nesta virada; não gerar cópia final nem exigir retenção, segunda cópia ou prova de restauração. A ferramenta exige correspondência exata da URL com o ref e confirmação textual; a flag `--execute` não foi usada em produção nesta entrega.
-3. Rodar o comando abaixo somente na janela aprovada e no terminal administrativo:
+O programa `scripts/admin/reset-v2.mjs` foi executado com `--execute --confirm DECKY_V2_RESET_yfijjtibyblzuplhtxbd` no projeto correto. Iniciou às `2026-10-24T20:07:15Z` e terminou às `20:07:29.713Z`, com exit 0. Não foi criado backup novo, conforme a dispensa expressa de Saker. O log privado `.expo/validation-v2/reset-yfijjtibyblzuplhtxbd.jsonl` não integra o Git. O comando registra uma operação única já executada; não repeti-lo como parte de deploy, nova conversa ou limpeza de QA.
 
-```powershell
-node scripts/admin/reset-v2.mjs --project yfijjtibyblzuplhtxbd --execute --confirm DECKY_V2_RESET_yfijjtibyblzuplhtxbd
-```
+Antes da exclusão, o inventário registrou 27 usuários, 27 perfis, 40 salas, 79 participantes de sala, 32 partidas, 118 participantes de partida, 1661 eventos, 6 notas, 54 ratings, 6 extratos e 6 entradas no diretório público. Ao concluir, o programa registrou zero usuários e zero nas dez tabelas de jogo.
 
-Se houver buckets exclusivamente de usuários, acrescentar `--user-buckets` com seus IDs separados por vírgula, depois de classificá-los no inventário. A ferramenta não apaga buckets não aprovados e não apaga sua infraestrutura. Buckets mistos exigem um procedimento de objetos por dono reensaiado antes de prosseguir; não passar um bucket de assets públicos nessa opção.
+O SQL independente das `20:07:46Z` confirmou também zero identidades Auth, sessões, refresh tokens, mãos privadas, objetos Storage e buckets. A comparação preservou 48 tabelas, FKs, funções, políticas, migrations, roles, extensões, publicações e triggers. As assinaturas MD5 de funções e políticas permaneceram respectivamente `18ee6ae0fea846eb59154d74e233dd7f` e `439b6144167cd4f86a059c73b5538a7e`. A constraint `player_ratings_mmr_floor` foi validada, com `convalidated=true`. Não houve reaplicação de migrations ou troca de infraestrutura para executar a virada.
 
-4. A primeira mutação interna da ferramenta confirma `public.set_decky_maintenance(true)`, executável apenas por `service_role`; a manutenção já precisa estar confirmada antes da execução. RLS restritiva bloqueia leituras/escritas diretas de clientes e as RPCs verificam manutenção e existência ativa do usuário. Depois são limpos objetos dos buckets aprovados, usuários por `auth.admin.deleteUser(id, false)` e sobras de partidas, salas e perfis pelas FKs.
-5. Em falha, a manutenção permanece ligada. Corrigir a causa e repetir o mesmo comando: cada etapa relê o estado atual e as exclusões admitem retomada. Não tratar linhas antigas do log como prova de que o estado atual está limpo. A ferramenta não reabre o serviço automaticamente.
-6. Rodar novamente o inventário SQL completo. Exigir zero para contas/identidades/sessões/refresh tokens antigos, tabelas de jogo e `private.private_hands`. Conferir objetos Storage dos usuários removidos. Qualquer sobra impede reabertura, mesmo se o programa terminou sua contagem REST.
-7. Testar um access token antigo ainda temporalmente válido contra RPC, RLS, Edge Function e Realtime. A conta apagada precisa ser recusada; o app deve limpar sessão/caches ao validar a identidade. Revogar refresh tokens ou apenas apagar dados de jogo não prova recusa de todo JWT antigo.
-8. Conferir o cliente antigo contra o backend V2. O servidor é a autoridade de cartas, resultados, MMR, ocupação e fase. Se houver caminho antigo incompatível ainda acessível, corrigi-lo e validar antes de reabrir.
-9. Validar a constraint após a limpeza:
+Um token anterior à exclusão, ainda temporalmente válido, foi recusado: Auth retornou 403, a RPC retornou `not_authenticated`, RLS retornou `[]`, as duas Edge Functions retornaram 401 e o refresh foi recusado. Isso registra os endpoints observados, sem prometer que toda interface já aberta foi encerrada automaticamente.
 
-```sql
-alter table public.player_ratings validate constraint player_ratings_mmr_floor;
-```
+O programa privado `global-reset-acceptance.mjs` executou entre `20:09:05Z` e `20:09:24Z`, com exit 0. Criou duas contas QA novas: login por senha aceito, perfil único, 500 em Duelo e Duplas e histórico vazio. No Realtime, a identidade de controle recebeu uma sala e a assinatura da conta apagada com token antigo não recebeu. A primeira partida pós-reset iniciou; a primeira vaza recusou descarte oculto e a segunda aceitou sem expor a carta.
 
-10. Em acesso controlado, liberar a manutenção para o teste de contas novas:
+As duas QA, a sala e a partida desse aceite foram removidas ao encerrar. A manutenção voltou a `true` e os cadastros públicos permaneceram bloqueados. Os relatórios privados `global-reset*.json` ficam sob `.expo/validation-v2/`, fora do Git. A conferência final e a reabertura pública foram executadas depois dessa etapa, conforme o registro abaixo; o sucesso do programa de reset sozinho não foi usado como prova de reabertura.
 
-```sql
-select public.set_decky_maintenance(false);
-```
+## Conferência final e reabertura comprovadas
 
-Esse comando é administrativo. Reabilitar somente `Allow new users to sign up` para o acesso controlado, preservando os provedores existentes, e comprovar entrada por senha/Google, um perfil, 500 em Duelo e Duplas, histórico vazio e primeira partida com a regra de descarte. Remover ou reinicializar os dados de QA antes da abertura pública para não conceder vantagem inicial.
-11. Reabrir somente após inventário e verificações conclusivos. Registrar o resultado da operação única e atualizar o aviso da landing para informar o reset realizado, sem manter uma janela futura ou manutenção já encerrada. Um deploy posterior não executa este programa nem repete a limpeza.
+O SQL das `20:09:59Z` confirmou zero em todas as 15 contagens após a remoção das QA, com Storage vazio e estrutura igual. O diff da configuração declarou somente `auth.enable_signup: false -> true`; o push foi executado sem recriar provedores, trocar segredos ou alterar confirmação de e-mail. A consulta imediatamente posterior ainda mostrou o valor antigo e a proteção religou manutenção enquanto a alteração propagava.
 
-## Evidências de 24/10/2026 e limites
+A segunda leitura independente, às `20:10:53Z`, confirmou `disable_signup=false`, Google e Email habilitados, confirmação obrigatória preservada e diff final com zero atualizações. O SQL das `20:10Z` confirmou `maintenance=false`, zero usuários e constraint de piso validada. O Decky foi reaberto às `17:10 BRT`, após o reset único das `17:07 BRT`, sem backup novo, reaplicação de migrations ou nova build Android.
+
+O aviso de manutenção encerrada foi enviado no commit `fa62268`. O [workflow Pages 40128732321](https://github.com/rbrecci/Decky/actions/runs/40128732321) concluiu com `success`; às `20:12:55Z`, a homepage exata retornou HTTP 200, HTML igual ao local e o aviso de encerramento. `version.json` retornou HTTP 200 e JSON idêntico ao local, mantendo o APK build 7. Não houve nova build nem alteração de manifesto para executar o reset.
+
+O aceite pós-reset comprovou login por senha nas duas QA novas. Um novo login Google depois da virada não foi exercitado; as provas anteriores do provedor e a configuração preservada não substituem esse teste. Registrar esse limite sem abrir nova rodada física. Branding após a espera de 24 horas e os demais limites da V2 continuam pendentes; reabertura não significa V2 integralmente concluída.
+
+## Evidências anteriores à virada e seus limites
 
 Os quatro testes do orquestrador falharam antes da implementação com `not_implemented`. Depois passaram: alvo/confirmacão, ordem de manutenção antes da exclusão, retomada após falha e rejeição de dados restantes. `tests/sql/reset-v2.test.ts` faz o ensaio com as migrations reais e o adaptador PGlite; faz parte dos 94 testes SQL aprovados.
 
@@ -123,7 +119,7 @@ Um JWT dessa conta ainda temporalmente válido foi recusado pela RPC e pela Edge
 
 Esses testes foram feitos em recursos segregados no projeto hospedado, sem criar outro projeto pago. Comprovam as operações reais de Auth Admin/Storage e a recusa de token nos caminhos exercitados; não equivalem a uma virada global ou restauração operacional hospedada. O backup DPAPI foi restaurado em PostgreSQL isolado, conforme descrito acima. Comandos, contagens e limites estão em [VALIDACAO_SERVIDOR_V2.md](VALIDACAO_SERVIDOR_V2.md).
 
-Antes de executar a exclusão, confirmar manutenção, bloqueio de novos cadastros, inventário, aviso público e autorização explícita da execução. Backup final e recuperação dos dados antigos foram dispensados por Saker; as provas anteriores permanecem históricas. Não houve reset global nesta entrega.
+As provas desta seção são anteriores à virada e não substituem a execução global registrada acima. Backup final e recuperação dos dados antigos foram dispensados por Saker; os backups e temporários existentes continuam preservados. O encerramento da V2 continua condicionado aos demais critérios e limites documentados.
 
 ## Limpeza local bloqueada pela revisão automática
 

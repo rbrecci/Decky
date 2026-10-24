@@ -1,6 +1,6 @@
 # Distribuição e publicação da V2
 
-Estado em 24/10/2026: web e backend V2 publicados, APK 2.0.0/build 7 instalado e conferido no Redmi após atualização sobre a V1. GitHub Release publicada e download anônimo conferido; manifesto real enviado ao GitHub. Landing e manifesto foram publicados e conferidos no Pages. Não houve reset global.
+Estado em 24/10/2026: web e backend V2 publicados, APK 2.0.0/build 7 instalado e conferido no Redmi após atualização sobre a V1. GitHub Release publicada e download anônimo conferido; manifesto real enviado ao GitHub. Landing e manifesto foram publicados e conferidos no Pages. O reset global foi executado em 24/10/2026 às 17:07 BRT, e o serviço foi reaberto às 17:10 BRT.
 
 ## Assinatura Android conferida
 
