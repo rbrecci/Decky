@@ -1,13 +1,16 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { Platform } from 'react-native';
 import { signUp } from '../../src/auth/AuthProvider';
+import { AuthForm, AuthSubmit } from '../../src/auth/AuthForm';
+import { ConfirmationResend } from '../../src/auth/ConfirmationResend';
+import { authErrorMessage } from '../../src/auth/flows';
 import {
   validateDisplayName,
   validateEmail,
   validatePassword,
   validatePasswordConfirmation,
 } from '../../src/auth/validators';
-import { errorMessage } from '../../src/lib/errors';
 import { Button } from '../../src/ui/Button';
 import { Notice } from '../../src/ui/Notice';
 import { Screen } from '../../src/ui/Screen';
@@ -22,10 +25,12 @@ export default function Register() {
   const [serverError, setServerError] = useState<string | null>(null);
   const [confirmSent, setConfirmSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const busy = useRef(false);
 
   const set = (field: Field) => (text: string) => setValues((v) => ({ ...v, [field]: text }));
 
   async function submit() {
+    if (busy.current) return;
     const next = {
       name: validateDisplayName(values.name),
       email: validateEmail(values.email),
@@ -36,14 +41,16 @@ export default function Register() {
     setServerError(null);
     if (Object.values(next).some(Boolean)) return;
 
+    busy.current = true;
     setLoading(true);
     try {
       const result = await signUp(values.email, values.password, values.name);
       if (result === 'confirm_email') setConfirmSent(true);
       else router.replace(code ? { pathname: '/invite', params: { code } } : '/');
     } catch (error) {
-      setServerError(errorMessage(error));
+      setServerError(authErrorMessage(error));
     } finally {
+      busy.current = false;
       setLoading(false);
     }
   }
@@ -52,6 +59,7 @@ export default function Register() {
     return (
       <Screen title="Quase lá">
         <Notice kind="success" message={`Enviamos um link de confirmação para ${values.email.trim()}. Abra o e-mail e depois entre.`} />
+        <ConfirmationResend email={values.email} initiallySent />
         <Button label="Ir para o login" onPress={() => router.replace(code ? { pathname: '/login', params: { code } } : '/login')} />
       </Screen>
     );
@@ -59,8 +67,11 @@ export default function Register() {
 
   return (
     <Screen title="Criar conta" subtitle="Seu nome aparece na mesa para os outros jogadores.">
-      <TextField label="Seu nome na mesa" value={values.name} onChangeText={set('name')} error={errors.name} placeholder="Ex.: Caio" maxLength={20} />
+      <AuthForm onSubmit={submit}>
+      <TextField required nativeID="display-name" autoComplete="nickname" label="Seu nome na mesa" value={values.name} onChangeText={set('name')} error={errors.name} placeholder="Ex.: Caio" maxLength={20} />
       <TextField
+        required
+        nativeID="email"
         label="E-mail"
         value={values.email}
         onChangeText={set('email')}
@@ -69,9 +80,12 @@ export default function Register() {
         autoComplete="email"
         autoCorrect={false}
         keyboardType="email-address"
+        inputMode="email"
         placeholder="nome@email.com"
       />
       <TextField
+        required
+        nativeID="new-password"
         label="Senha (6+ caracteres, letras e números)"
         value={values.password}
         onChangeText={set('password')}
@@ -81,6 +95,8 @@ export default function Register() {
         placeholder="Crie uma senha"
       />
       <TextField
+        required
+        nativeID="password-confirmation"
         label="Repita a senha"
         value={values.confirmation}
         onChangeText={set('confirmation')}
@@ -89,10 +105,11 @@ export default function Register() {
         autoComplete="new-password"
         placeholder="Digite a senha de novo"
         returnKeyType="done"
-        onSubmitEditing={submit}
+        onSubmitEditing={Platform.OS === 'web' ? undefined : submit}
       />
       <Notice kind="error" message={serverError} />
-      <Button label="Cadastrar" onPress={submit} loading={loading} />
+      <AuthSubmit label="Cadastrar" onPress={submit} loading={loading} />
+      </AuthForm>
       <Button label="Já tenho conta" variant="secondary" onPress={() => router.replace(code ? { pathname: '/login', params: { code } } : '/login')} />
     </Screen>
   );

@@ -84,15 +84,14 @@ describe('carta escondida', () => {
     expect(s.hands[0]).not.toContainEqual(c('3', 'copas'));
   });
 
-  it('a vaza resolve com a força real e revela a carta em lastTrick', () => {
+  it('a carta descartada não disputa nem é revelada em lastTrick', () => {
     let s = play(afterFirstTrick(), 1, c('3', 'copas'), true);
     s = play(s, 2, c('5', 'copas'));
     s = play(s, 3, c('6', 'copas'));
     s = play(s, 4, c('7', 'copas'));
-    // A escondida (3) venceu: a dupla A fez as duas vazas e a mão acabou.
-    expect(s.public.score.A).toBe(1);
-    expect(s.public.lastTrick!.cards[0]).toEqual({ seat: 1, card: c('3', 'copas'), hidden: true });
-    expect(s.public.lastTrick!.result).toBe('A');
+    expect(s.public.score.A).toBe(0);
+    expect(s.public.lastTrick!.cards[0]).toEqual({ seat: 1, card: null, hidden: true });
+    expect(s.public.lastTrick!.result).toBe('B');
     expect(s.covered).toEqual([null, null, null, null]);
   });
 

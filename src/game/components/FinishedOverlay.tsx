@@ -1,9 +1,9 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn, ZoomIn } from 'react-native-reanimated';
 import type { PublicGameState, Team } from '../../contracts/types';
 import { Button } from '../../ui/Button';
 import { Logo } from '../../ui/Logo';
-import { TitleRule } from '../../ui/Ornament';
+import { RuledTitle } from '../../ui/Ornament';
 import { colors, font, fonts, radius, shadow, space } from '../../ui/theme';
 import { teamLabel } from '../describe';
 
@@ -33,14 +33,10 @@ export function FinishedOverlay({ state, viewerTeam, onRoom, onHome, onNote }: P
 
   return (
     <Animated.View entering={FadeIn.duration(250)} style={styles.overlay}>
+      <ScrollView contentContainerStyle={styles.scroll}>
       <Animated.View entering={ZoomIn.duration(300)} style={styles.card} accessibilityViewIsModal>
         <Logo size={72} halo={false} />
-        <Text style={styles.title} accessibilityRole="header">
-          {title}
-        </Text>
-        <View style={styles.rule}>
-          <TitleRule />
-        </View>
+        <RuledTitle style={styles.title} centered>{title}</RuledTitle>
         <Text style={styles.score}>
           {teamLabel(left, viewerTeam, state.gameMode)} {state.score[left]} × {state.score[right]} {teamLabel(right, viewerTeam, state.gameMode)}
         </Text>
@@ -48,12 +44,14 @@ export function FinishedOverlay({ state, viewerTeam, onRoom, onHome, onNote }: P
         {onNote ? <Button label="Escrever nota sobre a partida" variant="dark" onPress={onNote} /> : null}
         <Button label="Início" variant="ghost" onPress={onHome} />
       </Animated.View>
+      </ScrollView>
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: { ...StyleSheet.absoluteFill, backgroundColor: colors.scrim, justifyContent: 'center', padding: space.lg },
+  overlay: { ...StyleSheet.absoluteFill, backgroundColor: colors.scrim },
+  scroll: { flexGrow: 1, justifyContent: 'center', padding: space.lg },
   card: {
     width: '100%',
     maxWidth: 460,
@@ -67,6 +65,5 @@ const styles = StyleSheet.create({
     boxShadow: shadow.panel,
   },
   title: { fontFamily: fonts.display, fontSize: font.title + 4, lineHeight: 42, color: colors.text, textAlign: 'center' },
-  rule: { alignItems: 'center', marginTop: -space.xs },
   score: { fontFamily: fonts.display, fontVariant: ['lining-nums'], fontSize: font.large, color: colors.goldSoft, textAlign: 'center' },
 });

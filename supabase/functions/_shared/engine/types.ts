@@ -18,7 +18,7 @@ export type TrickResult = Team | 'tie';
 export interface TableCard {
   seat: Seat;
   card: Card;
-  /** Foi jogada escondida (D-20). Só aparece em `lastTrick`, quando a carta já foi revelada. */
+  /** Compatibilidade com estados anteriores; descartes V2 sempre têm card null. */
   hidden?: boolean;
 }
 
@@ -102,7 +102,7 @@ export interface PublicGameState {
   maoDeOnze: Team | 'both' | null;
   tableCards: PublicTableCard[];
   trickResults: TrickResult[];
-  lastTrick: { cards: TableCard[]; result: TrickResult } | null;
+  lastTrick: { cards: PublicTableCard[]; result: TrickResult } | null;
   lastHand: HandSummary | null;
   /** Última ação aceita pelo servidor. Opcional: partidas gravadas antes desta versão não têm. */
   lastEvent?: PublicEvent | null;

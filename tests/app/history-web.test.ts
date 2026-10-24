@@ -40,9 +40,17 @@ vi.mock('../../src/ui/Notice', () => ({ Notice: 'Notice' }));
 vi.mock('../../src/ui/Panel', () => ({ Panel: 'Panel' }));
 vi.mock('../../src/ui/Screen', () => ({ Screen: 'Screen' }));
 vi.mock('../../src/ui/TextField', () => ({ TextField: 'TextField' }));
+vi.mock('../../src/ui/Ornament', () => ({ RuledTitle: 'RuledTitle' }));
+vi.mock('../../src/ui/usePagedList', () => ({
+  usePagedList: (_key: string, load: unknown) => ({
+    rows: load === listNotes ? [{ id: 'note-1', title: 'Revanche', notes: '', updatedAt: '2026-10-23' }] : [],
+    page: 1, hasNext: false, loading: false, error: null, refresh: vi.fn(), go: vi.fn(),
+  }),
+}));
 
 import History from '../../app/history/index';
 import NoteForm from '../../app/history/note';
+import { listNotes } from '../../src/history/api';
 
 function findButton(node: ReactNode, label: string): (() => void) | undefined {
   if (Array.isArray(node)) {
@@ -69,7 +77,7 @@ describe('excluir notas no navegador', () => {
   for (const screen of ['history', 'note'] as const) {
     function renderDelete() {
       if (screen === 'history') {
-        mocks.states = [[], [{ id: 'note-1', title: 'Revanche', notes: '', updatedAt: '2026-10-23' }], false];
+        mocks.states = [null, false];
       } else {
         mocks.states = ['', '', null, null, false];
       }

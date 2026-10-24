@@ -7,9 +7,10 @@ const MESSAGES: Record<string, string> = {
   weak_password: 'Senha fraca. Use pelo menos 6 caracteres.',
   over_email_send_rate_limit: 'Muitas tentativas. Espere um pouco e tente de novo.',
   not_authenticated: 'Sua sessão expirou. Entre de novo.',
+  maintenance: 'O Decky está em manutenção. Tente novamente mais tarde.',
   // Salas
   room_not_found: 'Sala não encontrada. Confira o código.',
-  room_full: 'Esta sala já tem 4 jogadores.',
+  room_full: 'Esta sala está cheia.',
   room_started: 'Esta partida já começou.',
   already_in_room: 'Você já está nesta sala.',
   seat_taken: 'Este lugar já está ocupado.',
@@ -17,7 +18,7 @@ const MESSAGES: Record<string, string> = {
   invalid_mode: 'Modo de sala inválido.',
   room_create_timeout: 'A criação demorou demais. Feche e abra o app para tentar novamente.',
   not_host: 'Só quem criou a sala pode iniciar.',
-  not_enough_players: 'São necessários 4 jogadores.',
+  not_enough_players: 'Ainda faltam jogadores nesta sala.',
   players_not_ready: 'Todos precisam marcar "Pronto".',
   // Partida
   not_your_turn: 'Não é a sua vez.',
@@ -26,7 +27,7 @@ const MESSAGES: Record<string, string> = {
   match_over: 'A partida já terminou.',
   too_early: 'Ainda há tempo para esta jogada.',
   conflict: 'A mesa mudou. Atualizamos para você, tente de novo.',
-  not_member: 'Só os 4 jogadores podem jogar. A mesa apenas mostra a partida.',
+  not_member: 'Só os jogadores desta partida podem jogar. A mesa apenas exibe a partida.',
   match_not_found: 'Partida não encontrada.',
   // Genéricos
   bad_request: 'Pedido inválido.',

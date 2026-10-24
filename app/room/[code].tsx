@@ -73,9 +73,10 @@ export default function Lobby() {
   }
 
   return (
-    <Screen>
+    <Screen maxWidth={840}>
       <Panel tone="accent" style={styles.codeBox}>
         <Text style={styles.codeLabel}>CÓDIGO DA SALA</Text>
+        {room ? <Text style={styles.codeLabel}>{room.visibility === 'public' ? 'PÚBLICA' : 'PRIVADA'}</Text> : null}
         <Text style={styles.code} accessibilityLabel={`Código ${code?.split('').join(' ')}`} selectable>
           {code}
         </Text>
@@ -202,7 +203,7 @@ function ModeBox({ capacity, gameMode, mode, isHost, busy, disabled, onSwitch }:
 const styles = StyleSheet.create({
   codeBox: { alignItems: 'stretch' },
   codeLabel: { color: colors.textMuted, fontSize: font.tiny, fontWeight: '700', letterSpacing: 2, textAlign: 'center' },
-  code: { color: colors.text, fontSize: font.huge + 4, fontWeight: '800', letterSpacing: 10, textAlign: 'center' },
+  code: { color: colors.text, fontSize: font.huge, fontWeight: '800', letterSpacing: 5, textAlign: 'center' },
   qrCode: { alignSelf: 'center', padding: space.sm, backgroundColor: '#FFFFFF' },
   modeTexts: { gap: space.xs },
   modeKicker: { fontSize: font.tiny, fontWeight: '700', letterSpacing: 1.4, color: colors.textFaint },

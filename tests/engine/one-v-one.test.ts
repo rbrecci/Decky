@@ -31,7 +31,7 @@ describe('partida 1v1', () => {
     expect(new Set([...state.hands.flat(), state.public.vira].map((c) => `${c.rank}:${c.suit}`)).size).toBe(7);
   });
 
-  it('fecha a vaza com duas cartas, revela a escondida e alterna quem distribui', () => {
+  it('fecha com duas cartas, mantém o descarte oculto e alterna quem distribui ao fim da mão', () => {
     let state = fixed();
     state = act(state, 1, { type: 'play_card', card: state.hands[0][0] });
     expect(state.public.currentTurnSeat).toBe(2);
@@ -42,8 +42,11 @@ describe('partida 1v1', () => {
     state = act(state, 1, { type: 'play_card', card: hidden, hidden: true });
     expect(state.public.tableCards[0].card).toBeNull();
     state = act(state, 2, { type: 'play_card', card: state.hands[1][0] });
+    expect(state.public.trickResults).toEqual(['A', 'B']);
+    expect(state.public.lastTrick?.cards).toContainEqual({ seat: 1, card: null, hidden: true });
+    state = act(state, 2, { type: 'play_card', card: state.hands[1][0] });
+    state = act(state, 1, { type: 'play_card', card: state.hands[0][0] });
     expect(state.public).toMatchObject({ gameMode: '1v1', handNumber: 2, dealerSeat: 1, currentTurnSeat: 2, score: { A: 1, B: 0 } });
-    expect(state.public.lastTrick?.cards).toContainEqual({ seat: 1, card: hidden, hidden: true });
     expect(state.hands.map((hand) => hand.length)).toEqual([3, 3, 0, 0]);
   });
 

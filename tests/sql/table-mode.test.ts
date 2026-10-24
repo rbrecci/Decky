@@ -173,6 +173,7 @@ describe('partida com mesa dedicada', () => {
       .then((r) => r.rows);
     expect(rows).toEqual([
       { schemaname: 'public', tablename: 'matches' },
+      { schemaname: 'public', tablename: 'public_room_directory' },
       { schemaname: 'public', tablename: 'room_players' },
       { schemaname: 'public', tablename: 'rooms' },
     ]);

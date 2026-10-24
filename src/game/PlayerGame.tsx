@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Platform, StyleSheet, View } from 'react-native';
+import { Alert, Platform, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getLegalActions } from '../../supabase/functions/_shared/engine/game.ts';
 import type {
@@ -76,6 +76,12 @@ export function PlayerGame({
 }: Props) {
   useScreenAwake();
   const insets = useSafeAreaInsets();
+  const { width, height, fontScale } = useWindowDimensions();
+  const [viewportHeight, setViewportHeight] = useState<number | null>(null);
+  const [handHeight, setHandHeight] = useState(320);
+  const wide = width >= 1000;
+  const availableHeight = (viewportHeight ?? height) - insets.top - insets.bottom;
+  const topHeight = Math.max(350 * Math.min(fontScale, 1.6), wide ? availableHeight - space.md * 2 : availableHeight - handHeight);
   const state = match.state;
   const deal = useDealAnimation(match.matchId, state);
   const cue = useTableCue(match, connection);
@@ -158,8 +164,9 @@ export function PlayerGame({
   }, []);
 
   return (
-    <View style={[styles.screen, { paddingTop: insets.top, paddingLeft: insets.left, paddingRight: insets.right }]}>
-      <View style={styles.top}>
+    <View onLayout={(event) => setViewportHeight(event.nativeEvent.layout.height)} style={[styles.screen, { paddingTop: insets.top, paddingLeft: insets.left, paddingRight: insets.right }]}>
+      <ScrollView contentContainerStyle={[styles.game, { minHeight: Math.max((viewportHeight ?? height) - insets.top - insets.bottom, 640 * Math.min(fontScale, 1.6)) }, wide && styles.wide]}>
+      <View style={[styles.top, { height: topHeight, flexGrow: wide ? 1 : 0 }]}>
         <ScoreBar state={state} viewerTeam={myTeam} players={players} large={false} onLeave={leaveTable} />
         <ConnectionBanner status={connection} />
         {layout === 'split' ? (
@@ -183,6 +190,7 @@ export function PlayerGame({
         />
       </View>
 
+      <View onLayout={(event) => { if (!wide) setHandHeight(event.nativeEvent.layout.height); }} style={[styles.handArea, wide && styles.handAreaWide]}>
       <HandPanel
         state={state}
         hand={hand}
@@ -196,11 +204,13 @@ export function PlayerGame({
         players={players}
         onAct={act}
         bottomInset={insets.bottom}
-        size={layout === 'hand' ? 'large' : 'normal'}
+        size={layout === 'hand' || wide ? 'large' : 'normal'}
         autoCard={autoCard}
         onAutoCard={chooseAutoCard}
         clockOffset={clock.offset}
       />
+      </View>
+      </ScrollView>
 
       {state.status === 'finished' ? (
         <FinishedOverlay
@@ -217,5 +227,9 @@ export function PlayerGame({
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
-  top: { flex: 1, paddingHorizontal: space.sm, paddingBottom: space.sm, gap: space.xs },
+  game: { flexGrow: 1, width: '100%', maxWidth: 1800, alignSelf: 'center' },
+  wide: { flexDirection: 'row', gap: space.md, padding: space.md, alignItems: 'stretch' },
+  top: { flexShrink: 0, flexBasis: 'auto', minHeight: 350, minWidth: 0, paddingHorizontal: space.sm, paddingBottom: space.sm, gap: space.xs },
+  handArea: { justifyContent: 'center' },
+  handAreaWide: { width: '36%', maxWidth: 560 },
 });

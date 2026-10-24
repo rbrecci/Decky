@@ -17,7 +17,6 @@ import type {
   Rng,
   RuleError,
   Seat,
-  TableCard,
   Team,
   TeamDecision,
   TeamProposal,
@@ -426,17 +425,13 @@ function executeRule(state: MatchState, seat: Seat, action: GameAction, rng: Rng
         };
       }
 
-      // A vaza fecha: as escondidas são reveladas e contam com a força real (D-21).
-      const opened: TableCard[] = tableCards.map((t) =>
-        t.card === null ? { seat: t.seat, card: covered[t.seat - 1]!, hidden: true } : t,
-      );
-      const trick = resolveTrick(opened, pub.manilhaRank);
+      const trick = resolveTrick(tableCards, pub.manilhaRank);
       const trickResults = [...pub.trickResults, trick.result];
       const afterTrick: PublicGameState = {
         ...pub,
         tableCards: [],
         trickResults,
-        lastTrick: { cards: opened, result: trick.result },
+        lastTrick: { cards: tableCards, result: trick.result },
         currentTurnSeat: trick.leadSeat,
       };
 

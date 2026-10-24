@@ -116,6 +116,7 @@ export function PlayingCard({
       accessibilityLabel={label}
       accessibilityHint={hint}
       accessibilityState={{ disabled: !!disabled, selected: !!selected }}
+      aria-pressed={!!selected}
       style={({ pressed }) => [pressed && !disabled && styles.pressed]}
     >
       {image}

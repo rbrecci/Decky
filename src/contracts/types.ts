@@ -40,6 +40,7 @@ export type RoomStatus = 'lobby' | 'playing' | 'finished';
  * 'table': o dono não joga; o aparelho dele mostra só a mesa pública (5 aparelhos).
  */
 export type HostMode = 'player' | 'table';
+export type RoomVisibility = 'private' | 'public';
 
 export interface Room {
   id: string;
@@ -47,7 +48,17 @@ export interface Room {
   hostUserId: string;
   hostMode: HostMode;
   gameMode: GameMode;
+  visibility?: RoomVisibility;
   status: RoomStatus;
+}
+
+export interface PublicRoom {
+  id: string;
+  code: string;
+  hostName: string;
+  gameMode: GameMode;
+  playerCount: number;
+  capacity: number;
 }
 
 export interface RoomSeat {
@@ -134,6 +145,7 @@ export interface MatchNote {
   notes: string;
   createdAt: string;
   updatedAt: string;
+  match?: MatchSummary;
 }
 
 export interface MatchSummary {
@@ -149,6 +161,8 @@ export interface MatchSummary {
   ranked: boolean;
   pointsDelta: number | null;
   pointsAfter: number | null;
+  pointsBefore?: number | null;
+  ratingRule?: string | null;
   players: MatchPlayer[];
 }
 

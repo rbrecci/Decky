@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="referrer" content="no-referrer">
+  <meta name="description" content="Truco Paulista presencial, com cartas no celular e seus amigos na mesma mesa. Duelo ou duplas, no Android e no navegador.">
+  <title>Decky | A próxima mão é sua</title>
+  <link rel="icon" type="image/png" href="./assets/logo.png">
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#principal">Ir ao conteúdo</a>
+  <header class="topbar wrap">
+    <a class="wordmark" href="./" aria-label="Decky, início">Decky<span aria-hidden="true">♠</span></a>
+    <nav aria-label="Navegação principal"><a href="#como-jogar">Conheça o jogo</a><a href="https://github.com/rbrecci/Decky">Código aberto</a></nav>
+  </header>
+  <main id="principal">
+    <section class="hero wrap" aria-labelledby="titulo">
+      <div class="hero-copy">
+        <h1 id="titulo">A próxima mão<br>é sua.</h1>
+        <p class="lead">Truco Paulista no celular.<br>Os amigos continuam na mesma mesa.</p>
+        <p class="release" data-version aria-live="polite">Consultando versão para Android...</p>
+        <div class="actions">
+          <a class="button android" data-download aria-disabled="true">Baixar para Android</a>
+          <a class="button secondary web" href="https://decky-brecci.expo.app">Jogar no navegador</a>
+        </div>
+        <p class="platform-note" data-platform>APK exclusivo para Android. No iPhone, jogue pelo navegador.</p>
+        <noscript><p>A versão Android precisa de JavaScript para consultar o download. Você pode jogar no navegador pelo link acima.</p></noscript>
+      </div>
+      <img class="hero-logo" src="./assets/logo.png" width="1254" height="1254" fetchpriority="high" alt="Decky, três cartas e uma boa partida">
+    </section>
+    <aside class="release-note wrap" aria-label="Preparação da V2">
+      <strong>A V2 está em preparação.</strong> Na virada de lançamento, contas, histórico e ranking antigos serão apagados. Todos precisarão entrar novamente e começarão com 500 MMR. A data será informada antes da manutenção.
+    </aside>
+    <section id="como-jogar" class="feature wrap" aria-labelledby="presencial">
+      <div class="feature-copy"><h2 id="presencial">O truco é presencial.<br>O baralho é digital.</h2><p>Duelo entre duas pessoas ou quatro amigos em duplas. Cada jogador guarda a própria mão no celular. A vira, as apostas e o placar ficam por conta do Decky.</p><p>Escolha a carta, peça truco e jogue de frente para quem está do outro lado da mesa.</p></div>
+      <figure class="portrait"><img src="./assets/jogador.webp" width="780" height="1688" loading="lazy" alt="Demonstração local da V2: mão privada de Ana Demo, seleção de cartas e controles de truco"><figcaption>Demonstração local da V2, com dados de exemplo.</figcaption></figure>
+    </section>
+    <section class="feature reverse wrap" aria-labelledby="mesa">
+      <div class="feature-copy"><h2 id="mesa">Uma mesa<br>para todo mundo.</h2><p>Um aparelho extra pode ficar no centro e mostrar só a mesa. As mãos continuam privadas nos celulares dos jogadores.</p><p>Vez, vira, manilhas e placar à vista. Até a carta descartada fica de costas.</p></div>
+      <figure class="wide"><img src="./assets/mesa.webp" width="1366" height="768" loading="lazy" alt="Demonstração local da V2 no modo mesa, com quatro jogadores e sem mãos privadas"><figcaption>Modo mesa. Cartas privadas aparecem apenas para seus donos.</figcaption></figure>
+    </section>
+    <section class="feature wrap" aria-labelledby="salas">
+      <div class="feature-copy"><h2 id="salas">Juntou o grupo?<br>Entre e jogue.</h2><p>Compartilhe o código ou leia o QR da sala dentro do app. Salas públicas também aparecem na lista de entrada. Prefere só os amigos? Crie uma sala privada.</p><p class="internet">Todos os aparelhos precisam de internet.</p></div>
+      <figure class="portrait"><img src="./assets/salas.webp" width="780" height="1688" loading="lazy" alt="Demonstração local da V2: entrada por código, leitura de QR e lista de salas públicas"><figcaption>Salas e nomes ilustrativos na interface real da V2.</figcaption></figure>
+    </section>
+    <section class="feature reverse wrap" aria-labelledby="evolucao">
+      <div class="feature-copy"><h2 id="evolucao">Cada partida<br>conta uma história.</h2><p>Comece em Beta 1 com 500 MMR e acompanhe seu Elo até Omega. Duelo e Duplas têm rankings independentes.</p><p>No histórico, reveja o resultado e a variação de MMR. Registre suas notas para lembrar daquela partida.</p></div>
+      <div class="gallery"><figure><img src="./assets/ranking.webp" width="780" height="1688" loading="lazy" alt="Demonstração local do ranking da V2, com MMR e títulos de Elo"><figcaption>MMR e Elo por modalidade.</figcaption></figure><figure><img src="./assets/historico.webp" width="780" height="1688" loading="lazy" alt="Demonstração local do histórico e notas, com paginações independentes"><figcaption>Partidas e notas, cinco por página.</figcaption></figure></div>
+    </section>
+    <section class="about wrap" aria-labelledby="projeto">
+      <h2 id="projeto">Feito para jogar junto.</h2>
+      <p>Decky nasceu no projeto de Desenvolvimento Mobile do SENAI. Um baralho digital para partidas presenciais de Truco Paulista.</p>
+      <details><summary>Quem fez o Decky</summary><p>Mariana Ribeiro, Isabela Puzenato, Nicoly Ribeiro, Caio Yuri, Eduardo Zanetti e Rafael Brecci.</p></details>
+      <div class="actions"><a class="button android" data-download aria-disabled="true">Baixar para Android</a><a class="button secondary web" href="https://decky-brecci.expo.app">Jogar no navegador</a></div>
+    </section>
+  </main>
+  <footer class="wrap"><a class="wordmark" href="./">Decky<span aria-hidden="true">♠</span></a><nav aria-label="Informações"><a href="./privacidade.html">Privacidade</a><a href="./termos.html">Termos</a><a href="./suporte.html">Suporte</a><a href="https://github.com/rbrecci/Decky">GitHub</a></nav><p>Truco presencial. Sem apostas em dinheiro no app.</p></footer>
+</body>
+</html>

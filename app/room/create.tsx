@@ -9,27 +9,25 @@ import { Notice } from '../../src/ui/Notice';
 import { Screen } from '../../src/ui/Screen';
 import { colors, font, fonts, radius, shadow, space } from '../../src/ui/theme';
 
-const OPTIONS: { mode: HostMode; glyph: string; title: string; devices: string; description: string }[] = [
+const OPTIONS: { mode: HostMode; glyph: string; title: string; devices: string }[] = [
   {
     mode: 'player',
     glyph: '♠',
     title: 'Vou jogar',
     devices: '4 celulares',
-    description: 'Cada celular mostra a mesa em cima e a própria mão embaixo. Você ocupa um dos 4 lugares.',
   },
   {
     mode: 'table',
     glyph: '◎',
     title: 'Este celular será a mesa',
     devices: '4 celulares + esta mesa',
-    description:
-      'Deixe este aparelho no centro: ele mostra só a mesa, sem cartas de ninguém. Os 4 jogadores usam os próprios celulares.',
   },
 ];
 
 /** Criar sala: o dono escolhe se joga ou se o aparelho dele vira a mesa central. */
 export default function CreateRoom() {
   const [gameMode, setGameMode] = useState<GameMode>('2v2');
+  const [visibility, setVisibility] = useState<'private' | 'public'>('private');
   const count = gameMode === '1v1' ? 2 : 4;
   const [creating, setCreating] = useState<HostMode | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -39,7 +37,7 @@ export default function CreateRoom() {
     setCreating(mode);
     setError(null);
     try {
-      const room = await createRoom(mode, gameMode);
+      const room = await createRoom(mode, gameMode, visibility);
       router.replace(`/room/${room.code}`);
     } catch (e) {
       setError(errorMessage(e));
@@ -49,13 +47,16 @@ export default function CreateRoom() {
   }
 
   return (
-    <Screen title="Criar sala" subtitle="Como este celular vai participar?">
+    <Screen title="Criar sala">
       <View style={styles.gameModes}>
         {(['1v1', '2v2'] as GameMode[]).map((mode) => (
-          <Button key={mode} label={mode === '1v1' ? '1v1: duelo' : '2v2: duplas'} variant={gameMode === mode ? 'gold' : 'secondary'} disabled={!!creating} onPress={() => setGameMode(mode)} />
+          <Button key={mode} style={styles.flex} label={mode === '1v1' ? '1v1: Duelo' : '2v2: Duplas'} variant={gameMode === mode ? 'gold' : 'secondary'} disabled={!!creating} onPress={() => setGameMode(mode)} />
         ))}
       </View>
-      <Text style={styles.note}>{count} jogadores. O formato fica fixo nesta sala.</Text>
+      <View style={styles.gameModes} accessibilityLabel="Visibilidade da sala">
+        <Button label="Privada" style={styles.flex} variant={visibility === 'private' ? 'gold' : 'secondary'} disabled={!!creating} onPress={() => setVisibility('private')} />
+        <Button label="Pública" style={styles.flex} variant={visibility === 'public' ? 'gold' : 'secondary'} disabled={!!creating} onPress={() => setVisibility('public')} />
+      </View>
       {OPTIONS.map((option) => {
         const isCreating = creating === option.mode;
         return (
@@ -64,7 +65,7 @@ export default function CreateRoom() {
             onPress={() => create(option.mode)}
             disabled={!!creating}
             accessibilityRole="button"
-            accessibilityLabel={`${option.title}. ${option.devices.replaceAll('4', String(count))}. ${option.description.replaceAll('4', String(count))}`}
+            accessibilityLabel={`${option.title}. ${option.mode === 'player' ? `Você ocupa um dos ${count} lugares` : `Este aparelho fica no centro e mostra só a mesa. Os ${count} jogadores usam os próprios celulares`}`}
             accessibilityState={{ busy: isCreating, disabled: !!creating }}
             style={({ pressed }) => [styles.option, pressed && styles.pressed, creating && !isCreating && styles.faded]}
           >
@@ -73,7 +74,7 @@ export default function CreateRoom() {
               <Text style={styles.optionTitle}>{option.title}</Text>
             </View>
             <Text style={styles.devices}>{option.devices.replaceAll('4', String(count))}</Text>
-            <Text style={styles.description}>{option.description.replaceAll('4', String(count))}</Text>
+            <Text style={styles.description}>{option.mode === 'player' ? `Você ocupa um dos ${count} lugares` : `Este aparelho fica no centro e mostra só a mesa. Os ${count} jogadores usam os próprios celulares`}</Text>
             <View style={styles.ctaRow}>
               {isCreating ? <ActivityIndicator color={colors.redText} size="small" /> : null}
               <Text style={styles.cta}>{isCreating ? 'Criando sala…' : 'Criar assim ›'}</Text>
@@ -81,7 +82,6 @@ export default function CreateRoom() {
           </Pressable>
         );
       })}
-      <Text style={styles.note}>Dá para trocar o papel deste celular no lobby, antes de começar.</Text>
       <Notice kind="error" message={error} />
       <Button label="Voltar" variant="ghost" onPress={() => router.back()} />
     </Screen>
@@ -90,6 +90,7 @@ export default function CreateRoom() {
 
 const styles = StyleSheet.create({
   gameModes: { flexDirection: 'row', justifyContent: 'center', gap: space.sm },
+  flex: { flex: 1, minWidth: 0 },
   option: {
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
@@ -119,5 +120,4 @@ const styles = StyleSheet.create({
   description: { fontSize: font.body - 2, lineHeight: 23, color: colors.textMuted },
   ctaRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm, marginTop: space.xs },
   cta: { fontSize: font.body - 1, fontWeight: '800', color: colors.redText },
-  note: { fontSize: font.small, color: colors.textFaint, textAlign: 'center' },
 });

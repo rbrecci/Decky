@@ -485,6 +485,22 @@ describe('carta escondida, jogada automática e prazo (pelo servidor e banco)', 
     const other = players().find((p) => p !== player)!;
     expect((await myHand(other, matchId))!.covered).toBeNull();
     expect(await myHand(mesa, matchId)).toBeNull();
+    const revision = (await readMatch(player, matchId)).revision;
+    const [event] = await t.asUser<{ client_action_id: string }>(player,
+      'select client_action_id from public.match_events where match_id = $1 and revision = $2', [matchId, revision]);
+    expect(await submit(player, matchId, { type: 'play_card', card, hidden: true }, {
+      clientActionId: event.client_action_id, expectedRevision: revision - 1,
+    })).toEqual({ ok: true, newRevision: revision });
+    expect((await myHand(player, matchId))!.cards).toHaveLength(1);
+    for (let i = 0; i < 3; i++) await playTurn();
+    for (const viewer of [mesa, ...players()]) {
+      const reconnected = await readMatch(viewer, matchId);
+      expect(reconnected.public_state.lastTrick?.cards.find((placed) => placed.seat === seat))
+        .toEqual({ seat, card: null, hidden: true });
+      expect(JSON.stringify(reconnected.public_state)).not.toContain(JSON.stringify(card));
+      expect(JSON.stringify(await t.asUser(viewer, 'select payload_public from public.match_events where match_id = $1', [matchId])))
+        .not.toContain(JSON.stringify(card));
+    }
   });
 
   it('na 1ª vaza a escondida é recusada pelo servidor', async () => {

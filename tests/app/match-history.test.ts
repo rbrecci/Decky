@@ -21,11 +21,11 @@ describe('historico oficial de partidas', () => {
   it('consulta a identidade autenticada no servidor e transforma os dados da partida', async () => {
     rpc.mockResolvedValue({ data: [result], error: null });
     const matches = await fetchMyMatches();
-    expect(rpc).toHaveBeenCalledWith('get_my_match_history', { p_limit: 50, p_offset: 0 });
+    expect(rpc).toHaveBeenCalledWith('get_my_match_history', { p_limit: 6, p_offset: 0 });
     expect(matches).toEqual([{
       id: 'match-1', status: 'finished', scoreA: 12, scoreB: 7, winnerTeam: 'A', myTeam: 'A',
       startedAt: result.started_at, endedAt: result.ended_at,
-      gameMode: '1v1', ranked: true, pointsDelta: 16, pointsAfter: 1016,
+      gameMode: '1v1', ranked: true, pointsDelta: 16, pointsAfter: 1016, pointsBefore: null, ratingRule: null,
       players: [
         { seat: 1, team: 'A', userId: 'user-1', displayName: 'Ana' },
         { seat: 2, team: 'B', userId: 'user-2', displayName: 'Bia' },

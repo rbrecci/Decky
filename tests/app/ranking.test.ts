@@ -39,7 +39,7 @@ import { fetchRankings } from '../../src/ranking/api';
 import RankingScreen from '../../app/ranking';
 
 const entry = {
-  position: 1, user_id: 'ana', display_name: 'Ana', points: 90, played: 5, wins: 4, losses: 1,
+  position: 1, user_id: 'ana', display_name: 'Ana', points: 590, played: 5, wins: 4, losses: 1,
 };
 
 function render() {
@@ -73,17 +73,17 @@ describe('ranking lido do servidor', () => {
     const ranking = await fetchRankings('1v1');
     expect(mocks.rpc).toHaveBeenCalledWith('get_rankings', { p_game_mode: '1v1', p_limit: 50 });
     expect(ranking.entries).toEqual([
-      { position: 1, userId: 'ana', displayName: 'Ana', points: 90, played: 5, wins: 4, losses: 1 },
-      { position: 1, userId: 'bia', displayName: 'Bia', points: 90, played: 5, wins: 4, losses: 1 },
+      { position: 1, userId: 'ana', displayName: 'Ana', points: 590, played: 5, wins: 4, losses: 1 },
+      { position: 1, userId: 'bia', displayName: 'Bia', points: 590, played: 5, wins: 4, losses: 1 },
     ]);
     expect(ranking.myEntry).toEqual(ranking.entries[0]);
   });
 
   it('preserva a propria posicao fora das primeiras cinquenta', async () => {
-    mocks.rpc.mockResolvedValue({ data: { entries: [entry], myEntry: { ...entry, position: 74, user_id: 'eu', display_name: 'Eu', points: 0, played: 2, wins: 0, losses: 2 } }, error: null });
+    mocks.rpc.mockResolvedValue({ data: { entries: [entry], myEntry: { ...entry, position: 74, user_id: 'eu', display_name: 'Eu', points: 500, played: 2, wins: 0, losses: 2 } }, error: null });
     const ranking = await fetchRankings('2v2');
     expect(mocks.rpc).toHaveBeenCalledWith('get_rankings', { p_game_mode: '2v2', p_limit: 50 });
-    expect(ranking.myEntry).toMatchObject({ position: 74, userId: 'eu', points: 0, losses: 2 });
+    expect(ranking.myEntry).toMatchObject({ position: 74, userId: 'eu', points: 500, losses: 2 });
   });
 
   it('aceita ranking vazio e usuario sem partidas ranqueadas', async () => {
@@ -99,13 +99,18 @@ describe('ranking lido do servidor', () => {
 });
 
 describe('troca de modo no ranking', () => {
-  it('mostra Elo inicial sem inventar posicao para quem ainda nao jogou', async () => {
+  it('identifica saldo legado abaixo do piso sem quebrar a tela antes da virada', async () => {
+    mocks.rpc.mockResolvedValue({ data: { entries: [{ ...entry, points: 90 }], myEntry: { ...entry, points: 90 } }, error: null });
+    render(); mocks.focus!();
+    await vi.waitFor(() => expect(JSON.stringify(render())).toContain('Anterior à V2'));
+  });
+  it('mostra Beta 1 e MMR inicial sem inventar posicao para quem ainda nao jogou', async () => {
     mocks.rpc.mockResolvedValue({ data: { entries: [], myEntry: null }, error: null });
     render();
     mocks.focus!();
     await vi.waitFor(() => {
       const page = JSON.stringify(render());
-      expect(page).toContain('1000 Elo');
+      expect(page).toContain('Beta 1 · 500 MMR');
       expect(page).toContain('0 partidas');
       expect(page).toContain('sem posição');
     });
@@ -116,11 +121,11 @@ describe('troca de modo no ranking', () => {
     mocks.rpc.mockReturnValueOnce(new Promise((resolve) => { finishOld = resolve; }));
     render();
     const cleanup = mocks.focus!();
-    const selectDuplas = findButton(render(), '2v2: duplas');
+    const selectDuplas = findButton(render(), '2v2: Duplas');
     expect(selectDuplas).toBeTypeOf('function');
     selectDuplas!();
     if (typeof cleanup === 'function') cleanup();
-    const secondEntry = { ...entry, user_id: 'duplas', display_name: 'Duplas', points: 30 };
+    const secondEntry = { ...entry, user_id: 'duplas', display_name: 'Duplas', points: 530 };
     mocks.rpc.mockResolvedValueOnce({ data: { entries: [secondEntry], myEntry: secondEntry }, error: null });
     render();
     mocks.focus!();

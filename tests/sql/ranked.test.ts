@@ -96,12 +96,12 @@ describe('partidas ranqueadas', () => {
     expect(await finish(matchId, state)).toMatchObject({ ok: true, duplicate: false });
     expect(await finish(matchId, state)).toMatchObject({ ok: true, duplicate: true });
     const result = await rankings();
-    expect(result.myEntry).toMatchObject({ points: 1016, played: 1, wins: 1, losses: 0, position: 1 });
-    expect(result.entries.find((row) => row.user_id === bia)).toMatchObject({ points: 984, losses: 1 });
+    expect(result.myEntry).toMatchObject({ points: 510, played: 1, wins: 1, losses: 0, position: 1 });
+    expect(result.entries.find((row) => row.user_id === bia)).toMatchObject({ points: 500, losses: 1 });
     expect(await t.asUser(ana, 'select points_delta, points_after from public.match_ratings where match_id = $1', [matchId]))
-      .toEqual([{ points_delta: 16, points_after: 1016 }]);
+      .toEqual([{ points_delta: 10, points_after: 510 }]);
     expect(await t.asUser(bia, 'select points_delta, points_after from public.match_ratings where match_id = $1', [matchId]))
-      .toEqual([{ points_delta: -16, points_after: 984 }]);
+      .toEqual([{ points_delta: 0, points_after: 500 }]);
   });
 
   it('atualiza o Elo pela forca dos adversarios antes da partida terminar', async () => {
@@ -109,8 +109,8 @@ describe('partidas ranqueadas', () => {
     await finish(first.matchId, first.state);
     const second = await setup();
     await finish(second.matchId, second.state, 'B');
-    expect((await rankings()).myEntry).toMatchObject({ points: 999, played: 2, wins: 1, losses: 1 });
-    expect((await history()).find((match) => match.id === second.matchId)).toMatchObject({ points_delta: -17, points_after: 999 });
+    expect((await rankings()).myEntry).toMatchObject({ points: 500, played: 2, wins: 1, losses: 1 });
+    expect((await history()).find((match) => match.id === second.matchId)).toMatchObject({ points_delta: -10, points_after: 500 });
   });
 
   it('separa os modos, pontua os dois parceiros e nao pontua o aparelho mesa', async () => {
@@ -119,43 +119,43 @@ describe('partidas ranqueadas', () => {
     const doubles = await setup('2v2', true);
     await finish(doubles.matchId, doubles.state);
     const teamRanks = await rankings(ana, '2v2');
-    expect(teamRanks.entries.filter((row) => row.points === 1016).map((row) => row.user_id).sort()).toEqual([ana, caio].sort());
+    expect(teamRanks.entries.filter((row) => row.points === 510).map((row) => row.user_id).sort()).toEqual([ana, caio].sort());
     expect(teamRanks.entries).toHaveLength(4);
     expect((await rankings(mesa, '2v2')).myEntry).toBeNull();
-    expect((await rankings()).myEntry).toMatchObject({ points: 1016, played: 1 });
+    expect((await rankings()).myEntry).toMatchObject({ points: 510, played: 1 });
     expect(await history(mesa)).toEqual([]);
   });
 
   it('favoritos ganham menos Elo e zebras ganham mais, com variacao simetrica', async () => {
     const favorite = await setup();
-    await t.db.query("insert into public.player_ratings(user_id, game_mode, points) values ($1, '1v1', 1400)", [ana]);
+    await t.db.query("update public.player_ratings set points = 1400 where user_id = $1 and game_mode = '1v1'", [ana]);
     await finish(favorite.matchId, favorite.state);
-    expect((await rankings()).myEntry?.points).toBe(1403);
+    expect((await rankings()).myEntry?.points).toBe(1405);
     const upset = await setup();
     await t.db.query("update public.player_ratings set points = case when user_id = $1 then 1400 else 1000 end where game_mode = '1v1'", [ana]);
     await finish(upset.matchId, upset.state, 'B');
     const result = await rankings();
-    expect(result.entries.find((entry) => entry.user_id === ana)?.points).toBe(1371);
-    expect(result.entries.find((entry) => entry.user_id === bia)?.points).toBe(1029);
+    expect(result.entries.find((entry) => entry.user_id === ana)?.points).toBe(1375);
+    expect(result.entries.find((entry) => entry.user_id === bia)?.points).toBe(1025);
   });
 
   it('usa a media da dupla antes de atualizar os saldos e aplica o mesmo delta aos parceiros', async () => {
     const { matchId, state } = await setup('2v2');
-    await t.db.query("insert into public.player_ratings(user_id, game_mode, points) values ($1, '2v2', 1600), ($2, '2v2', 800)", [ana, caio]);
+    await t.db.query("update public.player_ratings set points = case when user_id = $1 then 1600 else 800 end where user_id in ($1, $2) and game_mode = '2v2'", [ana, caio]);
     await finish(matchId, state);
     expect(await t.asUser(ana, 'select points_delta, points_after from public.match_ratings where match_id = $1', [matchId]))
-      .toEqual([{ points_delta: 8, points_after: 1608 }]);
+      .toEqual([{ points_delta: 5, points_after: 1605 }]);
     expect(await t.asUser(caio, 'select points_delta, points_after from public.match_ratings where match_id = $1', [matchId]))
-      .toEqual([{ points_delta: 8, points_after: 808 }]);
-    expect((await rankings(bia, '2v2')).myEntry?.points).toBe(992);
-    expect((await rankings(duda, '2v2')).myEntry?.points).toBe(992);
+      .toEqual([{ points_delta: 5, points_after: 805 }]);
+    expect((await rankings(bia, '2v2')).myEntry?.points).toBe(500);
+    expect((await rankings(duda, '2v2')).myEntry?.points).toBe(500);
   });
 
   it('toda partida nova vale Elo mas em andamento ainda nao tem variacao', async () => {
     const match = await setup();
     expect((await history())[0]).toMatchObject({ status: 'playing', ranked: true, points_delta: null, points_after: null });
     await finish(match.matchId, match.state);
-    expect((await history())[0]).toMatchObject({ status: 'finished', ranked: true, points_delta: 16, points_after: 1016 });
+    expect((await history())[0]).toMatchObject({ status: 'finished', ranked: true, points_delta: 10, points_after: 510 });
   });
 
   it('mantem pontos, participantes, historico e notas depois que todos deixam a sala', async () => {
@@ -165,10 +165,10 @@ describe('partidas ranqueadas', () => {
     await t.asUser(bia, 'select public.leave_room($1)', [room.id]);
     await t.asUser(ana, 'select public.leave_room($1)', [room.id]);
     const [result] = await history();
-    expect(result).toMatchObject({ id: matchId, ranked: true, game_mode: '1v1', points_delta: 16 });
+    expect(result).toMatchObject({ id: matchId, ranked: true, game_mode: '1v1', points_delta: 10 });
     expect(result.players.map((player) => player.display_name)).toEqual(['Ana', 'Bia']);
     expect(await t.asUser(ana, 'select title from public.match_notes where match_id = $1', [matchId])).toEqual([{ title: 'Revanche' }]);
-    expect((await rankings()).myEntry?.points).toBe(1016);
+    expect((await rankings()).myEntry?.points).toBe(510);
     expect((await t.db.query('select room_id from public.matches where id = $1', [matchId])).rows).toEqual([{ room_id: null }]);
     expect(await history(eva)).toEqual([]);
   });
@@ -178,8 +178,8 @@ describe('partidas ranqueadas', () => {
     await finish(matchId, state);
     const result = await rankings(bia, '2v2', 1);
     expect(result.entries).toHaveLength(1);
-    expect(result.entries[0]).toMatchObject({ position: 1, points: 1016 });
-    expect(result.myEntry).toMatchObject({ user_id: bia, position: 3, points: 984 });
+    expect(result.entries[0]).toMatchObject({ position: 1, points: 510 });
+    expect(result.myEntry).toMatchObject({ user_id: bia, position: 3, points: 500 });
     const full = await rankings(ana, '2v2');
     expect(full.entries.map((row) => row.position)).toEqual([1, 1, 3, 3]);
   });

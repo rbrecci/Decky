@@ -14,7 +14,7 @@ function Loading() {
 }
 
 function RootStack() {
-  const { session, loading } = useAuth();
+  const { session, loading, recovery, needsProfile } = useAuth();
 
   if (loading) return <Loading />;
 
@@ -23,7 +23,7 @@ function RootStack() {
     <Stack screenOptions={{ headerShown: false, animation: 'fade', contentStyle: { backgroundColor: colors.bg } }}>
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="invite" />
-      <Stack.Protected guard={!!session}>
+      <Stack.Protected guard={!!session && !recovery && !needsProfile}>
         <Stack.Screen name="index" />
         <Stack.Screen name="room/create" />
         <Stack.Screen name="room/join" />

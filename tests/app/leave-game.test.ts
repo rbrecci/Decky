@@ -19,7 +19,8 @@ vi.mock('react-native', () => ({
   StyleSheet: { create: (styles: unknown) => styles },
   Text: 'Text',
   View: 'View',
-  useWindowDimensions: () => ({ width: 390, height: 700 }),
+  ScrollView: 'ScrollView',
+  useWindowDimensions: () => ({ width: 390, height: 700, fontScale: 1 }),
 }));
 vi.mock('expo-router', () => ({ router: { replace: browser.replace } }));
 vi.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }) }));

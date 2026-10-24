@@ -1,16 +1,12 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useState } from 'react';
 import { Image, StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
 import Animated, {
-  Easing,
   FadeInDown,
   FadeInLeft,
   FadeInRight,
   FadeInUp,
   FadeOut,
   LayoutAnimationConfig,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
   ZoomIn,
 } from 'react-native-reanimated';
 import { nextSeat } from '../../../supabase/functions/_shared/engine/cards.ts';
@@ -272,7 +268,7 @@ function PlayedSlot({ rect, side, played, trick, ownCovered, dimmed, winner, wai
     <Animated.View key={playedCardKey(played, trick)} entering={ENTERING[side]} style={[styles.abs, box]}>
       <View style={{ transform: [{ rotate: TILT[side] }] }}>
         {played.hidden ? (
-          <HiddenPlayed card={played.card} own={ownCovered} width={rect.w} dimmed={dimmed && !winner} winner={winner} />
+          <HiddenPlayed own={ownCovered} width={rect.w} />
         ) : (
           <PlayingCard card={played.card} width={rect.w} dimmed={dimmed && !winner} highlighted={winner} elevation="table" />
         )}
@@ -286,45 +282,9 @@ function PlayedSlot({ rect, side, played, trick, ownCovered, dimmed, winner, wai
   );
 }
 
-/** Virada da carta escondida quando a vaza fecha (verso, achata, face), no ritmo da vira. */
-const HIDDEN_FLIP_MS = 420;
-
-/**
- * Carta jogada escondida. Enquanto a vaza está aberta, todos veem o verso (a carta nem chegou a este
- * aparelho); o dono vê a própria carta esmaecida, com o selo do olho riscado. Quando a vaza fecha e o
- * servidor revela a carta, ela vira uma vez. Montada já revelada (reconexão), aparece aberta, sem girar.
- */
-function HiddenPlayed({
-  card,
-  own,
-  width,
-  dimmed,
-  winner,
-}: {
-  card: Card | null;
-  own: Card | null;
-  width: number;
-  dimmed: boolean;
-  winner: boolean;
-}) {
-  // 0 = verso, 1 = face.
-  const flip = useSharedValue(card ? 1 : 0);
-  const revealed = card !== null;
-
-  useEffect(() => {
-    if (revealed) flip.value = withTiming(1, { duration: HIDDEN_FLIP_MS, easing: Easing.inOut(Easing.cubic) });
-  }, [revealed, flip]);
-
-  const backStyle = useAnimatedStyle(() => ({
-    opacity: flip.value < 0.5 ? 1 : 0,
-    transform: [{ scaleX: Math.abs(Math.cos(flip.value * Math.PI)) }],
-  }));
-  const faceStyle = useAnimatedStyle(() => ({
-    opacity: flip.value >= 0.5 ? 1 : 0,
-    transform: [{ scaleX: Math.abs(Math.cos(flip.value * Math.PI)) }],
-  }));
-
-  if (!revealed && own) {
+/** Descarte não revela ao fechar: somente o dono tem a face em sua projeção privada. */
+function HiddenPlayed({ own, width }: { own: Card | null; width: number }) {
+  if (own) {
     return (
       <View accessible accessibilityLabel="Sua carta, jogada virada">
         <PlayingCard card={own} width={width} dimmed elevation="table" />
@@ -336,17 +296,7 @@ function HiddenPlayed({
   }
 
   return (
-    <View style={{ width, height: width * CARD_RATIO }}>
-      {/* Depois da revelação o verso fica invisível: o leitor de tela também deixa de anunciá-lo. */}
-      <Animated.View style={[StyleSheet.absoluteFill, backStyle]} aria-hidden={revealed}>
-        <PlayingCard faceDown width={width} elevation="table" />
-      </Animated.View>
-      {card ? (
-        <Animated.View style={[StyleSheet.absoluteFill, faceStyle]}>
-          <PlayingCard card={card} width={width} dimmed={dimmed} highlighted={winner} elevation="table" />
-        </Animated.View>
-      ) : null}
-    </View>
+    <PlayingCard faceDown width={width} elevation="table" />
   );
 }
 

@@ -4,6 +4,7 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import type { GameMode, Ranking } from '../src/contracts/types';
 import { errorMessage } from '../src/lib/errors';
 import { fetchRankings } from '../src/ranking/api';
+import { eloForMmr } from '../src/ranking/elo';
 import { Button } from '../src/ui/Button';
 import { Notice } from '../src/ui/Notice';
 import { Panel } from '../src/ui/Panel';
@@ -32,22 +33,18 @@ export default function RankingScreen() {
   const mine = ranking?.myEntry;
 
   return (
-    <Screen title="Ranking" subtitle="Sua posição entre os jogadores do Decky.">
+    <Screen title="Ranking" maxWidth={840}>
       <View style={styles.modes}>
         {(['1v1', '2v2'] as GameMode[]).map((mode) => (
           <Button
             key={mode}
-            label={mode === '1v1' ? '1v1: duelo' : '2v2: duplas'}
+            label={mode === '1v1' ? '1v1: Duelo' : '2v2: Duplas'}
             variant={gameMode === mode ? 'gold' : 'secondary'}
             style={styles.flex}
             onPress={() => setGameMode(mode)}
           />
         ))}
       </View>
-      <Text style={styles.rules}>
-        O Elo começa em 1000. Todas as partidas concluídas contam. A variação depende da força dos adversários. Os rankings de 1v1 e 2v2 são separados.
-      </Text>
-      {gameMode === '2v2' ? <Text style={styles.rules}>O cálculo usa o Elo médio de cada dupla. Cada jogador mantém sua classificação individual.</Text> : null}
       {loading ? <ActivityIndicator size="large" color={colors.gold} accessibilityLabel="Carregando ranking" /> : null}
       <Notice kind="error" message={error} />
       {error ? <Button label="Tentar novamente" variant="dark" onPress={() => setAttempt((n) => n + 1)} /> : null}
@@ -60,14 +57,14 @@ export default function RankingScreen() {
               <>
                 <View style={styles.row}>
                   <Text style={styles.position}>#{mine.position}</Text>
-                  <Text style={styles.myPoints}>{mine.points} Elo</Text>
+                  <Text style={styles.myPoints}>{mine.points < 500 ? 'Anterior à V2' : eloForMmr(mine.points)} · {mine.points} MMR</Text>
                 </View>
                 <Text style={styles.name}>{mine.displayName}</Text>
                 <Text style={styles.meta}>{mine.played} partidas · {mine.wins} vitórias · {mine.losses} derrotas</Text>
               </>
             ) : (
               <>
-                <Text style={styles.myPoints}>1000 Elo</Text>
+                <Text style={styles.myPoints}>Beta 1 · 500 MMR</Text>
                 <Text style={styles.meta}>0 partidas · sem posição. Conclua uma partida de {gameMode} para entrar neste ranking.</Text>
               </>
             )}
@@ -81,7 +78,7 @@ export default function RankingScreen() {
               <Panel key={entry.userId} tone={own ? 'accent' : 'default'}>
                 <View style={styles.row}>
                   <Text style={styles.position}>#{entry.position}</Text>
-                  <Text style={styles.points}>{entry.points} Elo</Text>
+                  <Text style={styles.points}>{entry.points < 500 ? 'Anterior à V2' : eloForMmr(entry.points)} · {entry.points} MMR</Text>
                 </View>
                 <Text style={styles.name}>{entry.displayName}{own ? ' (você)' : ''}</Text>
                 <Text style={styles.meta}>{entry.played} partidas · {entry.wins} vitórias · {entry.losses} derrotas</Text>
@@ -99,7 +96,6 @@ export default function RankingScreen() {
 const styles = StyleSheet.create({
   modes: { flexDirection: 'row', gap: space.sm },
   flex: { flex: 1 },
-  rules: { fontSize: font.small, lineHeight: 22, color: colors.textMuted },
   section: { fontFamily: fonts.display, fontSize: font.large, lineHeight: 30, color: colors.text },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: space.sm },
   position: { fontFamily: fonts.display, fontSize: font.title, color: colors.goldSoft },

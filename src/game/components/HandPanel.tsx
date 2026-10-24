@@ -147,6 +147,7 @@ export function HandPanel({
   clockOffset = 0,
 }: Props) {
   const { width, height } = useWindowDimensions();
+  const [panelWidth, setPanelWidth] = useState<number | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   // Jogar a próxima carta escondida (D-20). Desliga sozinho quando deixa de valer e depois da jogada.
   const [hiddenMode, setHiddenMode] = useState(false);
@@ -168,7 +169,7 @@ export function HandPanel({
     if (state.truco) setSelected(null);
   }, [state.truco]);
 
-  const cardW = handCardWidth(width, height, size);
+  const cardW = handCardWidth(panelWidth ?? width, height, size);
   const reveals = useManilhaReveals(deal.run, cards, state.manilhaRank);
   const now = Date.now();
 
@@ -203,7 +204,7 @@ export function HandPanel({
   const arrived = useArrivedCards(deal, dealing, state.dealerSeat, mySeat);
 
   return (
-    <View style={[styles.panel, { paddingBottom: space.sm + bottomInset, paddingHorizontal: panelPadding(size) }]}>
+    <View onLayout={(event) => setPanelWidth(event.nativeEvent.layout.width)} style={[styles.panel, { paddingBottom: space.sm + bottomInset, paddingHorizontal: panelPadding(size) }]}>
       <Notice kind="error" message={error} />
 
       {/* Abrir a tela ou reconectar não refaz a entrada das cartas que já estavam na mão. */}
@@ -573,9 +574,9 @@ const styles = StyleSheet.create({
   memberMarkText: { color: colors.ink, fontSize: 9, lineHeight: 11, fontWeight: '900' },
   memberMarkPending: { color: colors.textMuted },
   memberCount: { color: colors.goldSoft, fontSize: 9.5, fontWeight: '900', letterSpacing: 0.8 },
-  timerRow: { height: 22, flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  timerRow: { minHeight: 48, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: space.sm },
   hiddenToggle: {
-    height: 22,
+    minHeight: 44,
     paddingHorizontal: 8,
     borderRadius: 11,
     flexDirection: 'row',

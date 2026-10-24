@@ -17,8 +17,6 @@ interface Props {
   variant?: Variant;
   disabled?: boolean;
   loading?: boolean;
-  /** Linha menor abaixo do rótulo (menu inicial). */
-  caption?: string;
   /** Texto extra para leitores de tela. */
   hint?: string;
   /** 'compact' para fileiras de ações lado a lado (mantém o alvo de toque mínimo). */
@@ -31,16 +29,18 @@ interface Props {
   style?: StyleProp<ViewStyle>;
 }
 
-export function Button({ label, onPress, variant = 'primary', disabled, loading, caption, hint, size = 'normal', icon, style }: Props) {
+export function Button({ label, onPress, variant = 'primary', disabled, loading, hint, size = 'normal', icon, style }: Props) {
   const inactive = disabled || loading;
   const palette = VARIANTS[variant];
   const compact = size === 'compact';
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={caption ? `${label}. ${caption}` : label}
+      accessibilityLabel={label}
       accessibilityHint={hint}
       accessibilityState={{ disabled: !!inactive, busy: !!loading }}
+      aria-disabled={!!inactive}
+      aria-busy={!!loading}
       onPress={onPress}
       disabled={inactive}
       style={({ pressed }) => [
@@ -61,30 +61,21 @@ export function Button({ label, onPress, variant = 'primary', disabled, loading,
           {icon ? <Icon name={icon} size={compact ? 18 : 20} color={palette.text} /> : null}
           <Text
             style={[styles.label, compact && styles.labelCompact, compact && icon && styles.labelIcon, { color: palette.text }]}
-            maxFontSizeMultiplier={compact ? 1.3 : 1.6}
-            numberOfLines={compact ? (icon ? 1 : 2) : undefined}
-            adjustsFontSizeToFit={compact && !!icon}
-            minimumFontScale={0.8}
           >
             {label}
           </Text>
-          {caption ? (
-            <Text style={[styles.caption, { color: palette.caption }]} maxFontSizeMultiplier={1.4}>
-              {caption}
-            </Text>
-          ) : null}
         </View>
       )}
     </Pressable>
   );
 }
 
-const VARIANTS: Record<Variant, { bg: string; pressed: string; text: string; caption: string; border: string; raised: boolean }> = {
-  primary: { bg: '#A80E27', pressed: colors.redDeep, text: colors.cream, caption: '#F3C9CF', border: '#D0263F', raised: true },
-  dark: { bg: colors.surfaceRaised, pressed: colors.surface, text: colors.text, caption: colors.textMuted, border: colors.lineStrong, raised: true },
-  secondary: { bg: 'transparent', pressed: '#FFFFFF0F', text: colors.text, caption: colors.textMuted, border: colors.line, raised: false },
-  gold: { bg: '#2A2216', pressed: '#1E1810', text: colors.goldSoft, caption: colors.gold, border: colors.gold, raised: true },
-  ghost: { bg: 'transparent', pressed: '#FFFFFF0F', text: colors.textMuted, caption: colors.textFaint, border: 'transparent', raised: false },
+const VARIANTS: Record<Variant, { bg: string; pressed: string; text: string; border: string; raised: boolean }> = {
+  primary: { bg: '#A80E27', pressed: colors.redDeep, text: colors.cream, border: '#D0263F', raised: true },
+  dark: { bg: colors.surfaceRaised, pressed: colors.surface, text: colors.text, border: colors.lineStrong, raised: true },
+  secondary: { bg: 'transparent', pressed: '#FFFFFF0F', text: colors.text, border: colors.line, raised: false },
+  gold: { bg: '#2A2216', pressed: '#1E1810', text: colors.goldSoft, border: colors.gold, raised: true },
+  ghost: { bg: 'transparent', pressed: '#FFFFFF0F', text: colors.textMuted, border: 'transparent', raised: false },
 };
 
 const styles = StyleSheet.create({
@@ -99,15 +90,14 @@ const styles = StyleSheet.create({
   },
   raised: { boxShadow: shadow.button },
   compact: { minHeight: TOUCH_MIN + 4, paddingHorizontal: space.sm, paddingVertical: space.xs },
-  texts: { alignItems: 'center', gap: 2 },
+  texts: { alignItems: 'center', gap: 2, minWidth: 0, flexShrink: 1 },
   inline: { flexDirection: 'row', gap: space.sm },
-  label: { fontSize: font.body + 1, fontWeight: '700', letterSpacing: 0.3, textAlign: 'center' },
+  label: { fontSize: font.body + 1, fontWeight: '700', letterSpacing: 0.3, textAlign: 'center', flexShrink: 1 },
   labelCompact: { fontSize: font.body - 1, fontWeight: '800', letterSpacing: 0 },
   // Com ícone em cima: rótulo um pouco menor e menos recuo, para "Pedir TRUCO" e "Escolha a carta"
   // caberem numa linha nos três botões lado a lado de um iPhone SE (375 pt).
   compactIcon: { paddingHorizontal: space.xs + 2 },
   labelIcon: { fontSize: font.body - 3 },
-  caption: { fontSize: font.small - 2, textAlign: 'center' },
   // 0,5 mantém o rótulo legível (contraste ~4,5:1 sobre o painel): o botão parado também informa.
   disabled: { opacity: 0.5 },
 });

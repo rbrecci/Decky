@@ -15,13 +15,12 @@ interface MatchHistoryRow {
   ranked: boolean;
   points_delta: number | null;
   points_after: number | null;
+  points_before?: number | null;
+  rating_rule?: string | null;
   players: { seat: MatchPlayer['seat']; team: MatchPlayer['team']; user_id: string; display_name: string }[];
 }
 
-export async function fetchMyMatches(): Promise<MatchSummary[]> {
-  const { data, error } = await supabase.rpc('get_my_match_history', { p_limit: 50, p_offset: 0 });
-  if (error) throw error;
-  return ((data ?? []) as MatchHistoryRow[]).map((row) => ({
+const toMatch = (row: MatchHistoryRow): MatchSummary => ({
     id: row.id,
     status: row.status,
     scoreA: row.score_a,
@@ -34,10 +33,22 @@ export async function fetchMyMatches(): Promise<MatchSummary[]> {
     ranked: row.ranked,
     pointsDelta: row.points_delta,
     pointsAfter: row.points_after,
+    pointsBefore: row.points_before ?? null,
+    ratingRule: row.rating_rule ?? null,
     players: row.players.map((player) => ({
       seat: player.seat, team: player.team, userId: player.user_id, displayName: player.display_name,
     })),
-  }));
+  });
+
+function pageOffset(page: number): number {
+  if (!Number.isSafeInteger(page) || page < 1) throw new RangeError('invalid_page');
+  return (page - 1) * 5;
+}
+
+export async function fetchMyMatches(page = 1): Promise<MatchSummary[]> {
+  const { data, error } = await supabase.rpc('get_my_match_history', { p_limit: 6, p_offset: pageOffset(page) });
+  if (error) throw error;
+  return ((data ?? []) as MatchHistoryRow[]).map(toMatch);
 }
 
 interface NoteRow {
@@ -47,6 +58,7 @@ interface NoteRow {
   notes: string;
   created_at: string;
   updated_at: string;
+  match?: MatchHistoryRow;
 }
 
 const toNote = (row: NoteRow): MatchNote => ({
@@ -56,14 +68,15 @@ const toNote = (row: NoteRow): MatchNote => ({
   notes: row.notes,
   createdAt: row.created_at,
   updatedAt: row.updated_at,
+  ...(row.match ? { match: toMatch(row.match) } : {}),
 });
 
 const NOTE_COLUMNS = 'id, match_id, title, notes, created_at, updated_at';
 
-export async function listNotes(): Promise<MatchNote[]> {
-  const { data, error } = await supabase.from('match_notes').select(NOTE_COLUMNS).order('created_at', { ascending: false });
+export async function listNotes(page = 1): Promise<MatchNote[]> {
+  const { data, error } = await supabase.rpc('get_my_notes_page', { p_limit: 6, p_offset: pageOffset(page) });
   if (error) throw error;
-  return (data as NoteRow[]).map(toNote);
+  return ((data ?? []) as NoteRow[]).map(toNote);
 }
 
 export async function getNote(id: string): Promise<MatchNote | null> {

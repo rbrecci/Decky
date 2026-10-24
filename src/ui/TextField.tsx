@@ -1,19 +1,22 @@
 import { useState } from 'react';
-import { StyleSheet, Text, TextInput, View, type StyleProp, type TextInputProps, type TextStyle } from 'react-native';
+import { Platform, StyleSheet, Text, TextInput, View, type StyleProp, type TextInputProps, type TextStyle } from 'react-native';
 import { colors, font, radius, space, TOUCH_MIN } from './theme';
 
 interface Props extends Omit<TextInputProps, 'style'> {
   label: string;
   error?: string | null;
   inputStyle?: StyleProp<TextStyle>;
+  required?: boolean;
 }
 
-export function TextField({ label, error, inputStyle, onFocus, onBlur, ...input }: Props) {
+export function TextField({ label, error, inputStyle, onFocus, onBlur, required, ...input }: Props) {
   const [focused, setFocused] = useState(false);
+  const webProps = Platform.OS === 'web' ? { required, 'aria-required': required, name: input.nativeID } : {};
   return (
     <View style={styles.wrapper}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
+        {...webProps}
         accessibilityLabel={label}
         placeholderTextColor={colors.textFaint}
         selectionColor={colors.gold}
