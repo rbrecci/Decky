@@ -48,10 +48,10 @@ As varreduras dos arquivos rastreados e dos novos arquivos desta frente retornar
 
 ## Validação que ainda depende do ambiente
 
-- Completar QR no navegador móvel, falta de câmera, frames repetidos, sala cheia/removida e duas sessões com o host exibindo o QR ao vivo. No Redmi com APK build 7, permissão, ciclo de vida e entrada por leitura óptica da imagem real foram comprovados; os limites dessa observação estão na seção de QR abaixo.
+- Completar entrada QR web com identidade ainda fora da sala, falta de câmera, frames repetidos, sala cheia/removida e duas sessões com o host exibindo o QR ao vivo. No Redmi, o APK build 7 entrou pela leitura óptica real, e o Chrome leu o mesmo QR e reentrou como participante existente, sem duplicar lugar. Os limites dessas observações estão na seção de QR abaixo.
 - Realtime hospedado entre duas identidades, descoberta de sala pública e atualização de ocupação já foram comprovados depois da publicação do backend V2, conforme [VALIDACAO_SERVIDOR_V2.md](VALIDACAO_SERVIDOR_V2.md). A matriz visual simulada abaixo permanece uma prova separada e não substitui esse ensaio real.
 - Completar os fluxos com sessão e dados reais do servidor, fontes ampliadas e teclados virtuais em aparelhos reais. A matriz simulada, o uso de teclado físico e o zoom nativo de aba documentados abaixo não comprovam multiplayer nem teclado virtual.
-- Safari desktop/iPhone e os cenários móveis ainda nomeados continuam pendentes. Login Google completo e cancelamento por AndroidBack já foram observados no Chrome do Redmi, conforme [AUTH_V2.md](AUTH_V2.md); isso não aprova toda a matriz visual ou a leitura óptica web. Firefox e o motor WebKit foram exercitados em Windows; WebKit não equivale ao Safari instalado num iPhone.
+- Safari desktop/iPhone e os cenários móveis ainda nomeados continuam pendentes. Login Google completo, cancelamento por AndroidBack e leitura óptica com reentrada já foram observados no Chrome do Redmi; isso não aprova toda a matriz visual ou entrada web de outra identidade. Firefox e o motor WebKit foram exercitados em Windows; WebKit não equivale ao Safari instalado num iPhone.
 
 ## Validação adicional em 24/10/2026
 
@@ -91,7 +91,9 @@ A liberação em background também foi validada fisicamente no APK build 7: ap�
 
 Na retomada do mesmo dia, Saker leu fisicamente a imagem real `.expo/validation-v2/qr-room-CYV7ZL.png`, emitida no chat, e confirmou a entrada. A árvore `.expo/validation-v2/qr-optical-apk.xml` mostrou o lobby, `Estou pronto` e `Aguardando quem criou a sala iniciar.`. O SELECT do projeto hospedado confirmou que a sala Duelo `CYV7ZL` passou de um para dois participantes distintos, com um host e um único convidado. O log da câmera registrou `CONNECT` às 10:18:08 e `DISCONNECT` às 10:18:10, no horário local. A prova usa o APK build 7 existente e não alterou dados do app.
 
-Essa observação comprova leitura óptica Android, entrada na sala correta e um único convidado persistido. Não instrumentou o número de tentativas ou frames, não cobriu sala removida/cheia nem leitor web móvel e usou uma imagem emitida no chat, sem host exibindo o QR do lobby ao vivo. Não encerra integralmente CA-48/49.
+Essa observação comprova leitura óptica Android, entrada na sala correta e um único convidado persistido. Não instrumentou o número de tentativas ou frames nem cobriu sala removida/cheia; usou uma imagem emitida no chat, sem host exibindo o QR do lobby ao vivo.
+
+Na sequência, Saker leu o QR real no Chrome do Redmi e informou que entrou, ressaltando que usava a mesma conta do APK e que a listagem mostrava a sala cheia. `.expo/validation-v2/qr-web-current.xml`, lido às `13:26:42Z`, mostrou o Chrome com `Aguardando quem criou a sala iniciar.` e `Sair da sala`. A consulta privada às `13:27:03Z` confirmou dois participantes e dois usuários distintos, sem presença da QA do cadastro. A prova cobre leitura óptica web e reentrada do participante existente sem duplicar lugar. Não demonstra recusa de sala cheia a uma terceira identidade nem entrada web de uma conta ainda fora da sala. CA-48/49 permanecem parcialmente abertos.
 
 ## Fontes de implementação
 
