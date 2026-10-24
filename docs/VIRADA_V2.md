@@ -1,14 +1,14 @@
 # Virada administrativa única da V2
 
-Atualizado em 24/10/2026. O usuário autorizou avançar na entrega da V2. Backend e clientes têm publicação e validação registradas nos documentos próprios; a virada global de dados deste roteiro não foi executada, e o último SELECT ainda retornou manutenção desligada. O guia atual permite ao usuário ativá-la sem apagar dados. As provas históricas abaixo usam recursos de QA ou restauração local; a decisão atual de seguir sem backup está registrada separadamente.
+Atualizado em 24/10/2026. O usuário autorizou avançar na entrega da V2. Backend e clientes têm publicação e validação registradas nos documentos próprios. Saker executou o guia e a leitura posterior confirmou manutenção ligada e novos cadastros desativados. A exclusão global ainda não foi executada. As provas históricas abaixo usam recursos de QA ou restauração local; a decisão atual de seguir sem backup está registrada separadamente.
 
 ## Decisão atual: virada sem backup
 
 Em 24/10/2026, Saker decidiu expressamente: `vamos seguir sem backup, me faz o passo a passo pra eu já colocar em manutenção`. A dispensa de backup final, retenção, segunda cópia e comprovação de restauração hospedada substitui as condições anteriores para esta virada. O descarte dos dados antigos foi aceito sem promessa de recuperação atual. Os backups e temporários existentes serão preservados; não são uma fotografia final nem uma garantia de reversão.
 
-O pedido atual é um guia para Saker ativar a manutenção. O agente não executou mutação remota nem reset nesta etapa. O último SELECT retornou `maintenance=false`; só registrar manutenção ativa depois de observar `true`. A autorização de preparar ou ativar manutenção não autoriza a exclusão: o reset exige confirmação da manutenção e autorização explícita da execução.
+Saker executou os passos e informou sucesso. A conferência independente retornou `maintenance=true`; Auth respondeu HTTP 200 com `disable_signup=true`, Google/Email habilitados e confirmação de e-mail preservada. O inventário contou 27 usuários e perfis, 40 salas, 32 partidas, 6 notas e zero buckets/objetos Storage. O agente não executou reset nem exclusão. A autorização de preparar ou ativar manutenção não autoriza a exclusão: o reset exige autorização explícita da execução.
 
-## Ativar manutenção agora, sem apagar dados
+## Ativação concluída: roteiro de referência
 
 1. Abrir o [projeto Decky no Supabase](https://supabase.com/dashboard/project/yfijjtibyblzuplhtxbd) e conferir o ref `yfijjtibyblzuplhtxbd` antes de operar.
 2. Abrir `SQL Editor`, criar uma consulta e selecionar a role `postgres`. A leitura administrativa confirmou `operator=postgres`, `function_owner=postgres` e `operator_can_execute=true`. Não executar com a role de cliente `authenticated` e não alterar grants para contornar erro de permissão.
