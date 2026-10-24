@@ -2,9 +2,9 @@
   "expo": {
     "name": "Decky",
     "slug": "decky",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/Decky-Logo.png",
     "userInterfaceStyle": "dark",
     "ios": {
       "bundleIdentifier": "br.senai.decky",
@@ -18,10 +18,8 @@
     "android": {
       "package": "br.senai.decky",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "backgroundColor": "#0A0A0B",
+        "foregroundImage": "./assets/Decky-Logo.png"
       },
       "predictiveBackGestureEnabled": false
     },
@@ -30,12 +28,20 @@
       "bundler": "metro",
       "lang": "pt-BR",
       "themeColor": "#0A0A0B",
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/Decky-Logo.png"
     },
     "scheme": "decky",
     "plugins": [
       "expo-router",
-      "expo-font"
+      "expo-font",
+      "expo-web-browser",
+      "expo-secure-store",
+      ["expo-camera", {
+        "cameraPermission": "Permita que o Decky use a câmera para ler o QR code da sala.",
+        "recordAudioAndroid": false,
+        "microphonePermission": false,
+        "barcodeScannerEnabled": true
+      }]
     ],
     "extra": {
       "router": {},

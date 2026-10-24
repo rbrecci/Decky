@@ -6,6 +6,9 @@
   },
   "exclude": [
     "node_modules",
+    "dist",
+    ".expo",
+    "web-build",
     "tests/sql",
     "supabase/functions/start-match",
     "supabase/functions/submit-action",
