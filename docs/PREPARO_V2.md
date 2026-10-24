@@ -12,7 +12,7 @@ Saker encerrou expressamente os pedidos adicionais de aparelhos nesta retomada. 
 2. [VALIDACAO_V2.md](VALIDACAO_V2.md): entregas, evidências e pendências atuais.
 3. [DISTRIBUICAO_V2.md](DISTRIBUICAO_V2.md): build aprovada, assinatura, publicação e manifesto.
 4. [AUTH_V2.md](AUTH_V2.md), [UI_V2.md](UI_V2.md) e [VALIDACAO_SERVIDOR_V2.md](VALIDACAO_SERVIDOR_V2.md): provas detalhadas e limites.
-5. [VIRADA_V2.md](VIRADA_V2.md): inventário, backup e condições do reset.
+5. [VIRADA_V2.md](VIRADA_V2.md): guia para ativar manutenção, inventário e condições do reset sem backup, conforme decisão expressa de Saker.
 6. [DeckyV2Spec.md](../DeckyV2Spec.md): requisitos CA-01 a CA-51. As fases de implementação são planejamento histórico, não trabalho ainda por começar.
 
 ## Último estado comprovado
@@ -36,7 +36,7 @@ Na retomada, foram criados os commits `b3911cf` (configuração/dependências) e
 
 Saker autorizou o trabalho possível de validação e publicação, incluindo os deploys, configuração Auth e testes do aparelho já registrados. Na retomada de 24/10/2026, autorizou explicitamente commit e push das mudanças V2 no seu nome e as publicações previstas após as verificações correspondentes. A pergunta anterior de commit/push foi respondida por esse pedido; não solicitar a mesma autorização novamente. A configuração Git conferida retorna `rbrecci` e `fbrecci@gmail.com`.
 
-Autoria: `rbrecci`, `fbrecci@gmail.com`; conferir a configuração real antes de commitar e não adicionar coautoria. Reset segue condicionado às provas, ao roteiro e à janela aprovada; autorização geral não elimina pré-requisitos pendentes.
+Autoria: `rbrecci`, `fbrecci@gmail.com`; conferir a configuração real antes de commitar e não adicionar coautoria. Saker dispensou backup e recuperação dos dados antigos nesta virada. O pedido atual é um guia para ativar manutenção; reset exige manutenção confirmada, inventário e autorização explícita da execução, sem reabrir testes de aparelhos dispensados.
 
 ## Acessos e artefatos para reaproveitar
 
@@ -79,15 +79,17 @@ Falta prova publicada de atualização entre builds que tenham o verificador. A 
 
 ### 3. Virada somente nas condições registradas
 
-Preparação administrativa adicional: [VIRADA_V2.md](VIRADA_V2.md) começa com o passo a passo do que depende de Saker: Branding após o prazo, conferência de plano/backups no painel, retenção/segunda cópia recuperável e proposta/aprovação de janela. O script novo `scripts/admin/backup-v2.ps1` cifra a saída binária de `pg_dump` em memória e grava somente cifra/metadados fora do Git. Passou em 73 verificações sintéticas, sem conexão de produção; não criou um backup final nem comprovou restauração hospedada. O inventário SQL ampliado passou em transação somente leitura, incluindo owners/grants, extensões, Realtime e migrations. Storage retornou zero buckets/objetos, PostgreSQL `17.11` e manutenção desligada. Os exemplos de backup e a ativação de manutenção do roteiro são exclusivos da janela futura aprovada, antes da exclusão.
+Em 24/10/2026, Saker decidiu expressamente seguir sem backup e pediu um guia para ele ativar a manutenção agora. Backup final, retenção, segunda cópia e comprovação de restauração hospedada deixaram de ser condições desta virada. O descarte dos dados antigos foi aceito sem promessa de recuperação atual. Não gerar backup por esse fluxo nem apagar os backups e temporários existentes.
 
-Reset global não ocorreu. Dados antigos e novos de QA continuam no projeto. Conferir inventário e separar recursos de teste; não excluir dados existentes como limpeza incidental.
+O guia curto está em [VIRADA_V2.md](VIRADA_V2.md): conferir projeto `yfijjtibyblzuplhtxbd`, abrir SQL Editor com a role `postgres`, executar `select public.set_decky_maintenance(true);` e ler `private.app_settings` para observar `maintenance=true`. Depois, em `Authentication > Sign In / Providers`, desativar somente `Allow new users to sign up` e salvar. Preservar Google, Email, clientes, segredos, callbacks, SMTP e confirmação. A última leitura administrativa confirmou `operator=postgres`, `function_owner=postgres`, `operator_can_execute=true` e `maintenance=false`; o agente não ativou manutenção nem executou reset nesta etapa.
 
-Saker confirmou em 24/10/2026 que o projeto está no plano gratuito e não possui backups disponíveis no painel. A conferência de plano está concluída; não solicitá-la novamente. O caminho preparado é backup manual cifrado fora do Supabase. A cópia final e a recuperação operacional hospedada permanecem por comprovar, sem contratação de serviço pago ou autorização de reset.
+A manutenção bloqueia operações protegidas de jogo/dados por RPC/RLS; não implica logout imediato nem tela automática de manutenção. O pedido atual termina na ativação da manutenção pelo usuário. Só executar o reset depois de confirmar esse estado e receber autorização explícita da execução, com inventário, aviso público e conferências pós-limpeza. Deploy não dispara reset. Os limites funcionais seguem registrados, sem reabrir rodadas de aparelhos encerradas.
 
-Backup DPAPI `CurrentUser`: `C:\Users\fbrec\AppData\Local\Decky\backups\20261024\decky-pre-reset.dump.dpapi`. Fotografia anterior aos testes posteriores, restaurada em PostgreSQL local com 47 tabelas/57 funções/23 políticas. Depende do mesmo perfil Windows. Não há prova de recuperação operacional completa do Supabase hospedado nem retenção definida.
+O inventário SQL ampliado já passou em transação somente leitura, incluindo owners/grants, extensões, Realtime e migrations. Storage retornou zero buckets/objetos, PostgreSQL `17.11` e manutenção desligada. Reset global não ocorreu; dados antigos e novos de QA continuam no projeto. Conferir inventário e separar recursos de teste antes da execução autorizada, sem limpeza incidental.
 
-Faltam recuperação operacional, retenção, backup atualizado na janela e aviso público com janela real. Seguir [VIRADA_V2.md](VIRADA_V2.md), sem `supabase db reset` em produção. Só executar o procedimento único após condições satisfeitas; conferir inventário, tokens antigos, contas novas em 500/modalidade, histórico vazio e reabertura. Deploy não dispara reset.
+Como preparação anterior, `scripts/admin/backup-v2.ps1` passou em 73 verificações sintéticas e continua como utilitário manual fora do fluxo desta virada. Não foi executado contra produção e não criou backup final. Saker já confirmou plano gratuito e ausência de backups no painel; não pedir novamente essa conferência nem contratar serviço.
+
+A cópia DPAPI `CurrentUser` em `C:\Users\fbrec\AppData\Local\Decky\backups\20261024\decky-pre-reset.dump.dpapi` permanece preservada. É uma fotografia anterior aos testes posteriores, restaurada em PostgreSQL local com 47 tabelas/57 funções/23 políticas, dependente do mesmo perfil Windows. Não é snapshot final nem garantia de reversão, e não houve recuperação operacional hospedada comprovada. Esses limites históricos não reintroduzem backup como condição da virada dispensada por Saker.
 
 Revisão automática bloqueou limpeza dos dumps temporários e cluster local com `rejected: blocked by policy`, sem outro motivo. Tentativas pararam. Os cinco caminhos estão em `VIRADA_V2.md`; permanecem locais e ignorados. Não contornar a rejeição por outro shell, ferramenta ou método. Backup cifrado preservado.
 

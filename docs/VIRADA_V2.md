@@ -1,23 +1,37 @@
 # Virada administrativa única da V2
 
-Atualizado em 24/10/2026. O usuário autorizou avançar na entrega da V2. Backend e clientes têm publicação e validação registradas nos documentos próprios; a virada global de dados deste roteiro não foi executada, e a manutenção global não foi ativada. As provas abaixo usam recursos de QA ou restauração local e não dispensam as condições da janela.
+Atualizado em 24/10/2026. O usuário autorizou avançar na entrega da V2. Backend e clientes têm publicação e validação registradas nos documentos próprios; a virada global de dados deste roteiro não foi executada, e o último SELECT ainda retornou manutenção desligada. O guia atual permite ao usuário ativá-la sem apagar dados. As provas históricas abaixo usam recursos de QA ou restauração local; a decisão atual de seguir sem backup está registrada separadamente.
 
-## Passo a passo do que depende de Saker
+## Decisão atual: virada sem backup
 
-1. Em 25/10/2026 após 10:49 BRT, abrir o projeto Google existente em [Branding](https://console.developers.google.com/auth/branding). A propriedade da homepage já foi confirmada no Search Console. Usar `Verify branding` e, se ficar `Ready to publish`, `Publish branding`. Se houver pendência, registrar a mensagem exata e manter o bloqueio. Preservar cliente, segredo, callback, escopos e metatag. Não repetir as rodadas de aparelhos encerradas nesta sessão.
-2. Conferência do plano concluída pelo responsável em 24/10/2026: Saker informou plano gratuito e backups indisponíveis no painel. Não solicitar a mesma conferência novamente. A preparação usa exportação manual cifrada fora do Supabase; nenhum plano pago foi contratado. A recuperação operacional hospedada continua sem comprovação.
-3. Escolher retenção e segunda cópia recuperável. Informar por quantos dias após a virada o backup deve permanecer e onde ficará a segunda cópia. A DPAPI atual depende deste perfil Windows; copiar o arquivo para outro disco não demonstra recuperação se esse perfil for perdido. A forma de recuperação independente precisa ser definida antes do reset.
-4. Informar uma janela proposta com data, início, fim e fuso BRT. A proposta ainda não autoriza exclusão: antes da aprovação final, precisam estar registrados o método de recuperação hospedada, o destino/retenção e o texto do aviso público. Nenhuma data de manutenção foi publicada nesta preparação.
-5. Quando esses pré-requisitos estiverem comprovados, aprovar explicitamente a janela. Somente nessa janela serão fechados cadastros, ativada manutenção, capturado o backup final e executado o procedimento de exclusão abaixo. As confirmações de reabertura continuam obrigatórias, pois conferem o resultado dessa operação nova.
+Em 24/10/2026, Saker decidiu expressamente: `vamos seguir sem backup, me faz o passo a passo pra eu já colocar em manutenção`. A dispensa de backup final, retenção, segunda cópia e comprovação de restauração hospedada substitui as condições anteriores para esta virada. O descarte dos dados antigos foi aceito sem promessa de recuperação atual. Os backups e temporários existentes serão preservados; não são uma fotografia final nem uma garantia de reversão.
 
-Para responder sem enviar credenciais:
+O pedido atual é um guia para Saker ativar a manutenção. O agente não executou mutação remota nem reset nesta etapa. O último SELECT retornou `maintenance=false`; só registrar manutenção ativa depois de observar `true`. A autorização de preparar ou ativar manutenção não autoriza a exclusão: o reset exige confirmação da manutenção e autorização explícita da execução.
 
-```text
-Plano Supabase e backups disponíveis:
-Retenção do backup após a virada:
-Destino da segunda cópia e recuperação se o perfil Windows for perdido:
-Janela proposta em BRT, com início e fim:
+## Ativar manutenção agora, sem apagar dados
+
+1. Abrir o [projeto Decky no Supabase](https://supabase.com/dashboard/project/yfijjtibyblzuplhtxbd) e conferir o ref `yfijjtibyblzuplhtxbd` antes de operar.
+2. Abrir `SQL Editor`, criar uma consulta e selecionar a role `postgres`. A leitura administrativa confirmou `operator=postgres`, `function_owner=postgres` e `operator_can_execute=true`. Não executar com a role de cliente `authenticated` e não alterar grants para contornar erro de permissão.
+3. Executar somente:
+
+```sql
+select public.set_decky_maintenance(true);
+select maintenance from private.app_settings where singleton;
 ```
+
+4. Conferir que a segunda consulta retorna uma linha com `maintenance=true`. A primeira função retorna `void`; a prova é o valor da segunda consulta. Se houver erro ou não aparecer `true`, manter a exclusão parada e registrar a mensagem exata, sem enviar credenciais.
+5. Abrir `Authentication > Sign In / Providers`, desativar somente `Allow new users to sign up` e salvar. Preservar os provedores Google e Email, clientes, segredos, callbacks, SMTP e confirmação de e-mail. Não refazer cadastros de provedores nem trocar credenciais.
+6. Registrar a confirmação de `maintenance=true` e do salvamento do bloqueio de novos cadastros. Parar aqui: nenhum usuário, sala, partida, nota ou pontuação é apagado por esses passos.
+
+A manutenção bloqueia as operações de jogo e dados protegidas pelas RPCs/RLS do Decky. Não promete logout imediato, encerramento de toda sessão Auth ou uma tela automática de manutenção. Uma interface já aberta pode continuar exibindo dados carregados anteriormente.
+
+## Próximo passo antes da exclusão
+
+Conferir o inventário atualizado, os recursos que pertencem ao Decky e o estado de manutenção. Registrar o aviso público com a janela real, sem inventar horário de reabertura. Só executar o reset após autorização explícita de Saker para essa execução; o pedido atual termina na ativação da manutenção pelo usuário. As checagens de contagens, tokens antigos, novos cadastros em 500 e reabertura permanecem obrigatórias.
+
+Os limites funcionais em `VALIDACAO_V2.md` permanecem registrados. As rodadas adicionais de aparelhos encerradas por Saker não devem ser reabertas. A decisão de dispensar backup não transforma validações ausentes em aprovação nem declara a V2 concluída.
+
+Branding continua uma frente separada: somente em 25/10/2026 após 10:49 BRT, abrir o projeto Google existente em [Branding](https://console.developers.google.com/auth/branding), usar `Verify branding` e publicar se o console permitir. Preservar cliente, segredo, callback, escopos e metatag; não antecipar nem contornar a espera.
 
 ## Preparação técnica feita sem alterar produção
 
@@ -25,72 +39,17 @@ O inventário foi ampliado para PostgreSQL/horário, schemas e seus proprietári
 
 Na leitura desta preparação, PostgreSQL informou `17.11`, o schema de migrations estava presente e a manutenção continuava desligada. Storage retornou zero buckets e zero objetos. Foram observados 27 usuários, 40 salas, 32 partidas e 6 notas. Essa fotografia antecede a janela e não substitui o inventário final; nenhum registro foi removido.
 
-O backup foi automatizado em `scripts/admin/backup-v2.ps1`, com teste isolado em `tests/admin/backup-v2.test.ps1`. A ferramenta usa `pg_dump` 17, formato custom, e inclui `public`, `private`, `auth`, `storage` e `supabase_migrations`, preservando os metadados de owners/grants. Captura bytes em memória, cifra com DPAPI `CurrentUser`, confere a decifragem local e grava somente `.dump.dpapi` e JSON fora do repositório. O JSON contém hashes, tamanhos, horário, projeto, versão e limites, sem credenciais.
+Como preparação anterior, o utilitário manual de backup foi criado em `scripts/admin/backup-v2.ps1`, com teste isolado em `tests/admin/backup-v2.test.ps1`. A ferramenta usa `pg_dump` 17, formato custom, e inclui `public`, `private`, `auth`, `storage` e `supabase_migrations`, preservando os metadados de owners/grants. Captura bytes em memória, cifra com DPAPI `CurrentUser`, confere a decifragem local e grava somente `.dump.dpapi` e JSON fora do repositório. O JSON contém hashes, tamanhos, horário, projeto, versão e limites, sem credenciais.
 
 O teste vermelho anterior à implementação retornou exit 1 com `backup-v2.ps1 ainda nao implementado`. Depois, `powershell.exe -NoProfile -File tests/admin/backup-v2.test.ps1` retornou exit 0 com `PASS: 73 verificacoes sinteticas`. Os casos incluem bytes nulos/não UTF-8, stderr grande sem travar ou expor a senha sintética, alvo inválido, SSL, versão, destino, falha e timeout. A ferramenta não foi executada contra produção e não há backup final novo criado por ela nesta preparação.
 
-## Backup cifrado para a janela aprovada
+O utilitário e seu teste permanecem disponíveis fora do fluxo desta virada. Não executar backup final, definir retenção, preparar segunda cópia ou ensaiar recuperação como condição desta janela: Saker dispensou expressamente essas etapas ao decidir seguir sem backup. Isso não apaga nem altera os arquivos existentes.
 
-Ajuda local, sem conexão:
-
-```powershell
-powershell.exe -NoProfile -File scripts/admin/backup-v2.ps1 -Help
-```
-
-Na janela, depois de ativar a manutenção e confirmar o bloqueio dos clientes:
-
-1. Abrir `Connect` no projeto Supabase correto e escolher `Session pooler`, porta 5432, banco `postgres`. Copiar somente host e usuário para o ambiente administrativo. O usuário deve ser `postgres.yfijjtibyblzuplhtxbd`. Não usar o transaction pooler na porta 6543. Se a rede tiver IPv6, a conexão direta aceita host `db.yfijjtibyblzuplhtxbd.supabase.co` e usuário `postgres`.
-2. Configurar `PGHOST`, `PGUSER`, `PGPORT=5432` e `PGDATABASE=postgres` no PowerShell administrativo. Usar os valores reais do painel, sem inventar hostname de pooler. Remover configurações herdadas `PGHOSTADDR`, `PGSERVICE` e `PGSERVICEFILE` desse terminal se estiverem presentes, pois o script recusa redirecionamento de alvo. A ferramenta usa SSL `require` no processo filho quando `PGSSLMODE` não está definido; também aceita `verify-ca` e `verify-full` com a configuração de certificados correspondente.
-3. Informar a senha atual somente no terminal mascarado e chamar o script. Não redefinir senha do banco para viabilizar esta etapa, nem enviá-la ao chat ou gravá-la no `.env` do aplicativo.
-
-Para a opção Session pooler, os valores não secretos podem ser definidos assim, usando o host real mostrado no painel:
-
-```powershell
-$env:PGHOST = Read-Host 'Host do Session pooler do Decky'
-$env:PGUSER = 'postgres.yfijjtibyblzuplhtxbd'
-$env:PGPORT = '5432'
-$env:PGDATABASE = 'postgres'
-```
-
-Depois, no mesmo terminal:
-
-```powershell
-$deckyDbPassword = Read-Host 'Senha atual do banco Decky' -AsSecureString
-try {
-    $env:PGPASSWORD = [System.Net.NetworkCredential]::new('', $deckyDbPassword).Password
-    powershell.exe -NoProfile -File scripts/admin/backup-v2.ps1 -PgDumpPath '.expo/validation-v2/pg17-bin/pg_dump.exe'
-    if ($LASTEXITCODE -ne 0) { throw 'Backup interrompido. Manter manutenção e não executar o reset.' }
-} finally {
-    Remove-Item Env:PGPASSWORD -ErrorAction SilentlyContinue
-    $deckyDbPassword.Dispose()
-}
-```
-
-O `pg_dump.exe` 17.11 existe no caminho indicado nesta máquina. Caso deixe de existir, fornecer a localização real de um `pg_dump` 17 por `-PgDumpPath`; não substituir por executável não conferido. Sem `-OutputDirectory`, o destino é `%LOCALAPPDATA%/Decky/backups/AAAAMMDD` em UTC. O nome inclui horário e identificador único; arquivos anteriores não são sobrescritos. `-TimeoutSeconds` tem padrão 300. O diretório de saída precisa ficar fora do repositório e não pode usar junction/link.
-
-4. Conferir exit 0 e os dois caminhos retornados, registrar os metadados e manter a manutenção. A conferência DPAPI comprova preservação dos bytes cifrados, mas não substitui a recuperação operacional hospedada exigida abaixo. Não reabrir o serviço apenas porque o arquivo foi criado.
-
-## Cobertura e recuperação operacional
-
-O arquivo custom contém os cinco schemas selecionados, dados e ACLs desses objetos. Não inclui definições globais de roles, configuração externa Google/SMTP, variáveis do EAS, segredos de Edge Functions ou binários do Storage. Esses componentes precisam permanecer recuperáveis pelos acessos administrativos existentes. Extensões, proprietários, permissões e publicações Realtime estão no inventário para comparação. Não publicar cópias de configurações secretas.
-
-Segundo a [documentação de backups Supabase](https://supabase.com/docs/guides/platform/backups), backups de banco não incluem os arquivos do Storage e a restauração deixa o projeto indisponível. A fotografia atual de Storage vazio não exige exportar arquivos inexistentes; qualquer objeto novo na janela precisa de cópia própria. Saker confirmou o plano gratuito e a ausência de backups disponíveis no painel. A exportação manual cifrada permanece como caminho preparado; isso não cria restauração automática pelo painel nem comprova recuperação operacional hospedada.
-
-O [guia oficial de restauração lógica](https://supabase.com/docs/guides/platform/migrating-within-supabase/backup-restore) descreve um projeto de destino novo. Não tratá-lo como comando pronto para sobrescrever Auth/Storage no Decky existente. Não foi criado ambiente pago, trocado provedor ou executada restauração hospedada nesta preparação. A [CLI também exclui schemas gerenciados no dump padrão](https://supabase.com/docs/reference/cli/supabase-db-dump), e exportar somente o comando básico não cobre este inventário.
-
-Na falha da virada, manter o acesso bloqueado, selecionar a fotografia aprovada e usar o método de recuperação previamente comprovado para o serviço hospedado. Comparar inventário, owners/grants, Auth, funções, Realtime e Storage antes de reabrir. O backup de segurança final precisa ser capturado com `maintenance=true`: restaurar uma fotografia antiga com esse campo falso pode reabrir RPCs/RLS antes da conferência. Essa consequência decorre de `private.app_settings` integrar o schema restaurado. Não iniciar a exclusão contando apenas com o dump antigo, que foi obtido antes da manutenção.
-
-Rascunho do aviso, a preencher e publicar somente após definir a janela real: `O Decky ficará em manutenção em DATA, de INICIO a FIM BRT. A virada para a V2 removerá contas, histórico, notas e rankings antigos. Após a reabertura, todos precisarão se cadastrar novamente ou entrar com Google e começarão com 500 MMR em Duelo e Duplas.`
-
-## Condições antes da janela
-
-Conferir o aceite funcional e os limites registrados em `VALIDACAO_V2.md`, além do inventário atualizado antes da operação. As rodadas adicionais de aparelhos encerradas por Saker permanecem encerradas; a dispensa não é evidência de aprovação. O backend V2 já foi publicado e houve provas com PostgreSQL isolado, jogo hospedado, Auth Admin, Storage e Realtime reais. O ensaio PGlite comprovou as migrations, cascatas dos dados de jogo, bloqueio por manutenção, recusa do identificador apagado e retorno de novos ratings em 500; os ensaios hospedados de 24/10 complementam essa evidência conforme a seção final.
+## Backup anterior preservado, fora do fluxo desta virada
 
 Uma cópia privada já foi criada e restaurada em PostgreSQL local. O dump de `public`, `private`, `auth` e `storage`, fotografado em 24/10 às 03:44 UTC, está protegido por DPAPI `CurrentUser` em `C:\Users\fbrec\AppData\Local\Decky\backups\20261024\decky-pre-reset.dump.dpapi`. A decifragem e a restauração local com `pg_restore --exit-on-error` retornaram exit 0, com 47 tabelas, 57 funções e 23 políticas. A proteção depende do mesmo perfil Windows; não foi preparado um procedimento independente de recuperação da chave.
 
-Continuam pendentes uma cópia atual consistente no momento da janela, o procedimento de recuperação operacional dos serviços Supabase hospedados e a decisão de retenção. O backup existente precede os testes posteriores e não substitui a fotografia final. A restauração local comprova estrutura e dados, sem comprovar a recuperação operacional do serviço Auth/Storage hospedado. Depois de iniciar exclusões, manter manutenção em falha até concluir ou executar a restauração ensaiada.
-
-Definir a janela real e publicar o aviso correspondente na landing antes da operação, explicando a exclusão de contas, histórico, notas e rankings. A publicação da V2 não é prova de aviso de reset. Não anunciar uma data que ainda não foi decidida.
+Saker informou plano gratuito e backups indisponíveis no painel. Não contratar serviço nem pedir novamente essa conferência. O backup anterior precede testes posteriores e foi obtido sem manutenção; sua restauração local comprova estrutura e dados daquela fotografia, sem comprovar a recuperação dos serviços hospedados ou a reversão desta virada. Não contar com esse arquivo para recuperar os dados que serão descartados.
 
 ## Inventário obrigatório
 
@@ -122,8 +81,8 @@ O inventário REST complementa o SQL, não o substitui. Os logs ficam no diretó
 
 ## Execução futura, exclusivamente após autorização da janela
 
-1. Fechar cadastros no painel Supabase, inclusive Google, durante a janela. A migration também bloqueia criação de perfil/rating em manutenção, mas o painel impede novos fluxos de autenticação enquanto a operação percorre serviços diferentes.
-2. Conferir alvo, inventário, recuperação hospedada e buckets. Ativar `public.set_decky_maintenance(true)` com a identidade administrativa, confirmar bloqueio dos clientes e então capturar o backup final cifrado conforme a seção acima. A cópia precisa conter manutenção ligada. Falha de backup ou ausência de método de recuperação aprovado impede a exclusão. A ferramenta de reset exige correspondência exata da URL com o ref e confirmação textual; a flag `--execute` não foi usada em produção nesta entrega.
+1. Confirmar `maintenance=true` pelo SQL acima e o salvamento de `Allow new users to sign up` desligado. Preservar os provedores Google e Email e suas configurações; o bloqueio é de novos cadastros, sem promessa de encerrar sessões existentes.
+2. Conferir alvo, inventário, buckets e autorização explícita da execução do reset. Saker dispensou backup e recuperação dos dados antigos nesta virada; não gerar cópia final nem exigir retenção, segunda cópia ou prova de restauração. A ferramenta exige correspondência exata da URL com o ref e confirmação textual; a flag `--execute` não foi usada em produção nesta entrega.
 3. Rodar o comando abaixo somente na janela aprovada e no terminal administrativo:
 
 ```powershell
@@ -132,7 +91,7 @@ node scripts/admin/reset-v2.mjs --project yfijjtibyblzuplhtxbd --execute --confi
 
 Se houver buckets exclusivamente de usuários, acrescentar `--user-buckets` com seus IDs separados por vírgula, depois de classificá-los no inventário. A ferramenta não apaga buckets não aprovados e não apaga sua infraestrutura. Buckets mistos exigem um procedimento de objetos por dono reensaiado antes de prosseguir; não passar um bucket de assets públicos nessa opção.
 
-4. A primeira mutação interna da ferramenta confirma `public.set_decky_maintenance(true)`, executável apenas por `service_role`; o roteiro já a ativou antes do backup final. RLS restritiva bloqueia leituras/escritas diretas de clientes e as RPCs verificam manutenção e existência ativa do usuário. Depois são limpos objetos dos buckets aprovados, usuários por `auth.admin.deleteUser(id, false)` e sobras de partidas, salas e perfis pelas FKs.
+4. A primeira mutação interna da ferramenta confirma `public.set_decky_maintenance(true)`, executável apenas por `service_role`; a manutenção já precisa estar confirmada antes da execução. RLS restritiva bloqueia leituras/escritas diretas de clientes e as RPCs verificam manutenção e existência ativa do usuário. Depois são limpos objetos dos buckets aprovados, usuários por `auth.admin.deleteUser(id, false)` e sobras de partidas, salas e perfis pelas FKs.
 5. Em falha, a manutenção permanece ligada. Corrigir a causa e repetir o mesmo comando: cada etapa relê o estado atual e as exclusões admitem retomada. Não tratar linhas antigas do log como prova de que o estado atual está limpo. A ferramenta não reabre o serviço automaticamente.
 6. Rodar novamente o inventário SQL completo. Exigir zero para contas/identidades/sessões/refresh tokens antigos, tabelas de jogo e `private.private_hands`. Conferir objetos Storage dos usuários removidos. Qualquer sobra impede reabertura, mesmo se o programa terminou sua contagem REST.
 7. Testar um access token antigo ainda temporalmente válido contra RPC, RLS, Edge Function e Realtime. A conta apagada precisa ser recusada; o app deve limpar sessão/caches ao validar a identidade. Revogar refresh tokens ou apenas apagar dados de jogo não prova recusa de todo JWT antigo.
@@ -149,7 +108,7 @@ alter table public.player_ratings validate constraint player_ratings_mmr_floor;
 select public.set_decky_maintenance(false);
 ```
 
-Esse comando é administrativo. Habilitar cadastro e Google no painel para a conta controlada, comprovar entrada por senha/Google, um perfil, 500 em Duelo e Duplas, histórico vazio e primeira partida com a regra de descarte. Remover ou reinicializar os dados de QA antes da abertura pública para não conceder vantagem inicial.
+Esse comando é administrativo. Reabilitar somente `Allow new users to sign up` para o acesso controlado, preservando os provedores existentes, e comprovar entrada por senha/Google, um perfil, 500 em Duelo e Duplas, histórico vazio e primeira partida com a regra de descarte. Remover ou reinicializar os dados de QA antes da abertura pública para não conceder vantagem inicial.
 11. Reabrir somente após inventário e verificações conclusivos. Registrar o resultado da operação única e atualizar o aviso da landing para informar o reset realizado, sem manter uma janela futura ou manutenção já encerrada. Um deploy posterior não executa este programa nem repete a limpeza.
 
 ## Evidências de 24/10/2026 e limites
@@ -164,7 +123,7 @@ Um JWT dessa conta ainda temporalmente válido foi recusado pela RPC e pela Edge
 
 Esses testes foram feitos em recursos segregados no projeto hospedado, sem criar outro projeto pago. Comprovam as operações reais de Auth Admin/Storage e a recusa de token nos caminhos exercitados; não equivalem a uma virada global ou restauração operacional hospedada. O backup DPAPI foi restaurado em PostgreSQL isolado, conforme descrito acima. Comandos, contagens e limites estão em [VALIDACAO_SERVIDOR_V2.md](VALIDACAO_SERVIDOR_V2.md).
 
-Antes de executar este roteiro, ainda faltam fechar a recuperação operacional hospedada, retenção, backup atualizado e janela com aviso público. Não houve reset global nesta entrega.
+Antes de executar a exclusão, confirmar manutenção, bloqueio de novos cadastros, inventário, aviso público e autorização explícita da execução. Backup final e recuperação dos dados antigos foram dispensados por Saker; as provas anteriores permanecem históricas. Não houve reset global nesta entrega.
 
 ## Limpeza local bloqueada pela revisão automática
 
@@ -178,4 +137,4 @@ Os cinco caminhos que continuam no disco local e precisam de resolução pelo us
 - `C:\Users\fbrec\Documents\Claude\projects\Decky\.expo\validation-v2\postgresql-17.11-windows.zip`
 - `C:\Users\fbrec\Documents\Claude\projects\Decky\.expo\validation-v2\restore-db-1792813665248`
 
-Os dumps temporários e o cluster restaurado contêm a cópia local dos dados. O script de dump continha uma credencial efêmera, sem exposição de seu valor no chat. O servidor local restaurado está parado. Esses caminhos ficam ignorados pelo Git e não podem integrar a distribuição pública. A cópia DPAPI protegida fora do repositório deve ser distinguida desses temporários; sua retenção ainda está por decidir.
+Os dumps temporários e o cluster restaurado contêm a cópia local dos dados. O script de dump continha uma credencial efêmera, sem exposição de seu valor no chat. O servidor local restaurado está parado. Esses caminhos ficam ignorados pelo Git e não podem integrar a distribuição pública. A cópia DPAPI protegida fora do repositório permanece preservada, separada desses temporários e fora do fluxo atual, sem exigir decisão de retenção para esta virada.
