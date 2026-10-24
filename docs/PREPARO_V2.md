@@ -79,6 +79,8 @@ Falta prova publicada de atualização entre builds que tenham o verificador. A 
 
 ### 3. Virada somente nas condições registradas
 
+Preparação administrativa adicional: [VIRADA_V2.md](VIRADA_V2.md) começa com o passo a passo do que depende de Saker: Branding após o prazo, conferência de plano/backups no painel, retenção/segunda cópia recuperável e proposta/aprovação de janela. O script novo `scripts/admin/backup-v2.ps1` cifra a saída binária de `pg_dump` em memória e grava somente cifra/metadados fora do Git. Passou em 73 verificações sintéticas, sem conexão de produção; não criou um backup final nem comprovou restauração hospedada. O inventário SQL ampliado passou em transação somente leitura, incluindo owners/grants, extensões, Realtime e migrations. Storage retornou zero buckets/objetos, PostgreSQL `17.11` e manutenção desligada. Os exemplos de backup e a ativação de manutenção do roteiro são exclusivos da janela futura aprovada, antes da exclusão.
+
 Reset global não ocorreu. Dados antigos e novos de QA continuam no projeto. Conferir inventário e separar recursos de teste; não excluir dados existentes como limpeza incidental.
 
 Backup DPAPI `CurrentUser`: `C:\Users\fbrec\AppData\Local\Decky\backups\20261024\decky-pre-reset.dump.dpapi`. Fotografia anterior aos testes posteriores, restaurada em PostgreSQL local com 47 tabelas/57 funções/23 políticas. Depende do mesmo perfil Windows. Não há prova de recuperação operacional completa do Supabase hospedado nem retenção definida.
