@@ -21,7 +21,7 @@
   <main id="principal">
     <section class="hero wrap" aria-labelledby="titulo">
       <div class="hero-copy">
-        <h1 id="titulo">A próxima mão<br>é sua.</h1>
+        <h1 id="titulo">A próxima mão<br>é <span class="hero-yours">sua</span>.</h1>
         <p class="lead">Truco Paulista no celular.<br>Os amigos continuam na mesma mesa.</p>
         <p class="release" data-version aria-live="polite">Consultando versão para Android...</p>
         <div class="actions">
@@ -31,34 +31,46 @@
         <p class="platform-note" data-platform>APK exclusivo para Android. No iPhone, jogue pelo navegador.</p>
         <noscript><p>A versão Android precisa de JavaScript para consultar o download. Você pode jogar no navegador pelo link acima.</p></noscript>
       </div>
-      <img class="hero-logo" src="./assets/logo.png" width="1254" height="1254" fetchpriority="high" alt="Decky, três cartas e uma boa partida">
+      <div class="hero-art" data-hero-motion>
+        <span class="hero-suit hero-suit-spade" aria-hidden="true">♠</span>
+        <span class="hero-suit hero-suit-diamond" aria-hidden="true">♦</span>
+        <img class="hero-logo" src="./assets/logo.png" width="1254" height="1254" fetchpriority="high" alt="Decky, três cartas e uma boa partida">
+        <button class="motion-toggle" type="button" data-motion-toggle hidden>Pausar movimento</button>
+      </div>
     </section>
     <aside class="release-note wrap" aria-label="Virada de dados da V2">
       <strong>Manutenção encerrada em 24/10/2026.</strong> As contas e os dados antigos de jogo, incluindo histórico, notas e rankings, foram apagados na virada da V2. O serviço foi reaberto. Para voltar a jogar, crie uma nova conta, começando com 500 MMR em cada modalidade.
     </aside>
     <section id="como-jogar" class="feature wrap" aria-labelledby="presencial">
-      <div class="feature-copy"><h2 id="presencial">O truco é presencial.<br>O baralho é digital.</h2><p>Duelo entre duas pessoas ou quatro amigos em duplas. Cada jogador guarda a própria mão no celular. A vira, as apostas e o placar ficam por conta do Decky.</p><p>Escolha a carta, peça truco e jogue de frente para quem está do outro lado da mesa.</p></div>
-      <figure class="portrait"><img src="./assets/jogador.webp" width="780" height="1688" loading="lazy" alt="Demonstração local da V2: mão privada de Ana Demo, seleção de cartas e controles de truco"><figcaption>Demonstração local da V2, com dados de exemplo.</figcaption></figure>
+      <div class="feature-copy" data-reveal><h2 id="presencial">O truco é presencial.<br>O baralho é digital.</h2><p>Duelo entre duas pessoas ou quatro amigos em duplas. Cada jogador guarda a própria mão no celular. A vira, as apostas e o placar ficam por conta do Decky.</p><p>Escolha a carta, peça truco e jogue de frente para quem está do outro lado da mesa.</p></div>
+      <figure class="portrait" data-reveal><img src="./assets/jogador.webp" width="780" height="2000" loading="lazy" alt="Mão privada do jogador, seleção de cartas e controles de truco no Decky"></figure>
     </section>
     <section class="feature reverse wrap" aria-labelledby="mesa">
-      <div class="feature-copy"><h2 id="mesa">Uma mesa<br>para todo mundo.</h2><p>Um aparelho extra pode ficar no centro e mostrar só a mesa. As mãos continuam privadas nos celulares dos jogadores.</p><p>Vez, vira, manilhas e placar à vista. Até a carta descartada fica de costas.</p></div>
-      <figure class="wide"><img src="./assets/mesa.webp" width="1366" height="768" loading="lazy" alt="Demonstração local da V2 no modo mesa, com quatro jogadores e sem mãos privadas"><figcaption>Modo mesa. Cartas privadas aparecem apenas para seus donos.</figcaption></figure>
+      <div class="feature-copy" data-reveal><h2 id="mesa">Uma mesa<br>para todo mundo.</h2><p>Um aparelho extra pode ficar no centro e mostrar só a mesa. As mãos continuam privadas nos celulares dos jogadores.</p><p>Vez, vira, manilhas e placar à vista. Até a carta descartada fica de costas.</p></div>
+      <figure class="wide" data-reveal><img src="./assets/mesa.webp" width="2732" height="1800" loading="lazy" alt="Mesa central do Decky, com quatro jogadores, cartas e placar completos"></figure>
     </section>
     <section class="feature wrap" aria-labelledby="salas">
-      <div class="feature-copy"><h2 id="salas">Juntou o grupo?<br>Entre e jogue.</h2><p>Compartilhe o código ou leia o QR da sala dentro do app. Salas públicas também aparecem na lista de entrada. Prefere só os amigos? Crie uma sala privada.</p><p class="internet">Todos os aparelhos precisam de internet.</p></div>
-      <figure class="portrait"><img src="./assets/salas.webp" width="780" height="1688" loading="lazy" alt="Demonstração local da V2: entrada por código, leitura de QR e lista de salas públicas"><figcaption>Salas e nomes ilustrativos na interface real da V2.</figcaption></figure>
+      <div class="feature-copy" data-reveal><h2 id="salas">Juntou o grupo?<br>Entre e jogue.</h2><p>Compartilhe o código ou leia o QR da sala dentro do app. Salas públicas também aparecem na lista de entrada. Prefere só os amigos? Crie uma sala privada.</p><p class="internet">Todos os aparelhos precisam de internet.</p></div>
+      <figure class="portrait" data-reveal><img src="./assets/salas.webp" width="780" height="2000" loading="lazy" alt="Entrada por código, leitura de QR e lista de salas públicas no Decky"></figure>
     </section>
     <section class="feature reverse wrap" aria-labelledby="evolucao">
-      <div class="feature-copy"><h2 id="evolucao">Cada partida<br>conta uma história.</h2><p>Comece em Beta 1 com 500 MMR e acompanhe seu Elo até Omega. Duelo e Duplas têm rankings independentes.</p><p>No histórico, reveja o resultado e a variação de MMR. Registre suas notas para lembrar daquela partida.</p></div>
-      <div class="gallery"><figure><img src="./assets/ranking.webp" width="780" height="1688" loading="lazy" alt="Demonstração local do ranking da V2, com MMR e títulos de Elo"><figcaption>MMR e Elo por modalidade.</figcaption></figure><figure><img src="./assets/historico.webp" width="780" height="1688" loading="lazy" alt="Demonstração local do histórico e notas, com paginações independentes"><figcaption>Partidas e notas, cinco por página.</figcaption></figure></div>
+      <div class="feature-copy" data-reveal><h2 id="evolucao">Cada partida<br>conta uma história.</h2><p>Comece em Beta 1 com 500 MMR e acompanhe seu Elo até Omega. Duelo e Duplas têm rankings independentes.</p><p>No histórico, reveja o resultado e a variação de MMR. Registre suas notas para lembrar daquela partida.</p></div>
+      <div class="gallery" data-reveal><figure><img src="./assets/ranking.webp" width="780" height="2500" loading="lazy" alt="Ranking do Decky, com símbolos de Elo e MMR por modalidade"></figure><figure><img src="./assets/historico.webp" width="780" height="2200" loading="lazy" alt="Histórico e notas do Decky, com resultados e paginações independentes"></figure></div>
+      <div class="elo-ladder" data-reveal role="group" aria-label="Elos do Decky">
+        <div class="elo-family"><h3>Beta</h3><ul class="elo-icons" role="list"><li><img src="./assets/ranks/beta-1.png" width="256" height="256" loading="lazy" alt="Beta 1"><span aria-hidden="true">1</span></li><li><img src="./assets/ranks/beta-2.png" width="256" height="256" loading="lazy" alt="Beta 2"><span aria-hidden="true">2</span></li><li><img src="./assets/ranks/beta-3.png" width="256" height="256" loading="lazy" alt="Beta 3"><span aria-hidden="true">3</span></li></ul></div>
+        <div class="elo-family"><h3>Delta</h3><ul class="elo-icons" role="list"><li><img src="./assets/ranks/delta-1.png" width="256" height="256" loading="lazy" alt="Delta 1"><span aria-hidden="true">1</span></li><li><img src="./assets/ranks/delta-2.png" width="256" height="256" loading="lazy" alt="Delta 2"><span aria-hidden="true">2</span></li><li><img src="./assets/ranks/delta-3.png" width="256" height="256" loading="lazy" alt="Delta 3"><span aria-hidden="true">3</span></li></ul></div>
+        <div class="elo-family"><h3>Alfa</h3><ul class="elo-icons" role="list"><li><img src="./assets/ranks/alfa-1.png" width="256" height="256" loading="lazy" alt="Alfa 1"><span aria-hidden="true">1</span></li><li><img src="./assets/ranks/alfa-2.png" width="256" height="256" loading="lazy" alt="Alfa 2"><span aria-hidden="true">2</span></li><li><img src="./assets/ranks/alfa-3.png" width="256" height="256" loading="lazy" alt="Alfa 3"><span aria-hidden="true">3</span></li></ul></div>
+        <div class="elo-family"><h3>Sigma</h3><ul class="elo-icons" role="list"><li><img src="./assets/ranks/sigma-1.png" width="256" height="256" loading="lazy" alt="Sigma 1"><span aria-hidden="true">1</span></li><li><img src="./assets/ranks/sigma-2.png" width="256" height="256" loading="lazy" alt="Sigma 2"><span aria-hidden="true">2</span></li><li><img src="./assets/ranks/sigma-3.png" width="256" height="256" loading="lazy" alt="Sigma 3"><span aria-hidden="true">3</span></li></ul></div>
+        <div class="elo-family elo-family-omega"><h3>Omega</h3><ul class="elo-icons" role="list"><li><img src="./assets/ranks/omega.png" width="256" height="256" loading="lazy" alt="Omega"></li></ul></div>
+      </div>
     </section>
     <section class="about wrap" aria-labelledby="projeto">
-      <h2 id="projeto">Feito para jogar junto.</h2>
-      <p>Decky nasceu no projeto de Desenvolvimento Mobile do SENAI. Um baralho digital para partidas presenciais de Truco Paulista.</p>
-      <details><summary>Quem fez o Decky</summary><p>Mariana Ribeiro, Isabela Puzenato, Nicoly Ribeiro, Caio Yuri, Eduardo Zanetti e Rafael Brecci.</p></details>
-      <div class="actions"><a class="button android" data-download aria-disabled="true">Baixar para Android</a><a class="button secondary web" href="https://decky-brecci.expo.app">Jogar no navegador</a></div>
+      <div data-reveal><h2 id="projeto">Feito para jogar junto.</h2>
+      <p>Decky nasceu no projeto de Desenvolvimento Mobile do SENAI. Um baralho digital para partidas presenciais de Truco Paulista.</p></div>
+      <ul class="team" role="list" aria-label="Quem fez o Decky" data-reveal><li><span aria-hidden="true">♠</span>Mariana Ribeiro</li><li><span aria-hidden="true">♥</span>Isabela Puzenato</li><li><span aria-hidden="true">♦</span>Nicoly Ribeiro</li><li><span aria-hidden="true">♣</span>Caio Yuri</li><li><span aria-hidden="true">♠</span>Eduardo Zanetti</li><li><span aria-hidden="true">♥</span>Rafael Brecci</li></ul>
+      <div class="actions" data-reveal><a class="button android" data-download aria-disabled="true">Baixar para Android</a><a class="button secondary web" href="https://decky-brecci.expo.app">Jogar no navegador</a></div>
     </section>
   </main>
-  <footer class="wrap"><a class="wordmark" href="./">Decky<span aria-hidden="true">♠</span></a><nav aria-label="Informações"><a href="./privacidade.html">Privacidade</a><a href="./termos.html">Termos</a><a href="./suporte.html">Suporte</a><a href="https://github.com/rbrecci/Decky">GitHub</a></nav><p>Truco presencial. Sem apostas em dinheiro no app.</p></footer>
+  <footer class="wrap"><a class="wordmark" href="./">Decky<span aria-hidden="true">♠</span></a><nav aria-label="Informações"><a href="./privacidade.html">Privacidade</a><a href="./termos.html">Termos</a><a href="./suporte.html">Suporte</a><a href="https://github.com/rbrecci/Decky">GitHub</a></nav></footer>
 </body>
 </html>
