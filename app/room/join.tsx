@@ -75,7 +75,7 @@ export default function JoinRoom() {
   const submit = () => enter(code);
 
   return (
-    <Screen title="Entrar na sala" maxWidth={840}>
+    <Screen title="Entrar na sala" maxWidth={840} onBack={() => router.back()}>
       <TextField
         label="Código da sala"
         value={code}
@@ -106,7 +106,6 @@ export default function JoinRoom() {
         <Button label={room.playerCount >= room.capacity ? 'Sala cheia' : 'Entrar na sala'} variant="dark" disabled={loading || room.playerCount >= room.capacity} onPress={() => void enter(room.code)} />
       </Panel>)}
       <Button label="Atualizar salas" variant="secondary" disabled={listLoading} onPress={() => void refreshNow()} />
-      <Button label="Voltar" variant="ghost" onPress={() => router.back()} />
     </Screen>
   );
 }

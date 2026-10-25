@@ -38,7 +38,7 @@ export default function RankingScreen() {
   const mine = ranking?.myEntry;
 
   return (
-    <Screen title="Ranking" maxWidth={840}>
+    <Screen title="Ranking" maxWidth={840} onBack={() => router.back()}>
       <View style={styles.modes}>
         {(['1v1', '2v2'] as GameMode[]).map((mode) => (
           <Button
@@ -121,7 +121,6 @@ export default function RankingScreen() {
           <Button label="Atualizar ranking" variant="secondary" loading={loading} onPress={() => setAttempt((n) => n + 1)} />
         </>
       ) : null}
-      <Button label="Voltar" variant="ghost" onPress={() => router.back()} />
     </Screen>
   );
 }

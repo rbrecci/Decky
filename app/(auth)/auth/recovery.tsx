@@ -64,14 +64,13 @@ export default function Recovery() {
     } catch (next) { setError(authErrorMessage(next)); }
   }
 
-  if (done) return <Screen title="Senha atualizada">
+  if (done) return <Screen title="Senha atualizada" onBack={goToLogin} backLabel="Ir para o login">
     <Notice kind="success" message="Sua senha foi alterada. Entre com a nova senha." />
     {!logoutComplete ? <Notice kind="info" message="A senha foi salva, mas faltou encerrar a sessão anterior. Tente novamente abaixo quando a conexão voltar." /> : null}
     <Notice kind="error" message={error} />
-    <Button label="Ir para o login" onPress={goToLogin} />
   </Screen>;
 
-  return <Screen title="Nova senha">
+  return <Screen title="Nova senha" onBack={() => router.replace('/login')} backDisabled={loading}>
     {!token && !hasRecoveryGrant() ? <Notice kind="error" message="Abra o link do e-mail ou solicite uma nova recuperação." /> : <>
       <Notice kind="info" message="A troca só ocorre ao confirmar abaixo. Não compartilhe este link." />
       <AuthForm onSubmit={submit}>
@@ -82,6 +81,5 @@ export default function Recovery() {
     </>}
     <Notice kind="error" message={error} />
     <Button label="Solicitar outro link" variant="secondary" onPress={() => router.replace('/forgot-password')} disabled={loading} />
-    <Button label="Voltar ao login" variant="ghost" onPress={() => router.replace('/login')} disabled={loading} />
   </Screen>;
 }

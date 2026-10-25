@@ -5,7 +5,6 @@ import { AuthForm, AuthSubmit } from '../../src/auth/AuthForm';
 import { authErrorMessage, mailCooldownSeconds, requestPasswordRecovery } from '../../src/auth/flows';
 import { validateEmail } from '../../src/auth/validators';
 import { useRerenderAt } from '../../src/lib/useRerenderAt';
-import { Button } from '../../src/ui/Button';
 import { Notice } from '../../src/ui/Notice';
 import { Screen } from '../../src/ui/Screen';
 import { TextField } from '../../src/ui/TextField';
@@ -39,7 +38,7 @@ export default function ForgotPassword() {
     }
   }
 
-  return <Screen title="Recuperar senha">
+  return <Screen title="Recuperar senha" onBack={() => router.replace('/login')}>
     <AuthForm onSubmit={submit}>
       <TextField required label="E-mail" nativeID="recovery-email" value={email} onChangeText={setEmail}
         editable={!loading} autoComplete="email" autoCapitalize="none" autoCorrect={false}
@@ -50,6 +49,5 @@ export default function ForgotPassword() {
       <AuthSubmit label={cooling ? 'Aguarde um minuto para reenviar' : 'Enviar recuperação'} onPress={submit} loading={loading} disabled={cooling} />
     </AuthForm>
     <Notice kind="info" message="O link abre no navegador e também funciona em outro aparelho. Para a senha da sua conta Google, use a recuperação do próprio Google." />
-    <Button label="Voltar ao login" variant="secondary" onPress={() => router.replace('/login')} />
   </Screen>;
 }

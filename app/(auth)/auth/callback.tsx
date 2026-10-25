@@ -6,7 +6,6 @@ import { useAuth } from '../../../src/auth/AuthProvider';
 import { authErrorMessage, completeOAuthCallback, getOAuthRedirect } from '../../../src/auth/flows';
 import { validateDisplayName } from '../../../src/auth/validators';
 import { supabase } from '../../../src/lib/supabase';
-import { Button } from '../../../src/ui/Button';
 import { Notice } from '../../../src/ui/Notice';
 import { Screen } from '../../../src/ui/Screen';
 import { Skeleton, SkeletonBlock } from '../../../src/ui/Skeleton';
@@ -46,10 +45,9 @@ export default function OAuthCallback() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [callbackUrl]);
 
-  return <Screen title="Entrando com Google">
+  return <Screen title="Entrando com Google" onBack={error ? () => router.replace('/login') : undefined}>
     {error ? <>
       <Notice kind="error" message={error} />
-      <Button label="Voltar ao login" onPress={() => router.replace('/login')} />
     </> : <Skeleton label="Concluindo autenticação">
       <SkeletonBlock width="65%" height={20} />
       <SkeletonBlock width="45%" />

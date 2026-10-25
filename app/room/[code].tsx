@@ -66,16 +66,15 @@ export default function Lobby() {
   // No modo mesa o dono não ocupa lugar, mas continua na sala.
   if (loaded && (gone || (!me && !isHost))) {
     return (
-      <Screen title="Sala indisponível">
+      <Screen title="Sala indisponível" onBack={() => router.replace('/')}>
         <Notice kind="info" message="Esta sala não existe mais ou você não está nela." />
-        <Button label="Voltar ao início" onPress={() => router.replace('/')} />
       </Screen>
     );
   }
 
   if (!loaded || activeMatchId) {
     return (
-      <Screen maxWidth={840}>
+      <Screen title="Sala" maxWidth={840} onBack={() => router.replace('/')}>
         <Skeleton label={activeMatchId ? 'Abrindo a partida' : 'Carregando sala'}>
           <Panel style={styles.codeBox}>
             <SkeletonBlock width="40%" height={14} style={{ alignSelf: 'center' }} />
@@ -94,13 +93,12 @@ export default function Lobby() {
           <Notice kind="info" message="Não foi possível carregar a sala. Tentando reconectar..." />
           <Button label="Tentar novamente" variant="secondary" onPress={() => void refresh()} />
         </> : null}
-        <Button label="Voltar ao início" variant="ghost" onPress={() => router.replace('/')} />
       </Screen>
     );
   }
 
   return (
-    <Screen maxWidth={840}>
+    <Screen title="Sala" maxWidth={840} onBack={handleLeave} backLoading={busy === 'leave'}>
       <Panel tone="accent" style={styles.codeBox}>
         <Text style={styles.codeLabel}>CÓDIGO DA SALA</Text>
         {room ? <Text style={styles.codeLabel}>{room.visibility === 'public' ? 'PÚBLICA' : 'PRIVADA'}</Text> : null}
@@ -175,7 +173,6 @@ export default function Lobby() {
         </Text>
       )}
 
-      <Button label="Sair da sala" variant="ghost" onPress={handleLeave} loading={busy === 'leave'} />
     </Screen>
   );
 }

@@ -28,9 +28,8 @@ export default function Game() {
 
   if (notFound || !match || !role) {
     return (
-      <Screen title="Partida indisponível">
+      <Screen title="Partida indisponível" onBack={() => router.replace('/')}>
         <Notice kind="info" message="Esta partida não existe ou você não participa dela." />
-        <Button label="Voltar ao início" onPress={() => router.replace('/')} />
       </Screen>
     );
   }

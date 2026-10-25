@@ -36,6 +36,8 @@ export function TableGame({ match, players, connection, fetchNow }: Props) {
   // e as cartas caíam para o tamanho mínimo.
   const { height, fontScale } = useWindowDimensions();
   const [viewportHeight, setViewportHeight] = useState<number | null>(null);
+  const [scoreHeight, setScoreHeight] = useState(0);
+  const availableHeight = (viewportHeight ?? height) - insets.top - insets.bottom - space.xs - scoreHeight - space.sm;
   const roomy = height >= 720;
   const state = match.state;
   const deal = useDealAnimation(match.matchId, state);
@@ -66,8 +68,10 @@ export function TableGame({ match, players, connection, fetchNow }: Props) {
         },
       ]}
     >
-      <ScrollView contentContainerStyle={[styles.content, { minHeight: Math.max((viewportHeight ?? height) - insets.top - insets.bottom, 600 * Math.min(fontScale, 1.6)) }]}>
-      <ScoreBar state={state} viewerTeam={null} players={players} large={roomy} onLeave={leaveTable} />
+      <View onLayout={(event) => setScoreHeight(event.nativeEvent.layout.height)} style={styles.fixedScore}>
+        <ScoreBar state={state} viewerTeam={null} players={players} large={roomy} onLeave={leaveTable} />
+      </View>
+      <ScrollView style={styles.scroll} contentContainerStyle={[styles.content, { height: Math.max(availableHeight, 600 * Math.min(fontScale, 1.6) - scoreHeight - space.sm) }]}>
       <ConnectionBanner status={connection} />
       <StatusBanner status={statusText({ state, viewerSeat: null, nameOf, canRespond: false, phase: deal.phase })} large={roomy} />
       <TableBoard state={state} players={players} bottomSeat={1} viewerSeat={null} deal={deal} variant="large" cue={cue} clockOffset={clock.offset} />
@@ -90,6 +94,8 @@ export function TableGame({ match, players, connection, fetchNow }: Props) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg, gap: space.sm },
+  scroll: { flex: 1 },
+  fixedScore: { width: '100%', maxWidth: 1800, alignSelf: 'center' },
   content: { flexGrow: 1, width: '100%', maxWidth: 1800, alignSelf: 'center', gap: space.sm, paddingBottom: space.md },
   footer: { color: colors.textFaint, fontSize: font.small - 3, letterSpacing: 0.6, textAlign: 'center' },
 });

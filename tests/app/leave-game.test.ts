@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import { Children, isValidElement, type ReactElement, type ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { newMatch, seededRng } from '../../supabase/functions/_shared/engine/index.ts';
 import type { MatchView } from '../../src/contracts/types';
@@ -40,12 +40,12 @@ vi.mock('../../src/game/components/TableBoard', () => ({ TableBoard: 'TableBoard
 import { PlayerGame } from '../../src/game/PlayerGame';
 import { TableGame } from '../../src/game/TableGame';
 
-type Element = ReactElement<{ children?: Element[]; onLeave?: () => void }>;
+type Element = ReactElement<{ children?: ReactNode; onLeave?: () => void }>;
 
 function leaveButton(element: Element): () => void {
   if (element.props.onLeave) return element.props.onLeave;
-  for (const child of element.props.children ?? []) {
-    if (!child || typeof child !== 'object' || !('props' in child)) continue;
+  for (const child of Children.toArray(element.props.children)) {
+    if (!isValidElement<Element['props']>(child)) continue;
     try { return leaveButton(child); } catch {}
   }
   throw new Error('Botao de sair nao encontrado');

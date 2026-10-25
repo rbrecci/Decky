@@ -36,10 +36,9 @@ export default function ConfirmEmail() {
     finally { busy.current = false; setLoading(false); }
   }
 
-  return <Screen title={done ? 'E-mail confirmado' : 'Confirme seu e-mail'}>
+  return <Screen title={done ? 'E-mail confirmado' : 'Confirme seu e-mail'} onBack={() => router.replace('/login')} backDisabled={loading}>
     <Notice kind={done ? 'success' : 'info'} message={done ? 'Seu e-mail foi confirmado. Você já pode entrar.' : token ? 'Toque abaixo para confirmar seu endereço no Decky.' : 'Abra o link do e-mail. Se expirou, solicite o reenvio no cadastro ou login.'} />
     <Notice kind="error" message={error} />
     {token ? <Button label="Confirmar e-mail" onPress={confirm} loading={loading} /> : null}
-    <Button label="Ir para o login" variant="secondary" onPress={() => router.replace('/login')} disabled={loading} />
   </Screen>;
 }

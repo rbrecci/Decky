@@ -75,7 +75,7 @@ export default function NoteForm() {
 
   if (loading) {
     return (
-      <Screen title="Editar nota">
+      <Screen title="Editar nota" onBack={() => router.back()}>
         <Skeleton label="Carregando nota">
           <SkeletonBlock width={70} height={20} />
           <SkeletonBlock height={54} />
@@ -83,13 +83,12 @@ export default function NoteForm() {
           <SkeletonBlock height={140} />
           <SkeletonBlock height={52} />
         </Skeleton>
-        <Button label="Cancelar" variant="ghost" onPress={() => router.back()} />
       </Screen>
     );
   }
 
   return (
-    <Screen title={editing ? 'Editar nota' : 'Nova nota'}>
+    <Screen title={editing ? 'Editar nota' : 'Nova nota'} onBack={() => router.back()}>
       <TextField label="Título" value={title} onChangeText={setTitle} error={titleError} maxLength={80} placeholder="Ex.: Revanche sábado" />
       <TextField
         label="Anotação"
@@ -103,7 +102,6 @@ export default function NoteForm() {
       <Notice kind="error" message={error} />
       <Button label="Salvar" onPress={save} loading={saving} disabled={!editing && !matchId} />
       {editing ? <Button label="Excluir nota" variant="secondary" onPress={confirmDelete} /> : null}
-      <Button label="Cancelar" variant="ghost" onPress={() => router.back()} />
     </Screen>
   );
 }

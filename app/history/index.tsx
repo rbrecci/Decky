@@ -7,7 +7,6 @@ import { deleteNote, fetchMyMatches, listNotes } from '../../src/history/api';
 import { errorMessage } from '../../src/lib/errors';
 import { Button } from '../../src/ui/Button';
 import { Notice } from '../../src/ui/Notice';
-import { RuledTitle } from '../../src/ui/Ornament';
 import { Panel } from '../../src/ui/Panel';
 import { Screen } from '../../src/ui/Screen';
 import { SkeletonCards } from '../../src/ui/Skeleton';
@@ -40,10 +39,7 @@ export default function History() {
   }
 
   return (
-    <Screen maxWidth={1000} fixedHeader={<View style={styles.header}>
-      <RuledTitle style={styles.title}>Histórico</RuledTitle>
-      <Button label="Voltar" variant="ghost" size="compact" onPress={() => router.canGoBack() ? router.back() : router.replace('/')} />
-    </View>}>
+    <Screen title="Histórico" maxWidth={1000} onBack={() => router.canGoBack() ? router.back() : router.replace('/')}>
       <Notice kind="error" message={error} />
       <Text style={styles.section} accessibilityRole="header">Minhas notas</Text>
       {notes.initialLoading ? <SkeletonCards label="Carregando notas" count={5} /> : null}
@@ -105,8 +101,6 @@ function Pagination({ page, hasNext, loading, go, label }: { page: number; hasNe
 }
 
 const styles = StyleSheet.create({
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space.sm },
-  title: { fontFamily: fonts.display, fontSize: 30, lineHeight: 40, color: colors.text },
   section: { fontFamily: fonts.display, fontSize: font.large, lineHeight: 30, color: colors.text, marginTop: space.sm },
   empty: { fontSize: font.body - 1, color: colors.textMuted },
   cardTitle: { fontSize: font.large - 2, fontWeight: '800', color: colors.text },

@@ -1,8 +1,9 @@
 import { memo } from 'react';
-import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import Animated, { FadeInDown, LayoutAnimationConfig, ZoomIn } from 'react-native-reanimated';
 import type { MatchPlayer, PublicGameState, Team } from '../../contracts/types';
-import { colors, font, fonts, radius, space, TOUCH_MIN } from '../../ui/theme';
+import { Button } from '../../ui/Button';
+import { colors, font, fonts, radius, space } from '../../ui/theme';
 import { describeTrick, teamLabel, trucoName } from '../describe';
 
 interface Props {
@@ -15,11 +16,12 @@ interface Props {
 }
 
 /** Placar das duplas, valor da mão e vazas da mão atual. Só redesenha quando o estado público muda. */
-export const ScoreBar = memo(function ScoreBar({ state, viewerTeam, players, large, onLeave }: Props) {
+export const ScoreBar = memo(function ScoreBar({ state, viewerTeam, players, large: requestedLarge, onLeave }: Props) {
   // Para o jogador, "Nós" fica sempre à esquerda; na mesa, A à esquerda.
   // Tela estreita na visão neutra: "DUPLA A" não cabe ao lado do selo do valor e quebrava em duas
   // linhas; fica só a letra, junto do ponto da cor da dupla (o rótulo de acessibilidade segue completo).
   const { width } = useWindowDimensions();
+  const large = requestedLarge && width >= 600;
   const label = (team: Team) => (viewerTeam === null && width < 360 ? team : teamLabel(team, viewerTeam, state.gameMode));
   const left: Team = viewerTeam ?? 'A';
   const right: Team = left === 'A' ? 'B' : 'A';
@@ -29,24 +31,14 @@ export const ScoreBar = memo(function ScoreBar({ state, viewerTeam, players, lar
       .map((p) => p.displayName)
       .join(' e ');
 
-  // Curto durante o pedido ("SEIS?"): o texto longo ("3 → SEIS?") empurrava o placar por cima do ✕
-  // na mesa dedicada. O valor atual continua no rótulo de acessibilidade e no aviso do centro.
+  // O nome curto do pedido preserva espaço para o controle de retorno. O valor atual continua
+  // no rótulo de acessibilidade e no aviso do centro.
   const value = state.truco ? `${trucoName(state.truco.value)}?` : `Vale ${state.handValue}`;
 
   return (
     // Ao abrir a tela, o placar aparece parado; só os pontos que mudam depois entram animados.
     <LayoutAnimationConfig skipEntering>
       <View style={[styles.bar, large && styles.barLarge]}>
-        <Pressable
-          onPress={onLeave}
-          style={({ pressed }) => [styles.leave, pressed && { opacity: 0.6 }]}
-          accessibilityRole="button"
-          accessibilityLabel="Sair da mesa"
-          hitSlop={8}
-        >
-          <Text style={styles.leaveText}>✕</Text>
-        </Pressable>
-
         <View
           style={styles.score}
           accessible
@@ -82,6 +74,7 @@ export const ScoreBar = memo(function ScoreBar({ state, viewerTeam, players, lar
             ))}
           </View>
         </View>
+        <Button label="Voltar" variant="ghost" size="compact" onPress={onLeave} style={styles.backButton} />
       </View>
     </LayoutAnimationConfig>
   );
@@ -137,20 +130,10 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.line,
   },
   barLarge: { paddingVertical: space.sm },
-  leave: {
-    width: TOUCH_MIN,
-    height: TOUCH_MIN,
-    borderRadius: TOUCH_MIN / 2,
-    borderWidth: 1,
-    borderColor: colors.lineStrong,
-    backgroundColor: colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  leaveText: { color: colors.textMuted, fontSize: font.body, fontWeight: '700' },
-  score: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: space.md },
-  // Encolhe com o espaço: nomes longos das duplas truncam dentro da coluna em vez de vazar por cima do ✕.
-  team: { alignItems: 'center', minWidth: 56, flexShrink: 1 },
+  backButton: { flexShrink: 0 },
+  score: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: space.sm },
+  // Nomes longos truncam dentro da coluna, preservando espaço para o retorno.
+  team: { alignItems: 'center', minWidth: 44, flexShrink: 1 },
   teamHead: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   teamDot: { width: 8, height: 8, borderRadius: 4 },
   teamLabel: { color: colors.textMuted, fontSize: font.small - 2, fontWeight: '800', letterSpacing: 0.8, textTransform: 'uppercase' },

@@ -47,7 +47,7 @@ export default function CreateRoom() {
   }
 
   return (
-    <Screen title="Criar sala">
+    <Screen title="Criar sala" onBack={() => router.back()}>
       <View style={styles.gameModes}>
         {(['1v1', '2v2'] as GameMode[]).map((mode) => (
           <Button key={mode} style={styles.flex} label={mode === '1v1' ? '1v1: Duelo' : '2v2: Duplas'} variant={gameMode === mode ? 'gold' : 'secondary'} disabled={!!creating} onPress={() => setGameMode(mode)} />
@@ -83,7 +83,6 @@ export default function CreateRoom() {
         );
       })}
       <Notice kind="error" message={error} />
-      <Button label="Voltar" variant="ghost" onPress={() => router.back()} />
     </Screen>
   );
 }

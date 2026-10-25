@@ -57,7 +57,7 @@ export default function Register() {
 
   if (confirmSent) {
     return (
-      <Screen title="Quase lá">
+      <Screen title="Quase lá" onBack={() => router.replace(code ? { pathname: '/login', params: { code } } : '/login')}>
         <Notice kind="success" message={`Enviamos um link de confirmação para ${values.email.trim()}. Abra o e-mail e depois entre.`} />
         <ConfirmationResend email={values.email} initiallySent />
         <Button label="Ir para o login" onPress={() => router.replace(code ? { pathname: '/login', params: { code } } : '/login')} />
@@ -66,7 +66,7 @@ export default function Register() {
   }
 
   return (
-    <Screen title="Criar conta" subtitle="Seu nome aparece na mesa para os outros jogadores.">
+    <Screen title="Criar conta" subtitle="Seu nome aparece na mesa para os outros jogadores." onBack={() => router.replace(code ? { pathname: '/login', params: { code } } : '/login')}>
       <AuthForm onSubmit={submit}>
       <TextField required nativeID="display-name" autoComplete="nickname" label="Seu nome na mesa" value={values.name} onChangeText={set('name')} error={errors.name} placeholder="Ex.: Caio" maxLength={20} />
       <TextField
@@ -110,7 +110,6 @@ export default function Register() {
       <Notice kind="error" message={serverError} />
       <AuthSubmit label="Cadastrar" onPress={submit} loading={loading} />
       </AuthForm>
-      <Button label="Já tenho conta" variant="secondary" onPress={() => router.replace(code ? { pathname: '/login', params: { code } } : '/login')} />
     </Screen>
   );
 }

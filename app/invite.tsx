@@ -20,9 +20,8 @@ export default function Invite() {
 
   if (!valid) {
     return (
-      <Screen title="Convite inválido">
+      <Screen title="Convite inválido" onBack={() => router.replace('/')}>
         <Notice kind="error" message="O link da sala não contém um código válido." />
-        <Button label="Voltar" onPress={() => router.replace('/')} />
       </Screen>
     );
   }

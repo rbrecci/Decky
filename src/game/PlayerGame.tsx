@@ -79,9 +79,10 @@ export function PlayerGame({
   const { width, height, fontScale } = useWindowDimensions();
   const [viewportHeight, setViewportHeight] = useState<number | null>(null);
   const [handHeight, setHandHeight] = useState(320);
+  const [scoreHeight, setScoreHeight] = useState(0);
   const wide = width >= 1000;
-  const availableHeight = (viewportHeight ?? height) - insets.top - insets.bottom;
-  const topHeight = Math.max(350 * Math.min(fontScale, 1.6), wide ? availableHeight - space.md * 2 : availableHeight - handHeight);
+  const availableHeight = (viewportHeight ?? height) - insets.top - insets.bottom - scoreHeight;
+  const topHeight = Math.max(0, 350 * Math.min(fontScale, 1.6) - scoreHeight, wide ? availableHeight - space.md * 2 : availableHeight - handHeight);
   const state = match.state;
   const deal = useDealAnimation(match.matchId, state);
   const cue = useTableCue(match, connection);
@@ -165,9 +166,11 @@ export function PlayerGame({
 
   return (
     <View onLayout={(event) => setViewportHeight(event.nativeEvent.layout.height)} style={[styles.screen, { paddingTop: insets.top, paddingLeft: insets.left, paddingRight: insets.right }]}>
-      <ScrollView contentContainerStyle={[styles.game, { minHeight: Math.max((viewportHeight ?? height) - insets.top - insets.bottom, 640 * Math.min(fontScale, 1.6)) }, wide && styles.wide]}>
-      <View style={[styles.top, { height: topHeight, flexGrow: wide ? 1 : 0 }]}>
+      <View onLayout={(event) => setScoreHeight(event.nativeEvent.layout.height)} style={styles.fixedScore}>
         <ScoreBar state={state} viewerTeam={myTeam} players={players} large={false} onLeave={leaveTable} />
+      </View>
+      <ScrollView style={styles.scroll} contentContainerStyle={[styles.game, { minHeight: Math.max(availableHeight, 640 * Math.min(fontScale, 1.6) - scoreHeight) }, wide && styles.wide]}>
+      <View style={[styles.top, { height: topHeight, flexGrow: wide ? 1 : 0 }]}>
         <ConnectionBanner status={connection} />
         {layout === 'split' ? (
           <TableBoard
@@ -227,9 +230,11 @@ export function PlayerGame({
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
+  scroll: { flex: 1 },
+  fixedScore: { width: '100%', maxWidth: 1800, alignSelf: 'center', paddingHorizontal: space.sm },
   game: { flexGrow: 1, width: '100%', maxWidth: 1800, alignSelf: 'center' },
   wide: { flexDirection: 'row', gap: space.md, padding: space.md, alignItems: 'stretch' },
-  top: { flexShrink: 0, flexBasis: 'auto', minHeight: 350, minWidth: 0, paddingHorizontal: space.sm, paddingBottom: space.sm, gap: space.xs },
+  top: { flexShrink: 0, flexBasis: 'auto', minWidth: 0, paddingHorizontal: space.sm, paddingBottom: space.sm, gap: space.xs },
   handArea: { justifyContent: 'center' },
   handAreaWide: { width: '36%', maxWidth: 560 },
 });

@@ -44,13 +44,12 @@ export default function CompleteProfile() {
     <Button label="Entrar na conta" onPress={() => router.replace('/login')} />
   </Screen>;
 
-  return <Screen title="Seu nome na mesa" subtitle="Escolha como os outros jogadores vão ver você.">
+  return <Screen title="Seu nome na mesa" subtitle="Escolha como os outros jogadores vão ver você." onBack={exit} backLabel="Sair da conta" backDisabled={loading}>
     <AuthForm onSubmit={submit}>
       <TextField required label="Nome" nativeID="display-name" autoComplete="nickname" value={name} onChangeText={setName} maxLength={20}
         editable={!loading} returnKeyType="done" onSubmitEditing={Platform.OS === 'web' ? undefined : submit} />
       <Notice kind="error" message={error} />
       <AuthSubmit label="Salvar e jogar" onPress={submit} loading={loading} />
     </AuthForm>
-    <Button label="Sair da conta" variant="ghost" onPress={exit} disabled={loading} />
   </Screen>;
 }
