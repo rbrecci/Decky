@@ -2,6 +2,18 @@
 
 Estado em 24/10/2026: web e backend V2 publicados, APK 2.0.0/build 7 instalado e conferido no Redmi após atualização sobre a V1. GitHub Release publicada e download anônimo conferido; manifesto real enviado ao GitHub. Landing e manifesto foram publicados e conferidos no Pages. O reset global foi executado em 24/10/2026 às 17:07 BRT, e o serviço foi reaberto às 17:10 BRT.
 
+## Reformulação da landing publicada em 25/10/2026
+
+A [landing pública](https://rbrecci.github.io/Decky/) recebeu hero com movimento e pausa, destaque dourado em "sua", listra direcional no hover, entradas suaves ao rolar, 13 símbolos de Elo e equipe em lista visível. As legendas externas das imagens e a frase solicitada do footer foram removidas. Movimento reduzido, ausência de JavaScript e ausência de IntersectionObserver preservam o conteúdo legível.
+
+Antes das novas capturas, o retorno foi fixado no topo à direita das telas do aplicativo, incluindo jogador e mesa. Uma captura reproduziu corte de 122 px no HUD da mesa; a altura foi corrigida e conferida novamente na exportação real. Os cinco WebP agora usam capturas completas de telas reais com backend local simulado e dados de demonstração: jogador/salas 780x2000, ranking 780x2500, histórico 780x2200 e mesa 2732x1800. Os 13 PNGs da landing têm 256x256 e somam 961.187 bytes; os originais do app permaneceram intactos.
+
+Os commits `dc7009e` (navegação) e `a8cee1d` (landing) foram enviados ao GitHub com autoria `rbrecci <fbrecci@gmail.com>`. O workflow [40167936701](https://github.com/rbrecci/Decky/actions/runs/40167936701) terminou com build/deploy `success`, alvo `a8cee1d93d24653cbb1a9e68e3125176965d1de3`. A conferência remota às `2026-10-25T06:07:12.553Z` (`03:07 BRT`) passou: HTML, CSS e JavaScript iguais aos arquivos locais; manifesto JSON com conteúdo equivalente, preservando build 7; 19 imagens decodificadas com dimensões exatas; 13 Elos, seis nomes, metatag Search Console preservada e páginas legais HTTP 200. Não houve erros JS nem recursos HTTP com falha. O verificador usou query de versão para conferir os recursos publicados sem depender de cópias antigas da CDN. Relatório privado: `.expo/validation-v2/landing-public-check.json`.
+
+O QA local incremental da página passou 44 verificações em 320, 390, 667 e 1366 px, com imagens reais e modos normal, reduzido, sem JS e sem IntersectionObserver. As 11 verificações de animação, hover, foco e hash já tinham passado antes da integração final de dimensões. O app passou 19 testes focados, 36 cenários de cabeçalhos e 18 verificações de capturas/jogo, além de typecheck e exports web/Android. Evidências e limites estão em [UI_V2.md](UI_V2.md).
+
+Esta publicação substituiu somente o Pages. A web do jogo e o APK público build 7 continuam anteriores aos skeletons, Elos refinados e navegação deste lote. O bundle Android exportado não é um APK: não houve build, instalação, troca de keystore ou nova prova física. O manifesto não anuncia um artefato novo. Os limites de Branding, aparelhos e aviso entre builds permanecem registrados abaixo.
+
 ## Assinatura Android conferida
 
 Em 23/10/2026, o aparelho conectado ao ADB tinha `br.senai.decky`, `versionName=1.0.0` e `versionCode=4`. A cópia de conferência ficou em `.expo/validation-v2/installed-v1.apk`, ignorada pelo Git. Essa primeira conferência foi somente de leitura; a instalação posterior da V2 está registrada ao final.
