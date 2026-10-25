@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Redefina sua senha do Decky</title>
+    <style>
+      @media screen and (max-width: 600px) {
+        .email-wrap { padding: 16px 10px !important; }
+        .email-content { padding: 28px 24px !important; }
+        .email-title { font-size: 30px !important; line-height: 36px !important; }
+        .email-logo { width: 148px !important; height: 148px !important; }
+      }
+    </style>
+  </head>
+  <body style="margin: 0; padding: 0; width: 100%; background-color: #0A0A0B; color: #16181B; font-family: Arial, Helvetica, sans-serif; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;">
+    <div style="display: none; font-size: 1px; line-height: 1px; color: #0A0A0B; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all;">Escolha uma nova senha e volte à mesa. Sua conta continua sendo a mesma.</div>
+    <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#0A0A0B" style="width: 100%; border-collapse: collapse; background-color: #0A0A0B;">
+      <tr>
+        <td class="email-wrap" align="center" style="padding: 32px 16px;">
+          <table role="presentation" width="600" border="0" cellpadding="0" cellspacing="0" style="width: 100%; max-width: 600px; border-spacing: 0; border: 1px solid #2B2D32; border-radius: 24px; background-color: #141518;">
+            <tr>
+              <td align="center" bgcolor="#141518" style="padding: 12px 24px; background-color: #141518; border-radius: 24px 24px 0 0;">
+                <img class="email-logo" src="https://rbrecci.github.io/Decky/assets/logo.png" width="164" height="164" alt="Decky" border="0" style="display: block; width: 164px; height: 164px; border: 0; color: #FBF6EC; font-family: Georgia, 'Times New Roman', serif; font-size: 28px; font-weight: 700;">
+              </td>
+            </tr>
+            <tr>
+              <td height="4" bgcolor="#C8102E" style="height: 4px; font-size: 0; line-height: 0; background-color: #C8102E;">&nbsp;</td>
+            </tr>
+            <tr>
+              <td class="email-content" bgcolor="#FBF6EC" style="padding: 36px 40px 32px; background-color: #FBF6EC;">
+                <p aria-hidden="true" style="margin: 0 0 16px; font-family: Georgia, 'Times New Roman', serif; font-size: 26px; line-height: 32px; letter-spacing: 10px; color: #16181B;">&#9824; <span style="color: #C8102E;">&#9829; &#9830;</span> &#9827;</p>
+                <h1 class="email-title" style="margin: 0 0 20px; color: #16181B; font-family: Georgia, 'Times New Roman', serif; font-size: 36px; line-height: 42px; font-weight: 700;">Escolha sua<br>nova senha.</h1>
+                <p style="margin: 0 0 24px; color: #3D4046; font-size: 17px; line-height: 26px;">Recebemos um pedido para redefinir a senha da sua conta Decky. Abra a página abaixo para escolher e confirmar uma nova senha.</p>
+                <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="width: 100%; border-collapse: separate; margin: 0 0 28px;">
+                  <tr>
+                    <td align="center" bgcolor="#C8102E" style="background-color: #C8102E; border-radius: 12px; mso-padding-alt: 16px 20px;">
+                      <a href="https://decky-brecci.expo.app/auth/recovery#token_hash={{ .TokenHash }}" style="display: block; padding: 16px 20px; border: 1px solid #8E0B21; border-radius: 12px; color: #FBF6EC; font-size: 17px; line-height: 24px; font-weight: 700; text-decoration: none; text-align: center;">Escolher nova senha</a>
+                    </td>
+                  </tr>
+                </table>
+                <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#F1E9D9" style="width: 100%; border-collapse: collapse; background-color: #F1E9D9; border-left: 3px solid #C9A45C;">
+                  <tr>
+                    <td style="padding: 16px 18px;">
+                      <p style="margin: 0 0 6px; color: #16181B; font-size: 16px; line-height: 24px; font-weight: 700;">Não foi você?</p>
+                      <p style="margin: 0; color: #3D4046; font-size: 15px; line-height: 23px;">Ignore este e-mail. Sua senha só muda depois que você preencher e confirmar a nova senha na página.</p>
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin: 24px 0 8px; color: #3D4046; font-size: 14px; line-height: 21px;">Se o botão não abrir, copie e cole este link no navegador:</p>
+                <p style="margin: 0; font-size: 13px; line-height: 20px; word-break: break-all; overflow-wrap: anywhere;">
+                  <a href="https://decky-brecci.expo.app/auth/recovery#token_hash={{ .TokenHash }}" style="color: #8E0B21; text-decoration: underline; word-break: break-all; overflow-wrap: anywhere;">https://decky-brecci.expo.app/auth/recovery#token_hash={{ .TokenHash }}</a>
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" bgcolor="#141518" style="padding: 22px 24px 24px; background-color: #141518; border-radius: 0 0 24px 24px;">
+                <p style="margin: 0 0 8px; color: #EFEAE0; font-family: Georgia, 'Times New Roman', serif; font-size: 18px; line-height: 24px; font-weight: 700;">Decky &middot; Truco Paulista</p>
+                <p style="margin: 0; color: #ABA79E; font-size: 13px; line-height: 20px;">Este link é individual e expira.<br>Use apenas o pedido de recuperação mais recente.</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
