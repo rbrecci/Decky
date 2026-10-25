@@ -2,6 +2,16 @@
 
 Data inicial: 23/10/2026. Atualização: 24/10/2026. Repositório: Decky. Estado: web e backend V2 publicados, autenticação hospedada validada parcialmente e APK 2.0.0/build 7 instalado e conferido no Redmi. Release pública do APK conferida e manifesto real e landing publicados e conferidos no Pages. O reset global autorizado foi executado às `20:07Z`, sem backup novo, e a aceitação controlada passou. Depois da limpeza de QA e da conferência final, o serviço reabriu às `20:10Z` (`17:10 BRT`), com manutenção desligada, zero usuários e cadastros habilitados. O lançamento completo continua sem conclusão pelos demais limites documentados.
 
+## Ajustes locais pedidos depois da virada
+
+Em 24/10/2026, Saker pediu skeleton loading, símbolos próprios de Elo, melhoria do e-mail de recuperação e revisão da landing, deixando a landing por último. A frente atual implementou skeletons e preparou o prompt dos símbolos, sem publicar esses ajustes. O backend e o reset anterior não foram alterados. A web publicada e o APK 2.0.0/build 7 não incluem o código novo; uma próxima publicação Android precisará de outra build.
+
+Vermelho antes das mudanças de estado: o hook de paginação teve seis falhas em 17 casos, e o teste das telas teve sete falhas, reproduzindo limpeza prematura, troca de escopo e ausência de placeholders. Depois da implementação, `npm test -- tests/app/paged-list.test.ts tests/app/loading-screens.test.tsx tests/app/ranking.test.ts tests/app/history-web.test.ts --maxWorkers=1` retornou exit 0, quatro arquivos e 38 testes. `npm run typecheck` e as exportações web/Android também retornaram exit 0. Não foi repetida a suíte SQL, sem alteração de banco.
+
+O programa privado `.expo/validation-v2/skeleton-web-check.cjs` passou 18 verificações no Edge/Chromium local, com respostas simuladas, preferências normal/reduzida e larguras de 320, 390, 667 e 1366 px. Conferiu reserva visual, estados acessíveis, refresh preservado, formulário/QR utilizáveis, ausência de vazio prematuro e retry alcançável em 667x375. A simulação inicial não interceptou corretamente a consulta Auth e recebeu 403 com um JWT fictício; a fixture foi corrigida para interceptar toda a rede antes da execução aprovada. Nenhuma conta ou partida real foi usada nessas verificações. Relatório e capturas ficam ignorados em `.expo/validation-v2/`.
+
+As artes dos 13 Elos são planejamento em [RANKING.md](RANKING.md), com prompt para o Gemini. Não há imagem gerada ou integrada, nem prova de legibilidade dos futuros PNGs em 24/32 px. O e-mail de recuperação e a landing aguardam suas próprias etapas. Os limites anteriores de provedor e aparelhos permanecem, sem abrir novas rodadas físicas nesta entrega.
+
 ## Estado preservado
 
 O Git iniciou em `main`, commit `029e17e`, com `.env.example` excluído, `DeckyV2Spec.md` modificado e `docs/PREPARO_V2.md` novo. Essas alterações foram preservadas durante a implementação. A preparação foi depois atualizada como passagem viva para finalizar a V2; a especificação continua registrando os requisitos aprovados.

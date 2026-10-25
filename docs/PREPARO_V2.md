@@ -4,6 +4,18 @@ Atualizado em 24/10/2026. Este é o ponto de entrada para uma nova sessão. Subs
 
 Este é o último estado observado. Conferir mudanças de Git, acessos e aparelho na retomada, sem presumir que sessões, tokens, salas de QA ou interfaces permaneceram iguais. Não refazer validações aprovadas só porque começou outra conversa.
 
+## Frente atual antes da próxima publicação
+
+Em 24/10/2026, Saker pediu ajustes adicionais antes da próxima publicação. A ordem é: skeleton loading e planejamento dos símbolos dos Elos primeiro; aparência do e-mail de recuperação depois; landing por último. O reset já executado não faz parte dessas alterações e não deve ser repetido.
+
+Os skeletons foram implementados localmente no bootstrap, ranking, salas públicas, lobby, partida, histórico, edição de notas, callback OAuth e convite. Atualizações da mesma consulta preservam os dados visíveis; nova identidade, modalidade ou página não mostra resultados anteriores. Ações continuam usando o loading dos próprios botões. O pulso respeita movimento reduzido, e os blocos decorativos ficam fora da leitura assistiva. A seção nova de [UI_V2.md](UI_V2.md) contém provas e limites.
+
+Verificações desta mudança: 38 testes focados em quatro arquivos, typecheck, exportação web e bundle Android com exit 0. O navegador local passou 18 verificações com backend simulado, incluindo rede lenta, movimento reduzido e reconexão na tela horizontal. Não houve geração de APK, deploy ou validação física nova. A web publicada e o APK 2.0.0/build 7 continuam sendo os artefatos anteriores; não contêm estes skeletons. A alteração de código exigirá uma nova build Android quando este lote estiver pronto para publicação.
+
+Os 13 símbolos continuam apenas planejados em [RANKING.md](RANKING.md), com prompt mestre e briefs individuais para Saker gerar no Gemini. Beta usa ouros; Delta, espadas; Alfa, copas; Sigma, paus; Omega reúne os naipes em coroa. Divisões usam uma, duas ou três barras. A progressão também muda silhueta e camadas. Não há imagens novas aprovadas ou integração no app, e nomes, faixas e MMR permanecem iguais. E-mail de recuperação e landing ainda não foram alterados por esta frente.
+
+Código e testes desses skeletons foram enviados ao GitHub no commit `a92c1b6`, com autoria `rbrecci <fbrecci@gmail.com>` e push exit 0. Isso publica o fonte, sem substituir web/APK. A exclusão preexistente de `.env.example` continuou fora do commit; exports, capturas e relatórios desta verificação permanecem ignorados.
+
 Saker encerrou expressamente os pedidos adicionais de aparelhos nesta retomada. O ingresso novo QR web no lobby ao vivo não foi executado por indisponibilidade/dispensa, e fontes/teclado/login QA já tinham sido dispensados. Esses limites continuam sem prova adicional, sem aprovação implícita, mas não são pedidos aguardando participação. Não insistir nem reabrir as rodadas nesta sessão. A próxima ação Google fica limitada ao horário de Branding registrado abaixo.
 
 ## Fontes e ordem de leitura

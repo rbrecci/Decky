@@ -1,4 +1,4 @@
-﻿# MMR, Elos e histórico
+# MMR, Elos e histórico
 
 A V2 chama a pontuação de MMR. Elo identifica o título derivado desse número. Duelo (1v1) e Duplas (2v2) mantêm pontuação e estatísticas independentes. Todas as partidas novas são ranqueadas; a mesa não pontua.
 
@@ -31,6 +31,64 @@ Cada divisão cobre 100 MMR, incluindo seus limites:
 
 `src/ranking/elo.ts` deriva o título e rejeita números inválidos. Promoção e rebaixamento são imediatos após o resultado oficial, sem séries ou temporadas. Até a virada, saldo legado inferior a 500 é identificado como anterior à V2 na interface.
 
+## Planejamento visual dos 13 símbolos de Elo
+
+Plano ativo de 24/10/2026 para gerar as artes no Gemini. Ainda não há imagens aprovadas nem integração no app. Nomes, divisões, faixas e cálculo acima permanecem iguais; os mesmos símbolos servirão a Duelo e Duplas.
+
+### Direção escolhida
+
+A sequência acompanha a força real das manilhas: ouros < espadas < copas < paus, conforme [RULES.md](RULES.md). Assim, Beta usa ouros, Delta usa espadas, Alfa usa copas e Sigma usa paus. A evolução também muda construção, massa e silhueta: Beta é um losango compacto de um plano; Delta é vertical e agudo, com duas facetas largas e base em V; Alfa fica mais largo, com a copa sobre duas formas curtas de cartas chanfradas; Sigma abre um leque de três cartas sob um paus maior; Omega reúne os quatro naipes em coroa. Não basta recolorir um naipe simples com barras para representar os cinco patamares.
+
+As divisões 1, 2 e 3 acrescentam uma, duas ou três barras curtas na mesma base, com tamanho, cor e espaçamento constantes entre todas as famílias. Dentro de cada família, toda a construção permanece igual entre divisões; somente a contagem das barras muda. A progressão entre Elos precisa aparecer também em uma única cor, pelas facetas, camadas e recortes grandes, sem depender de textura ou detalhes pequenos.
+
+Omega é único, sem número ou barras de divisão: uma coroa feita dos próprios naipes, com paus no topo central, espadas à esquerda, copas à direita e ouros formando a base. As formas se unem em uma silhueta compacta, sem quatro miniaturas dentro de um medalhão. Uma mandala com miolos pequenos perderia os naipes em 24 px; não seguir essa direção. A coroa precisa conservar os recortes dos naipes, em vez de virar uma coroa real genérica.
+
+A identidade parte do logo e da [paleta do app](../src/ui/theme.ts): creme `#FBF6EC`, vermelho `#C8102E`, metal `#9A9EA5`, tinta `#16181B` e ouro envelhecido `#C9A45C`. Beta usa metal; Delta, creme; Alfa, vermelho com borda creme para destacar no fundo escuro; Sigma, ouro envelhecido; Omega, ouro e creme. Contornos seguem a tinta escura do logo. Não usar `#EBC66E`, reservado à manilha. A cor é apoio: cada família e a contagem das divisões precisam continuar legíveis em uma única cor.
+
+### Prompt mestre para copiar no Gemini
+
+Copiar este bloco e acrescentar somente um dos briefs abaixo. Gerar um PNG por pedido, começando pela divisão 1 de cada família; aprovar a linguagem comum antes de pedir as divisões 2 e 3. Fornecer o logo Decky e a imagem já aprovada da família como referências, quando disponíveis.
+
+```text
+Crie uma única insígnia de Elo para Decky, jogo de Truco Paulista. Siga o brief no fim deste pedido. Entregue um PNG RGBA de 512 x 512 px, com fundo realmente transparente, sem quadrado branco, cenário ou quadriculado desenhado. Não crie uma prancha com várias insígnias.
+
+O desenho deve parecer parte de uma família de naipes de baralho: formas chapadas, curvas e pontas limpas, silhueta forte, poucos planos de cor e contorno firme. Precisa ser reconhecível quando reduzido para 24 e 32 px. Mantenha toda a arte nos 80% centrais da tela, sem cortar pontas. Não use filetes ou vãos menores que aproximadamente 32 px na arte de 512 px. Sem textura, relevo 3D, brilho externo, sombra projetada ou gradientes pesados.
+
+Use a cor principal indicada no brief e contorno #16181B; creme #FBF6EC pode dar contraste. Alfa deve ter borda creme. Omega combina ouro #C9A45C e creme. Não use o amarelo #EBC66E. Preserve a silhueta reconhecível mesmo sem cor.
+
+As famílias precisam mostrar evolução estética real: Beta é compacto e simples, de um plano; Delta é mais vertical e agudo, com duas facetas largas e base em V; Alfa é mais largo, com uma copa entre duas formas curtas de cartas chanfradas; Sigma tem um paus maior acima de um leque de três cartas curtas; Omega une os quatro naipes em coroa. As formas de carta são planos geométricos largos de suporte, sem índices, letras, mini-naipes ou filetes. Não as transforme em asas. Os contornos externos e vãos largos devem distinguir esses patamares mesmo em uma única cor; as camadas não podem existir só como linhas internas que somem ao reduzir.
+
+Nas famílias Beta, Delta, Alfa e Sigma, o naipe central continua sendo a forma dominante. A divisão é indicada somente por uma, duas ou três barras retangulares curtas sob toda a construção, separadas dela, na mesma linha e centradas. Todas as barras são creme #FBF6EC com contorno #16181B; mantenha 48 x 32 px por barra e 32 px de vão na arte de 512 px. Não transforme as barras em texto ou números. Forma, camadas, escala, posição e peso visual ficam iguais entre as três divisões da mesma família. Se houver referência aprovada dessa família, altere apenas a quantidade de barras.
+
+Omega não tem barras de divisão. Sua coroa é construída pela união dos quatro naipes descrita no brief, com recortes amplos. Não desenhe uma coroa comum decorada com quatro símbolos minúsculos.
+
+Sem letras, palavras, números, símbolos gregos, marca-d'água, cartas completas com índices ou molduras finas, escudo militar ou asas. Permita somente as formas curtas derivadas de cartas pedidas para Alfa e Sigma e a base angular de Delta. Não copie insígnias, cores de progressão ou composições de Rocket League ou de outro jogo. O nome do brief serve só para identificar o pedido, nunca deve aparecer na imagem.
+
+BRIEF: cole aqui um único item da lista abaixo.
+```
+
+### Briefs individuais
+
+- **Beta 1:** um losango de ouros, compacto e simétrico, quatro pontas firmes, metal `#9A9EA5`; uma barra na base.
+- **Beta 2:** o mesmo ouros de Beta 1, sem acrescentar ornamentos; duas barras na base.
+- **Beta 3:** o mesmo ouros de Beta 1, com a mesma escala e silhueta; três barras na base.
+- **Delta 1:** espada alta de baralho, creme `#FBF6EC`, com dois ombros recortados, duas facetas largas chapadas e base curta em V derivada de cantos de carta. Silhueta vertical mais aguda que Beta, sem arma real ou moldura fina; uma barra sob a construção.
+- **Delta 2:** toda a construção de Delta 1, com a mesma espada, facetas e base em V; duas barras na base.
+- **Delta 3:** toda a construção de Delta 1, sem aumentar pontas ou criar camadas novas; três barras na base.
+- **Alfa 1:** copa larga de dois lóbulos, vermelho `#C8102E` com borda creme, à frente de duas formas curtas de cartas chanfradas. Os cantos amplos aparecem dos dois lados, mantendo leitura de cartas e copa, sem parecer asas. Construção mais larga e estratificada que Delta; uma barra sob o conjunto.
+- **Alfa 2:** toda a construção de Alfa 1, preservando a copa e exatamente duas formas de carta; duas barras na base.
+- **Alfa 3:** toda a construção de Alfa 1, com a mesma largura, recortes e camadas; três barras na base.
+- **Sigma 1:** paus grande de três lóbulos, ouro envelhecido `#C9A45C`, encimando um leque de exatamente três cartas curtas abertas. Cantos chanfrados e separações amplas formam uma silhueta trilobada mais robusta que Alfa, com massa no topo e abertura na base; uma barra sob o conjunto.
+- **Sigma 2:** toda a construção de Sigma 1, preservando o paus e exatamente três cartas em leque; duas barras na base.
+- **Sigma 3:** toda a construção de Sigma 1, sem aumentar a quantidade de cartas ou criar adornos; três barras na base.
+- **Omega:** coroa compacta dos quatro naipes, ouro envelhecido e creme: paus central mais alto, ponta de espadas à esquerda, dois lóbulos de copas à direita e losango de ouros formando a base. Integrar as formas em uma silhueta só, equilibrada apesar dos lados diferentes, com recortes amplos. Sem círculo externo, joias, raios, miniaturas ou barras de divisão.
+
+### Conferência antes de aprovar as artes
+
+Conferir os 13 PNGs juntos e em tamanho real de 24 e 32 px, sobre o fundo `#0A0A0B` do app e sobre creme. Primeiro comparar uma arte de cada Elo sem barras e sem cor: a evolução de losango simples para espada facetada, copa com duas cartas, paus com três cartas e coroa precisa continuar clara. Depois conferir se cada divisão permite contar as barras. As facetas e cartas devem reforçar a hierarquia, sem competir com o naipe; se sumirem em 24 px, aumentar os recortes e reduzir detalhes, em vez de aceitar ornamento só visível na arte grande. Se Omega perder os quatro traços de naipe ao reduzir, simplificar os recortes da mesma composição antes de aprová-lo; não compensar aumentando só o brilho.
+
+Verificar canal alfa real, ausência de texto, margens iguais, contornos consistentes e alinhamento das marcas. Uma prévia grande bonita não aprova a versão pequena. Manter nomes de arquivo `beta-1.png` a `sigma-3.png` e `omega.png` apenas na entrega futura das artes, sem criar arquivos vazios ou alterar o app nesta etapa. A integração dependerá de artes aprovadas e de conferência nas linhas reais do ranking.
+
 ## Transação e auditoria
 
 A modalidade e a participação no ranking ficam congeladas na criação da partida. Ao finalizar, o trigger trava os ratings dos participantes em ordem estável, captura as médias antes de escrever qualquer saldo e registra o extrato na mesma transação do resultado.
@@ -49,8 +107,8 @@ O cliente não escreve ratings nem calcula seu próprio saldo. Partidas em andam
 
 A migration nova é `supabase/migrations/20261023230536_v2_mmr_public_rooms_history.sql`. Ela não altera migrations anteriores e não executa reset. Cria ratings ausentes em 500, sem sobrescrever saldos existentes. Registros antigos mantêm `rating_rule` e campos novos de auditoria nulos.
 
-A constraint `player_ratings_mmr_floor` é criada como `NOT VALID`: protege toda nova escrita sem fingir que houve limpeza dos dados antigos. A validação completa dessa constraint pertence ao procedimento aprovado da virada, depois da exclusão dos dados de usuários/jogo. O piso dos novos resultados é aplicado desde a migration.
+A constraint `player_ratings_mmr_floor` foi criada como `NOT VALID` para proteger novas escritas antes da limpeza dos dados antigos. Na virada de 24/10/2026, foi validada depois da exclusão dos dados de usuários/jogo, com `convalidated=true` conferido por SQL independente. O piso dos novos resultados é aplicado desde a migration.
 
 Em 24/10/2026, a migration V2 foi aplicada e `start-match` e `submit-action` foram publicadas na versão 14. A web V2 também foi publicada. Os registros anteriores do ranking V1, com inicial 1000 e K=32, são históricos: o PR #2 e a publicação web `mrjm92m7r8` não comprovam a V2. As evidências atuais estão em [VALIDACAO_SERVIDOR_V2.md](VALIDACAO_SERVIDOR_V2.md).
 
-Além do ensaio PGlite de uma conexão, duas conexões PostgreSQL reais comprovaram corrida pela última vaga, serialização de MMR, reenvio e rollback. Realtime entre duas identidades, consultas autenticadas, partida finalizada e seu extrato foram exercitados no Supabase hospedado com contas sintéticas segregadas. Essas provas não executam nem aprovam a virada global, que continua condicionada a [VIRADA_V2.md](VIRADA_V2.md).
+Além do ensaio PGlite de uma conexão, duas conexões PostgreSQL reais comprovaram corrida pela última vaga, serialização de MMR, reenvio e rollback. Realtime entre duas identidades, consultas autenticadas, partida finalizada e seu extrato foram exercitados no Supabase hospedado com contas sintéticas segregadas. A virada global foi executada em 24/10/2026 às 17:07 BRT, sem backup novo por dispensa expressa de Saker e preservando as cópias anteriores. SQL independente comprovou a exclusão dos dados antigos; a QA posterior confirmou 500 MMR nas duas modalidades e histórico vazio. O serviço foi reaberto às 17:10 BRT. Procedimento, evidências e limites estão em [VIRADA_V2.md](VIRADA_V2.md).
