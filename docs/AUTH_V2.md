@@ -31,9 +31,11 @@ Não repetir os cadastros iniciais nem substituir credenciais. Esta seção cons
 5. Em Authentication > Sign In / Providers > Email, habilitar confirmação de e-mail para o lançamento V2 somente depois de comprovar cadastro e reenvio completos. Não desligar a confirmação para demonstração.
 6. Manter o Google client Web existente, callback Supabase já salvo e escopos `openid`, e-mail e perfil. A landing e as páginas informativas agora estão públicas e conferidas: homepage `https://rbrecci.github.io/Decky/`, privacidade `https://rbrecci.github.io/Decky/privacidade.html` e termos `https://rbrecci.github.io/Decky/termos.html`. Usar essas URLs em Branding, sem declarar propriedade de `expo.app` ou `supabase.co`. Salvar Branding mantém rascunho; cumprir o fluxo real `Verify Branding` > `Ready to publish` > `Publish branding` antes de tratar a marca como efetivamente publicada, conforme a [documentação oficial de verificação](https://developers.google.com/identity/protocols/oauth2/production-readiness/brand-verification), consultada em 24/10/2026 e atualizada em 19/08/2026. Audience externo/produção é um estado separado, a conferir no console; configuração salva não prova login de conta externa. Propriedade só pode ser declarada sobre domínio sob controle do responsável.
 
-### Recuperação: assunto e corpo
+### Recuperação: assunto e corpo originais
 
 Assunto: `Redefina sua senha do Decky`
+
+O corpo abaixo registra a versão simples publicada antes da revisão visual. A fonte da nova apresentação está em [supabase/templates/recovery.html](../supabase/templates/recovery.html), publicada em 24/10/2026 às 23:45 BRT, conforme o registro ao final. Não copiar o exemplo histórico por cima da nova fonte. O assunto e o destino de recuperação permanecem os mesmos.
 
 ```html
 <h2>Recuperar acesso ao Decky</h2>
@@ -93,6 +95,32 @@ As rotas públicas locais são `/login`, `/register`, `/forgot-password`, `/auth
 - Ícone G obtido do [asset oficial do Google](https://developers.google.com/static/identity/images/g-logo.png), sem alteração de marca, usado no botão branco de identificação do provedor.
 - [fast-text-encoding](https://github.com/samthor/fast-text-encoding), versão `1.0.6` conferida no registro npm antes da inclusão e fixada no lockfile. É usado somente como polyfill UTF-8; não gera números aleatórios nem implementa criptografia.
 - Changelog Supabase consultado em 23/10/2026. A retirada anunciada de cifras CBC TLS 1.2 afeta clientes antigos; não muda os contratos JS usados aqui.
+
+## Revisão visual do e-mail de recuperação em 24/10/2026
+
+Fonte nova versionável: [supabase/templates/recovery.html](../supabase/templates/recovery.html). A apresentação usa o logo oficial já público, moldura carvão, corpo creme, tipografia de carta, naipes decorativos, CTA vermelho e aviso de pedido não reconhecido. O preheader resume a ação sem expor conta ou token. Há link copiável caso o botão não abra; a arte do logo tem texto alternativo com contraste também quando imagens forem bloqueadas.
+
+O assunto continua `Redefina sua senha do Decky`. CTA e fallback preservam literalmente `https://decky-brecci.expo.app/auth/recovery#token_hash={{ .TokenHash }}`. Nenhum token passou à query, `ConfirmationURL` não foi introduzido e a página continua exigindo a ação explícita de recuperação já validada. O HTML não contém formulário, script, consumo automático de token ou dados pessoais. A publicação alterou somente o corpo do e-mail de recuperação, sem alterar SMTP, Google, provedores, callbacks, assunto ou credenciais.
+
+O layout usa tabelas de apresentação, dimensões explícitas do logo e estilos inline. A media query só reduz espaçamento e título; o conteúdo também foi conferido sem a folha de estilos e com imagens bloqueadas. A [documentação CSS do Gmail](https://developers.google.com/workspace/gmail/design/css) e os [templates do Supabase](https://supabase.com/docs/guides/auth/auth-email-templates) foram consultados nesta revisão. A consulta do changelog não mostrou mudança pertinente às variáveis de template usadas.
+
+`node .expo/validation-v2/email-recovery-preview.cjs` retornou exit 0: invariantes de URL/placeholder, ausência de conteúdo executável, cinco combinações de texto com contraste acima de 4,5:1 e nove cenários de layout. As larguras foram 320, 390 e 600 px, em versões normal, somente inline e imagens bloqueadas; todos mantiveram conteúdo sem overflow, CTA de ao menos 48 px de altura, fallback idêntico e um título principal. O menor contraste medido foi 5,46:1, no botão. O HTML tem 5719 bytes e não depende de fonte externa. Relatório e capturas inspecionadas ficam privados em `.expo/validation-v2/email-recovery-preview/`, com token sintético, sem valores de contas reais.
+
+Limite desta etapa: a prévia HTML foi executada no Edge, não dentro do aplicativo Gmail. Não houve envio de mensagem, clique em link real, ensaio de troca de senha ou inspeção do comportamento de cores escuras do Gmail. A igualdade do HTML publicado não comprova renderização ou entrega dentro do Gmail. A fonte foi criada fora do diretório ignorado de QA para permitir versionamento sem expor suas configurações privadas.
+
+### Publicação controlada do novo corpo
+
+Após revisão do HTML e da captura de 390 px, o projeto `yfijjtibyblzuplhtxbd` foi confirmado por `supabase projects list` na CLI autenticada: nome Decky e estado `ACTIVE_HEALTHY`. O conector MCP antigo recusou a consulta de URL por falta de permissão; nenhuma rejeição de revisão automática foi contornada. A publicação usou a CLI autorizada, com um fresh pull em workdir novo e ignorado. Não foi reaplicada a configuração histórica de QA.
+
+Na CLI `2.122.0`, `config diff` não compara os corpos HTML carregados por `content_path`. O [encoder oficial dessa versão](https://github.com/supabase/cli/blob/v2.122.0/apps/cli/src/commands/config/push/push.encoders.ts) trata o corpo como conteúdo exclusivo de push e compara `remoteAuthAttributes.mailer_templates_recovery_content` com o arquivo local por igualdade exata. Por isso, o diff comum sozinho não foi usado como prova de que o HTML estava publicado.
+
+A prévia `config push`, sem `--yes`, com entrada negativa e sem `SUPABASE_YES`, apresentou somente `auth.email.template.recovery.content`; Auth foi marcado como `skipped`, sem aplicar nada. Todos os demais serviços estavam `up_to_date` ou `disabled`, sem caminhos alterados, valores forçados ou segredos enviados. Depois dessa conferência, uma única aplicação com `--yes` concluiu às `2026-10-25T02:45:22Z` (`24/10/2026 23:45 BRT`), com Auth `updated` e exatamente esse caminho. A chave de Management API correspondente é `mailer_templates_recovery_content`.
+
+Às `02:45:54Z`, um processo novo da mesma prévia sem confirmação releu o remoto e retornou Auth `up_to_date`, com zero caminhos ou mutações. A comparação exata do encoder confirmou que o HTML remoto é igual ao arquivo local de 5719 bytes, cujo SHA-256 é `b9a99c34459123adddcb04bb4c3280eccb7a6e0550a7e372a574b3c815b14b8f`. O `config diff` complementar retornou zero atualizações declaradas. O assunto, confirmação obrigatória, cadastros, redirects, SMTP e Google não tiveram alteração declarada nem escrita por esta operação.
+
+Os resultados privados ficam em `.expo/validation-v2/recovery-visual-deploy-20261024/`, incluindo `publication-proof.json`, planos e respostas capturados sem imprimir credenciais. Não foram criadas contas QA, enviados e-mails ou consumidos tokens para essa publicação. Os limites de Gmail real e modo escuro permanecem abertos, sem transformar a prévia local em prova física.
+
+Modern Web Guidance: consultei busca/listagem para e-mail responsivo e o guia `color`. Apliquei a regra "Maintain 4.5:1 for normal text" aos pares de texto do template. As sugestões de CSS moderno para aplicações web não foram transpostas ao e-mail; o layout permanece com tabelas e estilos inline para o contexto dos clientes de e-mail.
 
 ## Modern Web Guidance
 

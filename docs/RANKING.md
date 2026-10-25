@@ -31,9 +31,19 @@ Cada divisão cobre 100 MMR, incluindo seus limites:
 
 `src/ranking/elo.ts` deriva o título e rejeita números inválidos. Promoção e rebaixamento são imediatos após o resultado oficial, sem séries ou temporadas. Até a virada, saldo legado inferior a 500 é identificado como anterior à V2 na interface.
 
-## Planejamento visual dos 13 símbolos de Elo
+## Identidade visual dos 13 símbolos de Elo
 
-Plano ativo de 24/10/2026 para gerar as artes no Gemini. Ainda não há imagens aprovadas nem integração no app. Nomes, divisões, faixas e cálculo acima permanecem iguais; os mesmos símbolos servirão a Duelo e Duplas.
+O planejamento de 24/10/2026 foi seguido pela geração e integração autorizadas por Saker. Os 13 arquivos individuais estão em `assets/ranks/`, de `beta-1.png` a `sigma-3.png` e `omega.png`. `src/ranking/EloBadge.tsx` os seleciona pelo título retornado por `eloForMmr`, e `app/ranking.tsx` exibe a arte nas duas modalidades. Nomes, divisões, faixas e cálculo acima permanecem iguais.
+
+### Geração, integração e provas
+
+A ferramenta integrada `image_gen` produziu cinco bases a partir da prancha de referência: Beta 1, Delta 1, Alfa 1, Sigma 1 e Omega. Oito edições das bases produziram as divisões 2 e 3, pedindo alterar somente a quantidade de barras. Os prompts reais estão no arquivo privado `.expo/validation-v2/elo-generation-prompts.json`. O prompt e os briefs abaixo permanecem como referência da direção aprovada; o roteiro inicial previa Gemini, mas Saker depois autorizou a geração pelo agente.
+
+Os 13 PNGs têm 1254x1254 px, formato RGBA e alfa de 0 a 255, somando 6.605.417 bytes. A saída da ferramenta tem resolução diferente dos 512x512 pedidos no brief; os arquivos originais foram preservados, sem redimensionar ou alterar seus pixels por Python. A exibição usa `contain`, com 64 px na classificação pessoal e 44 px nas linhas, reservando as mesmas áreas nos skeletons. A variação de largura visível entre Beta e Omega é intencional; não se ampliou cada naipe para preencher o mesmo retângulo. As artes são decorativas para leitores de tela, pois nome e MMR já estão no texto adjacente. Legados abaixo de 500 ficam sem badge; uma identidade sem partidas mostra Beta 1 e 500 MMR.
+
+`node .expo/validation-v2/elo-ranking-check.cjs` retornou exit 0 em oito verificações locais, com backend simulado. Conferiu 14 imagens na tela, correspondentes aos 13 assets mais a classificação pessoal, todos decodificados em 1254x1254, dimensões de exibição 64/44, semântica decorativa, ausência de ícone no legado 490, fallback Beta 1/500 e ausência de overflow em 320x568, 390x844, 667x375 e 1366x768. Os testes de ranking e loading passaram 15/15; typecheck e exportações web/Android retornaram exit 0. O bundle Android incluiu os 13 PNGs entre seus 96 assets. Fonte, imagens e ajustes dos mocks de teste foram enviados no commit `789c16b`, com autoria de Saker. A galeria `.expo/validation-v2/elo-gallery.png` e a captura `elo-ranking-390.png` foram inspecionadas e permanecem ignoradas. O ZIP opcional `.expo/validation-v2/decky-elos-13-png.zip`, de 5.176.169 bytes, contém os 13 PNGs e também fica ignorado.
+
+A inspeção de 24/32 px reconheceu as famílias, com um limite: as barras de Beta 3 ficam finas em 24 px. O nome textual adjacente permanece obrigatório; não usar a arte sozinha para informar a divisão. No ranking, os tamanhos são 44 e 64 px. A integração está no fonte, sem deploy da web, APK novo ou prova física dessa alteração. O APK público 2.0.0/build 7 continua sem os novos símbolos.
 
 ### Direção escolhida
 
@@ -45,9 +55,9 @@ Omega é único, sem número ou barras de divisão: uma coroa feita dos próprio
 
 A identidade parte do logo e da [paleta do app](../src/ui/theme.ts): creme `#FBF6EC`, vermelho `#C8102E`, metal `#9A9EA5`, tinta `#16181B` e ouro envelhecido `#C9A45C`. Beta usa metal; Delta, creme; Alfa, vermelho com borda creme para destacar no fundo escuro; Sigma, ouro envelhecido; Omega, ouro e creme. Contornos seguem a tinta escura do logo. Não usar `#EBC66E`, reservado à manilha. A cor é apoio: cada família e a contagem das divisões precisam continuar legíveis em uma única cor.
 
-### Prompt mestre para copiar no Gemini
+### Prompt mestre de referência
 
-Copiar este bloco e acrescentar somente um dos briefs abaixo. Gerar um PNG por pedido, começando pela divisão 1 de cada família; aprovar a linguagem comum antes de pedir as divisões 2 e 3. Fornecer o logo Decky e a imagem já aprovada da família como referências, quando disponíveis.
+Este é o brief inicial, preservado para referência ou futuras variantes. Para uma nova geração, acrescentar somente um dos briefs abaixo e fornecer o logo Decky e a arte existente da família como referências. A execução atual usou `image_gen`; nas oito edições de divisão, o pedido foi manter o desenho e alterar somente a contagem das barras. Não repetir a geração de todos os arquivos por causa de uma retomada.
 
 ```text
 Crie uma única insígnia de Elo para Decky, jogo de Truco Paulista. Siga o brief no fim deste pedido. Entregue um PNG RGBA de 512 x 512 px, com fundo realmente transparente, sem quadrado branco, cenário ou quadriculado desenhado. Não crie uma prancha com várias insígnias.
@@ -83,11 +93,11 @@ BRIEF: cole aqui um único item da lista abaixo.
 - **Sigma 3:** toda a construção de Sigma 1, sem aumentar a quantidade de cartas ou criar adornos; três barras na base.
 - **Omega:** coroa compacta dos quatro naipes, ouro envelhecido e creme: paus central mais alto, ponta de espadas à esquerda, dois lóbulos de copas à direita e losango de ouros formando a base. Integrar as formas em uma silhueta só, equilibrada apesar dos lados diferentes, com recortes amplos. Sem círculo externo, joias, raios, miniaturas ou barras de divisão.
 
-### Conferência antes de aprovar as artes
+### Critérios para conferência das artes
 
 Conferir os 13 PNGs juntos e em tamanho real de 24 e 32 px, sobre o fundo `#0A0A0B` do app e sobre creme. Primeiro comparar uma arte de cada Elo sem barras e sem cor: a evolução de losango simples para espada facetada, copa com duas cartas, paus com três cartas e coroa precisa continuar clara. Depois conferir se cada divisão permite contar as barras. As facetas e cartas devem reforçar a hierarquia, sem competir com o naipe; se sumirem em 24 px, aumentar os recortes e reduzir detalhes, em vez de aceitar ornamento só visível na arte grande. Se Omega perder os quatro traços de naipe ao reduzir, simplificar os recortes da mesma composição antes de aprová-lo; não compensar aumentando só o brilho.
 
-Verificar canal alfa real, ausência de texto, margens iguais, contornos consistentes e alinhamento das marcas. Uma prévia grande bonita não aprova a versão pequena. Manter nomes de arquivo `beta-1.png` a `sigma-3.png` e `omega.png` apenas na entrega futura das artes, sem criar arquivos vazios ou alterar o app nesta etapa. A integração dependerá de artes aprovadas e de conferência nas linhas reais do ranking.
+Verificar canal alfa real, ausência de texto, margens e contornos consistentes e alinhamento das marcas. Uma prévia grande bonita não aprova a versão pequena. Os nomes `beta-1.png` a `sigma-3.png` e `omega.png` já são usados pela integração. A geração atual foi conferida na galeria e nas linhas reais do ranking local; o limite das barras de Beta 3 em 24 px permanece registrado acima. Para mudanças futuras, preservar os arquivos escolhidos até conferir a substituição e não criar placeholders vazios.
 
 ## Transação e auditoria
 
