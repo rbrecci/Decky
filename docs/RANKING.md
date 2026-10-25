@@ -33,19 +33,35 @@ Cada divisão cobre 100 MMR, incluindo seus limites:
 
 ## Identidade visual dos 13 símbolos de Elo
 
-O planejamento de 24/10/2026 foi seguido pela geração e integração autorizadas por Saker. Os 13 arquivos individuais estão em `assets/ranks/`, de `beta-1.png` a `sigma-3.png` e `omega.png`. `src/ranking/EloBadge.tsx` os seleciona pelo título retornado por `eloForMmr`, e `app/ranking.tsx` exibe a arte nas duas modalidades. Nomes, divisões, faixas e cálculo acima permanecem iguais.
+O planejamento de 24/10/2026 foi seguido pela geração e integração autorizadas por Saker. Em 25/10, Saker aprovou a prancha mais detalhada e a substituição dos 13 PNGs pelos símbolos refinados. Os arquivos atuais estão em `assets/ranks/`, de `beta-1.png` a `sigma-3.png` e `omega.png`. `src/ranking/EloBadge.tsx` continua selecionando os mesmos nomes pelo título retornado por `eloForMmr`, e `app/ranking.tsx` exibe a arte nas duas modalidades. Nomes, divisões, faixas e cálculo acima permanecem iguais.
 
-### Geração, integração e provas
+### Direção vigente aprovada: símbolos refinados
 
-A ferramenta integrada `image_gen` produziu cinco bases a partir da prancha de referência: Beta 1, Delta 1, Alfa 1, Sigma 1 e Omega. Oito edições das bases produziram as divisões 2 e 3, pedindo alterar somente a quantidade de barras. Os prompts reais estão no arquivo privado `.expo/validation-v2/elo-generation-prompts.json`. O prompt e os briefs abaixo permanecem como referência da direção aprovada; o roteiro inicial previa Gemini, mas Saker depois autorizou a geração pelo agente.
+A prancha detalhada aprovada é a referência vigente. Ela usa metal, biséis, facetas e gravações decorativas em relevo 2.5D controlado, preservando os naipes e a ordem Beta, Delta, Alfa, Sigma e Omega. Beta tem ouros facetado em moldura metálica; Delta tem espadas marfim com gravações e contorno de metal; Alfa tem copas vermelha facetada entre cartas decoradas; Sigma tem paus dourado facetado com cartas; Omega reúne os quatro naipes numa coroa dourada gravada. Divisões continuam com uma, duas ou três barras, e Omega não tem barras.
 
-Os 13 PNGs têm 1254x1254 px, formato RGBA e alfa de 0 a 255, somando 6.605.417 bytes. A saída da ferramenta tem resolução diferente dos 512x512 pedidos no brief; os arquivos originais foram preservados, sem redimensionar ou alterar seus pixels por Python. A exibição usa `contain`, com 64 px na classificação pessoal e 44 px nas linhas, reservando as mesmas áreas nos skeletons. A variação de largura visível entre Beta e Omega é intencional; não se ampliou cada naipe para preencher o mesmo retângulo. As artes são decorativas para leitores de tela, pois nome e MMR já estão no texto adjacente. Legados abaixo de 500 ficam sem badge; uma identidade sem partidas mostra Beta 1 e 500 MMR.
+As restrições do brief flat inicial, como não usar relevo, textura, biséis ou detalhes de carta, são históricas e não devem achatar ou substituir essa direção aprovada. Para uma extração futura, usar a prancha refinada e preservar materiais, geometria e contagem das marcas, removendo apenas fundo e rótulo externo. Não redesenhar os emblemas como naipes planos.
+
+### Geração e conferência da versão refinada
+
+Os 13 PNGs refinados foram extraídos individualmente pela ferramenta integrada `image_gen`, com transparência real, e substituíram os arquivos nos mesmos caminhos de `assets/ranks/`, sem alteração de TypeScript. Cada arquivo tem 1254x1254 px, formato RGBA e alfa de 0 a 255; o conjunto atual soma 15.583.100 bytes. Os pixels dos originais gerados foram preservados. A prancha escolhida está na cópia privada `.expo/validation-v2/elo-refined-approved-board.png`; os prompts reais estão em `elo-refined-generation-prompts.json`, no mesmo diretório.
+
+A galeria privada `.expo/validation-v2/elo-refined-gallery.png` foi inspecionada com amostras de 44 e 64 px. Os naipes e as marcas de divisão foram identificados nesses tamanhos. Uma análise somente leitura dos componentes conectados do canal alfa, com limiar de 240 na faixa inferior das imagens, confirmou uma, duas e três barras nas 12 artes divididas; Omega foi conferido visualmente sem barra. Metadados em `.expo/validation-v2/elo-refined-assets.json`. O ZIP atual `.expo/validation-v2/decky-elos-refinados-13-png.zip` tem 14.756.193 bytes e contém os 13 PNGs idênticos aos fontes, com integridade conferida.
+
+`node .expo/validation-v2/elo-refined-ranking-check.cjs` retornou exit 0 em oito verificações, sem erros de página, em `2026-10-25T04:46:50Z` (`25/10 às 01:46 BRT`). A captura `elo-refined-ranking-390.png`, no mesmo diretório privado, foi inspecionada com os novos símbolos em 44/64 px. As exportações web e Android retornaram exit 0; o bundle Android contém os 13 PNGs refinados entre seus 96 assets. Os hashes SHA-256 dos 13 arquivos exportados para web coincidiram com os fontes. Os 13 assets refinados foram enviados ao GitHub no commit `d92bba1`, com autoria de Saker. Essas conferências foram justificadas pela substituição dos PNGs, sem repetir os testes de lógica anteriores de 15/15 ou de skeletons de 38/38, pois não houve alteração TypeScript.
+
+O componente mantém `contain`, 64 px na classificação pessoal e 44 px na lista, com os mesmos espaços nos skeletons. O nome textual de Elo/MMR continua adjacente; a arte é decorativa para leitura assistiva. Legados abaixo de 500 continuam sem imagem, e ausência de partidas continua em Beta 1/500. As provas antigas de lógica não foram repetidas para essa troca exclusiva dos PNGs. As novas conferências de arte não equivalem a um APK instalado ou à publicação da web: os artefatos públicos continuam anteriores às novas artes.
+
+### Histórico: primeira versão flat
+
+A primeira versão, agora substituída, foi produzida por `image_gen` com cinco bases a partir da prancha flat: Beta 1, Delta 1, Alfa 1, Sigma 1 e Omega. Oito edições das bases produziram as divisões 2 e 3, pedindo alterar somente a quantidade de barras. Os prompts antigos estão no arquivo privado `.expo/validation-v2/elo-generation-prompts.json`. Os originais flat foram preservados em `.expo/validation-v2/elo-original-pngs/` e no histórico Git, para comparação A/B. O roteiro inicial previa Gemini, mas Saker depois autorizou a geração pelo agente.
+
+O conjunto flat anterior tinha 13 PNGs de 1254x1254 px, RGBA e alfa de 0 a 255, somando 6.605.417 bytes. A saída diferia dos 512x512 pedidos no brief; os arquivos originais foram preservados, sem alterar seus pixels por Python. A integração inicial estabeleceu os tamanhos 64/44, leitura assistiva decorativa, legado sem badge e fallback Beta 1/500, mantidos pela substituição refinada.
 
 `node .expo/validation-v2/elo-ranking-check.cjs` retornou exit 0 em oito verificações locais, com backend simulado. Conferiu 14 imagens na tela, correspondentes aos 13 assets mais a classificação pessoal, todos decodificados em 1254x1254, dimensões de exibição 64/44, semântica decorativa, ausência de ícone no legado 490, fallback Beta 1/500 e ausência de overflow em 320x568, 390x844, 667x375 e 1366x768. Os testes de ranking e loading passaram 15/15; typecheck e exportações web/Android retornaram exit 0. O bundle Android incluiu os 13 PNGs entre seus 96 assets. Fonte, imagens e ajustes dos mocks de teste foram enviados no commit `789c16b`, com autoria de Saker. A galeria `.expo/validation-v2/elo-gallery.png` e a captura `elo-ranking-390.png` foram inspecionadas e permanecem ignoradas. O ZIP opcional `.expo/validation-v2/decky-elos-13-png.zip`, de 5.176.169 bytes, contém os 13 PNGs e também fica ignorado.
 
-A inspeção de 24/32 px reconheceu as famílias, com um limite: as barras de Beta 3 ficam finas em 24 px. O nome textual adjacente permanece obrigatório; não usar a arte sozinha para informar a divisão. No ranking, os tamanhos são 44 e 64 px. A integração está no fonte, sem deploy da web, APK novo ou prova física dessa alteração. O APK público 2.0.0/build 7 continua sem os novos símbolos.
+A inspeção anterior de 24/32 px reconheceu as famílias flat, com um limite: as barras de Beta 3 ficavam finas em 24 px. Essa observação pertence à versão flat, não é prova da legibilidade da versão refinada em 24 px. O nome textual adjacente permanece obrigatório. O APK público 2.0.0/build 7 continua sem os símbolos novos.
 
-### Direção escolhida
+### Direção do brief inicial flat, somente histórica
 
 A sequência acompanha a força real das manilhas: ouros < espadas < copas < paus, conforme [RULES.md](RULES.md). Assim, Beta usa ouros, Delta usa espadas, Alfa usa copas e Sigma usa paus. A evolução também muda construção, massa e silhueta: Beta é um losango compacto de um plano; Delta é vertical e agudo, com duas facetas largas e base em V; Alfa fica mais largo, com a copa sobre duas formas curtas de cartas chanfradas; Sigma abre um leque de três cartas sob um paus maior; Omega reúne os quatro naipes em coroa. Não basta recolorir um naipe simples com barras para representar os cinco patamares.
 
@@ -55,9 +71,9 @@ Omega é único, sem número ou barras de divisão: uma coroa feita dos próprio
 
 A identidade parte do logo e da [paleta do app](../src/ui/theme.ts): creme `#FBF6EC`, vermelho `#C8102E`, metal `#9A9EA5`, tinta `#16181B` e ouro envelhecido `#C9A45C`. Beta usa metal; Delta, creme; Alfa, vermelho com borda creme para destacar no fundo escuro; Sigma, ouro envelhecido; Omega, ouro e creme. Contornos seguem a tinta escura do logo. Não usar `#EBC66E`, reservado à manilha. A cor é apoio: cada família e a contagem das divisões precisam continuar legíveis em uma única cor.
 
-### Prompt mestre de referência
+### Prompt mestre flat, somente histórico
 
-Este é o brief inicial, preservado para referência ou futuras variantes. Para uma nova geração, acrescentar somente um dos briefs abaixo e fornecer o logo Decky e a arte existente da família como referências. A execução atual usou `image_gen`; nas oito edições de divisão, o pedido foi manter o desenho e alterar somente a contagem das barras. Não repetir a geração de todos os arquivos por causa de uma retomada.
+Este é o brief flat inicial, preservado para comparação e histórico, sem precedência sobre a prancha refinada aprovada. Não o usar para substituir as artes atuais ou repetir a geração de todos os arquivos em uma retomada. Na execução flat, as oito edições de divisão pediam manter o desenho e alterar somente a contagem das barras. A versão refinada tem sua referência e seus prompts registrados acima.
 
 ```text
 Crie uma única insígnia de Elo para Decky, jogo de Truco Paulista. Siga o brief no fim deste pedido. Entregue um PNG RGBA de 512 x 512 px, com fundo realmente transparente, sem quadrado branco, cenário ou quadriculado desenhado. Não crie uma prancha com várias insígnias.
@@ -77,7 +93,7 @@ Sem letras, palavras, números, símbolos gregos, marca-d'água, cartas completa
 BRIEF: cole aqui um único item da lista abaixo.
 ```
 
-### Briefs individuais
+### Briefs individuais flat, somente históricos
 
 - **Beta 1:** um losango de ouros, compacto e simétrico, quatro pontas firmes, metal `#9A9EA5`; uma barra na base.
 - **Beta 2:** o mesmo ouros de Beta 1, sem acrescentar ornamentos; duas barras na base.
@@ -93,11 +109,11 @@ BRIEF: cole aqui um único item da lista abaixo.
 - **Sigma 3:** toda a construção de Sigma 1, sem aumentar a quantidade de cartas ou criar adornos; três barras na base.
 - **Omega:** coroa compacta dos quatro naipes, ouro envelhecido e creme: paus central mais alto, ponta de espadas à esquerda, dois lóbulos de copas à direita e losango de ouros formando a base. Integrar as formas em uma silhueta só, equilibrada apesar dos lados diferentes, com recortes amplos. Sem círculo externo, joias, raios, miniaturas ou barras de divisão.
 
-### Critérios para conferência das artes
+### Critérios do brief flat, somente históricos
 
 Conferir os 13 PNGs juntos e em tamanho real de 24 e 32 px, sobre o fundo `#0A0A0B` do app e sobre creme. Primeiro comparar uma arte de cada Elo sem barras e sem cor: a evolução de losango simples para espada facetada, copa com duas cartas, paus com três cartas e coroa precisa continuar clara. Depois conferir se cada divisão permite contar as barras. As facetas e cartas devem reforçar a hierarquia, sem competir com o naipe; se sumirem em 24 px, aumentar os recortes e reduzir detalhes, em vez de aceitar ornamento só visível na arte grande. Se Omega perder os quatro traços de naipe ao reduzir, simplificar os recortes da mesma composição antes de aprová-lo; não compensar aumentando só o brilho.
 
-Verificar canal alfa real, ausência de texto, margens e contornos consistentes e alinhamento das marcas. Uma prévia grande bonita não aprova a versão pequena. Os nomes `beta-1.png` a `sigma-3.png` e `omega.png` já são usados pela integração. A geração atual foi conferida na galeria e nas linhas reais do ranking local; o limite das barras de Beta 3 em 24 px permanece registrado acima. Para mudanças futuras, preservar os arquivos escolhidos até conferir a substituição e não criar placeholders vazios.
+Na versão flat, foram conferidos canal alfa, ausência de texto, margens, contornos e marcas. Uma prévia grande bonita não aprovava a versão pequena; o limite de Beta 3 em 24 px foi registrado. Os mesmos nomes de arquivo continuam na integração refinada, mas essas provas antigas não substituem a conferência da nova arte. Os originais escolhidos de cada etapa permanecem disponíveis para comparação, sem placeholders vazios.
 
 ## Transação e auditoria
 
