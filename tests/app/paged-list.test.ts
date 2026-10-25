@@ -22,6 +22,74 @@ function render(load: (page: number) => Promise<number[]>, key = 'user1') {
   return usePagedList(key, load);
 }
 describe('paginação assíncrona independente', () => {
+  it('preserva a página carregada durante atualização e só troca os dados na resposta', async () => {
+    let finish!: (rows: number[]) => void;
+    const load = vi.fn(async () => [1, 2, 3, 4, 5, 6]);
+    render(load); harness.focus();
+    await vi.waitFor(() => expect(render(load).loading).toBe(false));
+    load.mockImplementationOnce(() => new Promise<number[]>((resolve) => { finish = resolve; }));
+    const refresh = render(load).refresh();
+    expect(render(load)).toMatchObject({
+      rows: [1, 2, 3, 4, 5], hasNext: true, loading: true, initialLoading: false, refreshing: true,
+    });
+    finish([8]); await refresh;
+    expect(render(load)).toMatchObject({ rows: [8], loading: false, initialLoading: false, refreshing: false });
+  });
+  it('mantém os últimos dados quando a atualização falha', async () => {
+    const load = vi.fn(async () => [1, 2, 3, 4, 5, 6]);
+    render(load); harness.focus();
+    await vi.waitFor(() => expect(render(load).loading).toBe(false));
+    load.mockRejectedValueOnce(new Error('Failed to fetch'));
+    await render(load).refresh();
+    expect(render(load)).toMatchObject({
+      rows: [1, 2, 3, 4, 5], hasNext: true, loading: false, initialLoading: false, refreshing: false,
+    });
+    expect(render(load).error).toBeTruthy();
+  });
+  it('uma página vazia já lida usa atualização sem voltar ao skeleton inicial', async () => {
+    let finish!: (rows: number[]) => void;
+    const load = vi.fn(async () => [] as number[]);
+    render(load); harness.focus();
+    await vi.waitFor(() => expect(render(load).loading).toBe(false));
+    load.mockImplementationOnce(() => new Promise<number[]>((resolve) => { finish = resolve; }));
+    const refresh = render(load).refresh();
+    expect(render(load)).toMatchObject({ rows: [], initialLoading: false, refreshing: true });
+    finish([]); await refresh;
+  });
+  it('trocar página esconde os registros anteriores imediatamente enquanto consulta a nova', async () => {
+    let finish!: (rows: number[]) => void;
+    const load = vi.fn(async () => [1, 2, 3, 4, 5, 6]);
+    render(load); harness.focus();
+    await vi.waitFor(() => expect(render(load).hasNext).toBe(true));
+    render(load).go(2);
+    expect(render(load)).toMatchObject({ page: 2, rows: [], hasNext: false, initialLoading: true, refreshing: false });
+    load.mockImplementationOnce(() => new Promise<number[]>((resolve) => { finish = resolve; }));
+    harness.focus();
+    expect(render(load)).toMatchObject({ page: 2, rows: [], initialLoading: true, refreshing: false });
+    finish([7]);
+    await vi.waitFor(() => expect(render(load).rows).toEqual([7]));
+  });
+  it('erro ao ler outra página não restaura os registros da anterior nem mantém skeleton', async () => {
+    const load = vi.fn(async () => [1, 2, 3, 4, 5, 6]);
+    render(load); harness.focus();
+    await vi.waitFor(() => expect(render(load).hasNext).toBe(true));
+    render(load).go(2); render(load);
+    load.mockRejectedValueOnce(new Error('Failed to fetch'));
+    harness.focus();
+    await vi.waitFor(() => expect(render(load).loading).toBe(false));
+    expect(render(load)).toMatchObject({ page: 2, rows: [], initialLoading: false, refreshing: false });
+    expect(render(load).error).toBeTruthy();
+  });
+  it('trocar identidade não mostra dados, continuação ou erro da identidade anterior', async () => {
+    const load = vi.fn(async () => [1, 2, 3, 4, 5, 6]);
+    render(load); harness.focus();
+    await vi.waitFor(() => expect(render(load).hasNext).toBe(true));
+    load.mockRejectedValueOnce(new Error('Failed to fetch'));
+    await render(load).refresh();
+    expect(render(load, 'user2')).toMatchObject({
+      page: 1, rows: [], hasNext: false, error: null, initialLoading: true, refreshing: false,
+    });
+  });
   it('mudar partidas não recarrega nem muda a página de notas, inclusive além de cinquenta', async () => {
     const loadMatches = vi.fn(async () => [1, 2, 3, 4, 5, 6]);
     const loadNotes = vi.fn(async () => [7]);

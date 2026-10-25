@@ -1,6 +1,7 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { useAuth } from '../src/auth/AuthProvider';
 import type { GameMode, Ranking } from '../src/contracts/types';
 import { errorMessage } from '../src/lib/errors';
 import { fetchRankings } from '../src/ranking/api';
@@ -9,27 +10,30 @@ import { Button } from '../src/ui/Button';
 import { Notice } from '../src/ui/Notice';
 import { Panel } from '../src/ui/Panel';
 import { Screen } from '../src/ui/Screen';
+import { Skeleton, SkeletonBlock } from '../src/ui/Skeleton';
 import { colors, font, fonts, space } from '../src/ui/theme';
 
 export default function RankingScreen() {
+  const { userId } = useAuth();
   const [gameMode, setGameMode] = useState<GameMode>('1v1');
-  const [ranking, setRanking] = useState<Ranking | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const key = `${userId}:${gameMode}`;
+  const [result, setResult] = useState<{ key: string; ranking: Ranking | null; loading: boolean; error: string | null }>({ key, ranking: null, loading: true, error: null });
   const [attempt, setAttempt] = useState(0);
 
   useFocusEffect(useCallback(() => {
     let active = true;
-    setLoading(true);
-    setError(null);
-    setRanking(null);
+    setResult((current) => ({ key, ranking: current.key === key ? current.ranking : null, loading: true, error: null }));
     fetchRankings(gameMode)
-      .then((next) => { if (active) setRanking(next); })
-      .catch((e) => { if (active) setError(errorMessage(e)); })
-      .finally(() => { if (active) setLoading(false); });
+      .then((ranking) => { if (active) setResult({ key, ranking, loading: false, error: null }); })
+      .catch((e) => {
+        if (active) setResult((current) => ({ key, ranking: current.key === key ? current.ranking : null, loading: false, error: errorMessage(e) }));
+      });
     return () => { active = false; };
-  }, [gameMode, attempt]));
+  }, [key, gameMode, attempt]));
 
+  const ranking = result.key === key ? result.ranking : null;
+  const loading = result.key !== key || result.loading;
+  const error = result.key === key ? result.error : null;
   const mine = ranking?.myEntry;
 
   return (
@@ -45,7 +49,20 @@ export default function RankingScreen() {
           />
         ))}
       </View>
-      {loading ? <ActivityIndicator size="large" color={colors.gold} accessibilityLabel="Carregando ranking" /> : null}
+      {loading && !ranking ? <Skeleton label="Carregando ranking">
+        <Panel tone="accent">
+          <SkeletonBlock width="62%" height={28} />
+          <View style={styles.row}><SkeletonBlock width={64} height={34} /><SkeletonBlock width="56%" height={34} /></View>
+          <SkeletonBlock width="48%" height={22} />
+          <SkeletonBlock width="82%" height={18} />
+        </Panel>
+        <SkeletonBlock width="66%" height={28} />
+        {[0, 1, 2].map((row) => <Panel key={row}>
+          <View style={styles.row}><SkeletonBlock width={48} height={30} /><SkeletonBlock width="52%" height={25} /></View>
+          <SkeletonBlock width="48%" height={22} />
+          <SkeletonBlock width="82%" height={18} />
+        </Panel>)}
+      </Skeleton> : null}
       <Notice kind="error" message={error} />
       {error ? <Button label="Tentar novamente" variant="dark" onPress={() => setAttempt((n) => n + 1)} /> : null}
 
@@ -85,7 +102,7 @@ export default function RankingScreen() {
               </Panel>
             );
           })}
-          <Button label="Atualizar ranking" variant="secondary" onPress={() => setAttempt((n) => n + 1)} />
+          <Button label="Atualizar ranking" variant="secondary" loading={loading} onPress={() => setAttempt((n) => n + 1)} />
         </>
       ) : null}
       <Button label="Voltar" variant="ghost" onPress={() => router.back()} />

@@ -10,8 +10,9 @@ import { Notice } from '../../src/ui/Notice';
 import { RuledTitle } from '../../src/ui/Ornament';
 import { Panel } from '../../src/ui/Panel';
 import { Screen } from '../../src/ui/Screen';
+import { SkeletonCards } from '../../src/ui/Skeleton';
 import { usePagedList } from '../../src/ui/usePagedList';
-import { colors, font, fonts, radius, space } from '../../src/ui/theme';
+import { colors, font, fonts, space } from '../../src/ui/theme';
 
 const formatDate = (iso: string) => new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 
@@ -45,10 +46,10 @@ export default function History() {
     </View>}>
       <Notice kind="error" message={error} />
       <Text style={styles.section} accessibilityRole="header">Minhas notas</Text>
-      {notes.loading ? <SkeletonCards label="Carregando notas" /> : null}
+      {notes.initialLoading ? <SkeletonCards label="Carregando notas" count={5} /> : null}
       <Notice kind="error" message={notes.error} />
-      {notes.error ? <Button label="Tentar carregar notas novamente" variant="dark" onPress={() => void notes.refresh()} /> : null}
-      {!notes.loading && !notes.error && notes.rows.length === 0 ? <Text style={styles.empty}>Nenhuma nota ainda. Crie uma a partir de uma partida abaixo.</Text> : null}
+      <Button label={notes.error ? 'Tentar carregar notas novamente' : 'Atualizar notas'} variant={notes.error ? 'dark' : 'secondary'} loading={notes.refreshing} disabled={notes.initialLoading || deleting} onPress={() => void notes.refresh()} />
+      {!notes.initialLoading && !notes.error && notes.rows.length === 0 ? <Text style={styles.empty}>Nenhuma nota ainda. Crie uma a partir de uma partida abaixo.</Text> : null}
       {notes.rows.map((note) => <Panel key={note.id}>
         <Text style={styles.cardTitle}>{note.title}</Text>
         {note.notes ? <Text style={styles.cardBody}>{note.notes}</Text> : null}
@@ -61,10 +62,10 @@ export default function History() {
       <Pagination page={notes.page} hasNext={notes.hasNext} loading={notes.loading || deleting} go={notes.go} label="notas" />
 
       <Text style={styles.section} accessibilityRole="header">Partidas</Text>
-      {matches.loading ? <SkeletonCards label="Carregando partidas" /> : null}
+      {matches.initialLoading ? <SkeletonCards label="Carregando partidas" count={5} /> : null}
       <Notice kind="error" message={matches.error} />
-      {matches.error ? <Button label="Tentar carregar partidas novamente" variant="dark" onPress={() => void matches.refresh()} /> : null}
-      {!matches.loading && !matches.error && matches.rows.length === 0 ? <Text style={styles.empty}>Você ainda não jogou nenhuma partida.</Text> : null}
+      <Button label={matches.error ? 'Tentar carregar partidas novamente' : 'Atualizar partidas'} variant={matches.error ? 'dark' : 'secondary'} loading={matches.refreshing} disabled={matches.initialLoading} onPress={() => void matches.refresh()} />
+      {!matches.initialLoading && !matches.error && matches.rows.length === 0 ? <Text style={styles.empty}>Você ainda não jogou nenhuma partida.</Text> : null}
       {matches.rows.map((match) => <MatchCard key={match.id} match={match} />)}
       <Pagination page={matches.page} hasNext={matches.hasNext} loading={matches.loading} go={matches.go} label="partidas" />
     </Screen>
@@ -103,14 +104,6 @@ function Pagination({ page, hasNext, loading, go, label }: { page: number; hasNe
   </View>;
 }
 
-function SkeletonCards({ label }: { label: string }) {
-  return <View accessibilityLabel={label} accessibilityRole="progressbar" accessibilityState={{ busy: true }} style={{ gap: space.md }}>
-    {[0, 1, 2, 3, 4].map((n) => <View key={n} style={styles.skeleton} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-      <View style={[styles.skeletonLine, { width: '60%' }]} /><View style={styles.skeletonLine} /><View style={[styles.skeletonLine, { width: '40%' }]} />
-    </View>)}
-  </View>;
-}
-
 const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space.sm },
   title: { fontFamily: fonts.display, fontSize: 30, lineHeight: 40, color: colors.text },
@@ -125,6 +118,4 @@ const styles = StyleSheet.create({
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', gap: space.sm },
   flex: { flex: 1 },
   pagination: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: space.sm },
-  skeleton: { minHeight: 170, padding: space.md, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.line, gap: space.md, backgroundColor: colors.surface },
-  skeletonLine: { height: 18, borderRadius: 5, backgroundColor: colors.line, width: '90%' },
 });

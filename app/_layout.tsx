@@ -1,14 +1,19 @@
 import { PlayfairDisplay_700Bold, PlayfairDisplay_900Black, useFonts } from '@expo-google-fonts/playfair-display';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
 import { AuthProvider, useAuth } from '../src/auth/AuthProvider';
-import { colors } from '../src/ui/theme';
+import { Skeleton, SkeletonBlock } from '../src/ui/Skeleton';
+import { colors, radius, space } from '../src/ui/theme';
 
 function Loading() {
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.bg }}>
-      <ActivityIndicator size="large" color={colors.gold} />
+    <View style={{ flex: 1, justifyContent: 'center', backgroundColor: colors.bg, padding: space.lg }}>
+      <Skeleton label="Preparando o Decky" style={{ width: '100%', maxWidth: 512, alignSelf: 'center' }}>
+        <SkeletonBlock width={152} height={152} style={{ alignSelf: 'center', borderRadius: radius.lg }} />
+        <SkeletonBlock width="52%" height={32} style={{ alignSelf: 'center', marginBottom: space.lg }} />
+        {[0, 1, 2, 3].map((item) => <SkeletonBlock key={item} height={56} style={{ borderRadius: radius.md }} />)}
+      </Skeleton>
     </View>
   );
 }

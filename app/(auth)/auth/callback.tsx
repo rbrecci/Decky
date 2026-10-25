@@ -1,7 +1,7 @@
 import * as Linking from 'expo-linking';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import { useAuth } from '../../../src/auth/AuthProvider';
 import { authErrorMessage, completeOAuthCallback, getOAuthRedirect } from '../../../src/auth/flows';
 import { validateDisplayName } from '../../../src/auth/validators';
@@ -9,7 +9,7 @@ import { supabase } from '../../../src/lib/supabase';
 import { Button } from '../../../src/ui/Button';
 import { Notice } from '../../../src/ui/Notice';
 import { Screen } from '../../../src/ui/Screen';
-import { colors } from '../../../src/ui/theme';
+import { Skeleton, SkeletonBlock } from '../../../src/ui/Skeleton';
 
 export default function OAuthCallback() {
   const params = useLocalSearchParams<Record<string, string | string[]>>();
@@ -50,6 +50,9 @@ export default function OAuthCallback() {
     {error ? <>
       <Notice kind="error" message={error} />
       <Button label="Voltar ao login" onPress={() => router.replace('/login')} />
-    </> : <ActivityIndicator color={colors.gold} accessibilityLabel="Concluindo autenticação" />}
+    </> : <Skeleton label="Concluindo autenticação">
+      <SkeletonBlock width="65%" height={20} />
+      <SkeletonBlock width="45%" />
+    </Skeleton>}
   </Screen>;
 }

@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('../../src/lib/supabase', () => ({ supabase: { rpc: mocks.rpc } }));
+vi.mock('../../src/auth/AuthProvider', () => ({ useAuth: () => ({ userId: 'user-1' }) }));
 vi.mock('react', async (original) => ({
   ...await original<typeof import('react')>(),
   useState: (initial: unknown) => {
@@ -34,6 +35,7 @@ vi.mock('../../src/ui/Button', () => ({ Button: 'Button' }));
 vi.mock('../../src/ui/Notice', () => ({ Notice: 'Notice' }));
 vi.mock('../../src/ui/Panel', () => ({ Panel: 'Panel' }));
 vi.mock('../../src/ui/Screen', () => ({ Screen: 'Screen' }));
+vi.mock('../../src/ui/Skeleton', () => ({ Skeleton: 'Skeleton', SkeletonBlock: 'SkeletonBlock' }));
 
 import { fetchRankings } from '../../src/ranking/api';
 import RankingScreen from '../../app/ranking';

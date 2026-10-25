@@ -11,6 +11,7 @@ import { Button } from '../../src/ui/Button';
 import { Notice } from '../../src/ui/Notice';
 import { Screen } from '../../src/ui/Screen';
 import { Panel } from '../../src/ui/Panel';
+import { Skeleton, SkeletonBlock } from '../../src/ui/Skeleton';
 import { TextField } from '../../src/ui/TextField';
 import { colors, font } from '../../src/ui/theme';
 
@@ -25,20 +26,22 @@ export default function JoinRoom() {
   const identity = useRef(userId);
   identity.current = userId;
   const [listing, setListing] = useState<{ userId: string | null; rooms: PublicRoom[] } | null>(null);
-  const [listError, setListError] = useState<string | null>(null);
-  const [listLoading, setListLoading] = useState(true);
+  const [listStatus, setListStatus] = useState<{ userId: string | null; loading: boolean; error: string | null }>({ userId, loading: true, error: null });
   const sending = useRef(false);
   const { refreshNow } = useLiveRefresh(userId ? `public-rooms:${userId}` : null, [{ table: 'public_room_directory' }], async () => {
     try {
       const rooms = await fetchPublicRooms();
       if (identity.current !== userId) return;
-      setListing({ userId, rooms }); setListError(null);
+      setListing({ userId, rooms });
+      setListStatus({ userId, loading: false, error: null });
     } catch (e) {
-      if (identity.current === userId) { setListError(errorMessage(e)); setListing(null); }
+      if (identity.current === userId) setListStatus({ userId, loading: false, error: errorMessage(e) });
       throw e;
-    } finally { if (identity.current === userId) setListLoading(false); }
+    }
   });
   const rooms = listing?.userId === userId ? listing.rooms : [];
+  const listLoading = listStatus.userId !== userId || listStatus.loading;
+  const listError = listStatus.userId === userId ? listStatus.error : null;
 
   useEffect(() => {
     if (linkedCode) setCode(linkedCode.toUpperCase());
@@ -89,14 +92,20 @@ export default function JoinRoom() {
       <RoomScanner onJoin={async (value) => { setCode(value); return enter(value); }} />
       <Text style={styles.section} accessibilityRole="header">Salas públicas</Text>
       <Notice kind="error" message={listError} />
-      {listLoading ? <Text style={styles.meta}>Carregando salas...</Text> : null}
+      {listLoading ? <Skeleton label="Carregando salas públicas">
+        {[0, 1, 2].map((row) => <Panel key={row}>
+          <SkeletonBlock width="56%" height={23} />
+          <SkeletonBlock width="72%" height={19} />
+          <SkeletonBlock height={48} />
+        </Panel>)}
+      </Skeleton> : null}
       {!listLoading && !listError && rooms.length === 0 ? <Text style={styles.meta}>Nenhuma sala pública disponível.</Text> : null}
       {rooms.map((room) => <Panel key={room.id}>
         <Text style={styles.host}>{room.hostName}</Text>
         <Text style={styles.meta}>{room.gameMode === '1v1' ? 'Duelo' : 'Duplas'} · {room.playerCount}/{room.capacity} jogadores</Text>
         <Button label={room.playerCount >= room.capacity ? 'Sala cheia' : 'Entrar na sala'} variant="dark" disabled={loading || room.playerCount >= room.capacity} onPress={() => void enter(room.code)} />
       </Panel>)}
-      <Button label="Atualizar salas" variant="secondary" onPress={() => void refreshNow()} />
+      <Button label="Atualizar salas" variant="secondary" disabled={listLoading} onPress={() => void refreshNow()} />
       <Button label="Voltar" variant="ghost" onPress={() => router.back()} />
     </Screen>
   );

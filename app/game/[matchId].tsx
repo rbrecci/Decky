@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useAuth } from '../../src/auth/AuthProvider';
 import { PlayerGame } from '../../src/game/PlayerGame';
 import { TableGame } from '../../src/game/TableGame';
@@ -7,7 +7,8 @@ import { useMatch } from '../../src/game/useMatch';
 import { Button } from '../../src/ui/Button';
 import { Notice } from '../../src/ui/Notice';
 import { Screen } from '../../src/ui/Screen';
-import { colors } from '../../src/ui/theme';
+import { Skeleton, SkeletonBlock } from '../../src/ui/Skeleton';
+import { colors, radius, space } from '../../src/ui/theme';
 
 /**
  * Partida. O papel deste aparelho vem do servidor: quem está em match_players joga
@@ -22,11 +23,7 @@ export default function Game() {
   );
 
   if (!loaded) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={colors.gold} />
-      </View>
-    );
+    return <GameLoading reconnecting={connection === 'reconnecting'} retry={refresh} />;
   }
 
   if (notFound || !match || !role) {
@@ -44,11 +41,7 @@ export default function Game() {
 
   const mySeat = hand?.seat ?? players.find((p) => p.userId === userId)?.seat;
   if (!mySeat) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={colors.gold} />
-      </View>
-    );
+    return <GameLoading reconnecting={connection === 'reconnecting'} retry={refresh} />;
   }
 
   return (
@@ -65,6 +58,28 @@ export default function Game() {
   );
 }
 
+function GameLoading({ reconnecting, retry }: { reconnecting: boolean; retry: () => Promise<void> }) {
+  return (
+    <Screen maxWidth={960}>
+      <Skeleton label="Carregando partida" style={styles.loading}>
+        <View style={styles.score}>
+          <SkeletonBlock width="36%" height={64} />
+          <SkeletonBlock width="36%" height={64} />
+        </View>
+        <SkeletonBlock width="45%" height={18} style={{ alignSelf: 'center' }} />
+        <SkeletonBlock height={240} style={{ borderRadius: 72, backgroundColor: colors.surfaceRaised, marginVertical: space.md }} />
+        <SkeletonBlock width="70%" height={24} style={{ alignSelf: 'center' }} />
+        <SkeletonBlock height={88} style={{ borderRadius: radius.md }} />
+      </Skeleton>
+      {reconnecting ? <>
+        <Notice kind="info" message="Não foi possível carregar a partida. Tentando reconectar..." />
+        <Button label="Tentar novamente" variant="secondary" onPress={() => void retry()} />
+      </> : null}
+    </Screen>
+  );
+}
+
 const styles = StyleSheet.create({
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.bg },
+  loading: { width: '100%', maxWidth: 900, alignSelf: 'center', marginVertical: 'auto' },
+  score: { flexDirection: 'row', justifyContent: 'space-between', gap: space.md },
 });

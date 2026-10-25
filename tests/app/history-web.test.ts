@@ -39,6 +39,7 @@ vi.mock('../../src/ui/Button', () => ({ Button: 'Button' }));
 vi.mock('../../src/ui/Notice', () => ({ Notice: 'Notice' }));
 vi.mock('../../src/ui/Panel', () => ({ Panel: 'Panel' }));
 vi.mock('../../src/ui/Screen', () => ({ Screen: 'Screen' }));
+vi.mock('../../src/ui/Skeleton', () => ({ Skeleton: 'Skeleton', SkeletonBlock: 'SkeletonBlock', SkeletonCards: 'SkeletonCards' }));
 vi.mock('../../src/ui/TextField', () => ({ TextField: 'TextField' }));
 vi.mock('../../src/ui/Ornament', () => ({ RuledTitle: 'RuledTitle' }));
 vi.mock('../../src/ui/usePagedList', () => ({

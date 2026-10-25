@@ -14,6 +14,7 @@ import { Button } from '../../src/ui/Button';
 import { Notice } from '../../src/ui/Notice';
 import { Panel } from '../../src/ui/Panel';
 import { Screen } from '../../src/ui/Screen';
+import { Skeleton, SkeletonBlock } from '../../src/ui/Skeleton';
 import { colors, font, fonts, space } from '../../src/ui/theme';
 
 export default function Lobby() {
@@ -68,6 +69,32 @@ export default function Lobby() {
       <Screen title="Sala indisponível">
         <Notice kind="info" message="Esta sala não existe mais ou você não está nela." />
         <Button label="Voltar ao início" onPress={() => router.replace('/')} />
+      </Screen>
+    );
+  }
+
+  if (!loaded || activeMatchId) {
+    return (
+      <Screen maxWidth={840}>
+        <Skeleton label={activeMatchId ? 'Abrindo a partida' : 'Carregando sala'}>
+          <Panel style={styles.codeBox}>
+            <SkeletonBlock width="40%" height={14} style={{ alignSelf: 'center' }} />
+            <SkeletonBlock width="60%" height={48} style={{ alignSelf: 'center' }} />
+            <SkeletonBlock width={192} height={192} style={{ alignSelf: 'center' }} />
+            <SkeletonBlock height={44} />
+          </Panel>
+          <Panel>
+            <SkeletonBlock width="65%" height={24} />
+            <SkeletonBlock height={40} />
+          </Panel>
+          <SkeletonBlock height={144} />
+          <SkeletonBlock height={56} />
+        </Skeleton>
+        {connection === 'reconnecting' ? <>
+          <Notice kind="info" message="Não foi possível carregar a sala. Tentando reconectar..." />
+          <Button label="Tentar novamente" variant="secondary" onPress={() => void refresh()} />
+        </> : null}
+        <Button label="Voltar ao início" variant="ghost" onPress={() => router.replace('/')} />
       </Screen>
     );
   }

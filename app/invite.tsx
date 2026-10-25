@@ -4,6 +4,7 @@ import { useAuth } from '../src/auth/AuthProvider';
 import { Button } from '../src/ui/Button';
 import { Notice } from '../src/ui/Notice';
 import { Screen } from '../src/ui/Screen';
+import { Skeleton, SkeletonBlock } from '../src/ui/Skeleton';
 
 const CODE_REGEX = /^[A-HJ-NP-Z2-9]{6}$/;
 
@@ -26,7 +27,12 @@ export default function Invite() {
     );
   }
 
-  if (session) return <Screen title="Abrindo sala...">{null}</Screen>;
+  if (session) return <Screen title="Abrindo sala...">
+    <Skeleton label="Abrindo sala">
+      <SkeletonBlock width="65%" height={20} />
+      <SkeletonBlock width="45%" />
+    </Skeleton>
+  </Screen>;
 
   return (
     <Screen title="Entrar na sala" subtitle={`Código ${code}`}>

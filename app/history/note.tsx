@@ -1,13 +1,13 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Platform } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import { createNote, deleteNote, getNote, updateNote, validateNoteTitle } from '../../src/history/api';
 import { errorMessage } from '../../src/lib/errors';
 import { Button } from '../../src/ui/Button';
 import { Notice } from '../../src/ui/Notice';
 import { Screen } from '../../src/ui/Screen';
+import { Skeleton, SkeletonBlock } from '../../src/ui/Skeleton';
 import { TextField } from '../../src/ui/TextField';
-import { colors } from '../../src/ui/theme';
 
 /** Cria (?matchId=) ou edita (?id=) uma nota. */
 export default function NoteForm() {
@@ -75,8 +75,15 @@ export default function NoteForm() {
 
   if (loading) {
     return (
-      <Screen title="Nota">
-        <ActivityIndicator size="large" color={colors.gold} />
+      <Screen title="Editar nota">
+        <Skeleton label="Carregando nota">
+          <SkeletonBlock width={70} height={20} />
+          <SkeletonBlock height={54} />
+          <SkeletonBlock width={95} height={20} />
+          <SkeletonBlock height={140} />
+          <SkeletonBlock height={52} />
+        </Skeleton>
+        <Button label="Cancelar" variant="ghost" onPress={() => router.back()} />
       </Screen>
     );
   }
