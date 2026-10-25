@@ -81,8 +81,8 @@ const app = process.env.DECKY_WEB_URL || 'http://localhost:8081';
       checkedAt: new Date().toISOString(), environment: 'Edge headless local com Auth simulado, sem validação de produção',
       sensitiveRoutes: 4, automaticVerifications: 0, explicitVerifications: 1, images, pageErrors: errors,
     };
-    fs.mkdirSync(path.resolve('docs/evidencias-v2'), { recursive: true });
-    fs.writeFileSync(path.resolve('docs/evidencias-v2/auth-web.json'), JSON.stringify(report, null, 2) + '\n');
+    fs.mkdirSync(path.resolve('.expo/validation-v2/public'), { recursive: true });
+    fs.writeFileSync(path.resolve('.expo/validation-v2/public/auth-web.json'), JSON.stringify(report, null, 2) + '\n');
     console.log(JSON.stringify(report));
   } finally { await browser.close(); }
 })().catch((error) => { console.error(error); process.exitCode = 1; });

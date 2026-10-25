@@ -55,7 +55,8 @@ const release = { schemaVersion:1,platform:'android',version:'2.0.0',buildNumber
     assert.deepEqual(errors,[]);
     const report={prefix:'/Decky/',invalidManifest:true,sharedDownloadLinks:links.length,font200PercentWidths:[320,1366],keyboardSkipLink:true,
       iosCtaUserAgentSimulation:true,noJavaScriptWebAccess:true,resourceFailures:failures,pageErrors:errors};
-    fs.writeFileSync('docs/evidencias-v2/site-web.json',JSON.stringify(report,null,2)+'\n');
+    fs.mkdirSync(path.resolve('.expo/validation-v2/public'),{recursive:true});
+    fs.writeFileSync(path.resolve('.expo/validation-v2/public/site-web.json'),JSON.stringify(report,null,2)+'\n');
     console.log(JSON.stringify(report));
   } finally {await browser.close();await new Promise((resolve)=>server.close(resolve));}
 })().catch((error)=>{console.error(error);process.exitCode=1;server.close();});

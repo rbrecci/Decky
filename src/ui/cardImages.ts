@@ -1,4 +1,4 @@
-// Gerado a partir do baralho de Byron Knoll (CC0). Ver assets/cards/README.md.
+// Gerado a partir do baralho de Byron Knoll (CC0). Ver docs/Decky.pdf, capítulo 9.
 import type { Card } from '../contracts/types';
 
 export const cardImages: Record<string, number> = {
