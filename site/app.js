@@ -5,18 +5,47 @@ if (isiOS) document.body.classList.add('ios');
 
 function setupMotion() {
   const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const pointer = window.matchMedia('(hover: hover) and (pointer: fine)');
   const hero = document.querySelector('[data-hero-motion]');
-  const toggle = document.querySelector('[data-motion-toggle]');
-  let paused = false;
-  function syncHero() {
-    if (!hero || !toggle) return;
-    hero.classList.toggle('is-animated', !preference.matches);
-    hero.classList.toggle('is-paused', paused || document.hidden);
-    toggle.hidden = preference.matches;
-    toggle.textContent = paused ? 'Retomar movimento' : 'Pausar movimento';
+  let heroVisible = true;
+  let pointerFrame = 0;
+  let pointerX = 0;
+  let pointerY = 0;
+
+  function resetPointer() {
+    cancelAnimationFrame(pointerFrame);
+    pointerFrame = 0;
+    hero?.style.removeProperty('--pointer-x');
+    hero?.style.removeProperty('--pointer-y');
   }
-  toggle?.addEventListener('click', () => { paused = !paused; syncHero(); });
+  function syncHero() {
+    if (!hero) return;
+    hero.classList.toggle('is-animated', !preference.matches);
+    hero.classList.toggle('is-paused', !heroVisible || document.hidden);
+    if (preference.matches || !heroVisible || document.hidden || !pointer.matches) resetPointer();
+  }
+  hero?.addEventListener('pointermove', (event) => {
+    if (preference.matches || !pointer.matches || !heroVisible || document.hidden) return;
+    const bounds = hero.getBoundingClientRect();
+    pointerX = ((event.clientX - bounds.left) / bounds.width - 0.5) * 28;
+    pointerY = ((event.clientY - bounds.top) / bounds.height - 0.5) * 20;
+    if (pointerFrame) return;
+    pointerFrame = requestAnimationFrame(() => {
+      hero.style.setProperty('--pointer-x', `${pointerX}px`);
+      hero.style.setProperty('--pointer-y', `${pointerY}px`);
+      pointerFrame = 0;
+    });
+  });
+  hero?.addEventListener('pointerleave', resetPointer);
+  pointer.addEventListener('change', syncHero);
   document.addEventListener('visibilitychange', syncHero);
+  if (hero && typeof window.IntersectionObserver === 'function') {
+    const heroObserver = new IntersectionObserver(([entry]) => {
+      heroVisible = entry.isIntersecting;
+      syncHero();
+    });
+    heroObserver.observe(hero);
+  }
   syncHero();
 
   const pending = new Set();
