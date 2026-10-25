@@ -39,6 +39,7 @@ vi.mock('../../src/ui/Panel', () => ({ Panel: 'Panel' }));
 vi.mock('../../src/ui/Screen', () => ({ Screen: 'Screen' }));
 vi.mock('../../src/ui/TextField', () => ({ TextField: 'TextField' }));
 vi.mock('../../src/ui/Skeleton', () => ({ Skeleton: 'Skeleton', SkeletonBlock: 'SkeletonBlock', SkeletonCards: 'SkeletonCards' }));
+vi.mock('../../src/ranking/EloBadge', () => ({ EloBadge: 'EloBadge' }));
 vi.mock('../../src/qr/RoomScanner', () => ({ RoomScanner: 'RoomScanner' }));
 
 import RankingScreen from '../../app/ranking';

@@ -36,6 +36,7 @@ vi.mock('../../src/ui/Notice', () => ({ Notice: 'Notice' }));
 vi.mock('../../src/ui/Panel', () => ({ Panel: 'Panel' }));
 vi.mock('../../src/ui/Screen', () => ({ Screen: 'Screen' }));
 vi.mock('../../src/ui/Skeleton', () => ({ Skeleton: 'Skeleton', SkeletonBlock: 'SkeletonBlock' }));
+vi.mock('../../src/ranking/EloBadge', () => ({ EloBadge: 'EloBadge' }));
 
 import { fetchRankings } from '../../src/ranking/api';
 import RankingScreen from '../../app/ranking';
