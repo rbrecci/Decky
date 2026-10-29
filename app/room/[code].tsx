@@ -1,16 +1,17 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Linking from 'expo-linking';
-import { useEffect, useState } from 'react';
-import { Share, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Platform, Share, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { useAuth } from '../../src/auth/AuthProvider';
-import type { HostMode } from '../../src/contracts/types';
+import type { HostMode, RoomSeat } from '../../src/contracts/types';
 import { startMatch } from '../../src/game/api';
 import { errorMessage } from '../../src/lib/errors';
-import { changeSeat, leaveRoom, setHostMode, setReady } from '../../src/rooms/api';
+import { changeSeat, leaveRoom, setHostMode, setReady, requestSeatSwap, respondSeatSwap } from '../../src/rooms/api';
 import { SeatPicker } from '../../src/rooms/SeatPicker';
 import { useRoom } from '../../src/rooms/useRoom';
 import { Button } from '../../src/ui/Button';
+import { Dialog } from '../../src/ui/Dialog';
 import { Notice } from '../../src/ui/Notice';
 import { Panel } from '../../src/ui/Panel';
 import { Screen } from '../../src/ui/Screen';
@@ -18,9 +19,13 @@ import { Skeleton, SkeletonBlock } from '../../src/ui/Skeleton';
 import { colors, font, fonts, space } from '../../src/ui/theme';
 
 export default function Lobby() {
+  const { width } = useWindowDimensions();
+  const desktop = Platform.OS === 'web' && width >= 1024;
   const { code } = useLocalSearchParams<{ code: string }>();
   const { userId } = useAuth();
-  const { room, seats, activeMatchId, gone, loaded, connection, refresh } = useRoom(code);
+  const { room, seats, swaps, activeMatchId, gone, loaded, connection, refresh } = useRoom(code);
+  const actionPending = useRef(false);
+  const [swapTarget, setSwapTarget] = useState<RoomSeat | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,18 +37,26 @@ export default function Lobby() {
   const me = seats.find((s) => s.userId === userId);
   const isHost = !!room && room.hostUserId === userId;
   const tableMode = room?.hostMode === 'table';
+  const incoming = swaps.find(s => s.toUserId === userId && s.status === 'pending');
+  const outgoing = swaps.find(s => s.fromUserId === userId);
+  const feedback = outgoing ? ({ pending: 'Pedido de troca enviado. Aguardando resposta.', accepted: 'Troca de lugar aceita.', rejected: 'Seu pedido de troca foi recusado.', expired: 'Seu pedido de troca expirou.', cancelled: 'Seu pedido de troca foi cancelado.' }[outgoing.status]) : null;
   const capacity = room?.gameMode === '1v1' ? 2 : 4;
   const allReady = seats.length === capacity && seats.every((s) => s.ready);
 
   async function run(key: string, action: () => Promise<unknown>) {
+    if (actionPending.current) return false;
+    actionPending.current = true;
     setBusy(key);
     setError(null);
     try {
       await action();
       await refresh();
+      return true;
     } catch (e) {
       setError(errorMessage(e));
+      return false;
     } finally {
+      actionPending.current = false;
       setBusy(null);
     }
   }
@@ -59,8 +72,7 @@ export default function Lobby() {
   }
 
   async function handleLeave() {
-    if (room) await run('leave', () => leaveRoom(room.id));
-    router.replace('/');
+    if (!room || await run('leave', () => leaveRoom(room.id))) router.replace('/');
   }
 
   // No modo mesa o dono não ocupa lugar, mas continua na sala.
@@ -98,16 +110,18 @@ export default function Lobby() {
   }
 
   return (
-    <Screen title="Sala" maxWidth={840} onBack={handleLeave} backLoading={busy === 'leave'}>
-      <Panel tone="accent" style={styles.codeBox}>
+    <Screen title="Sala" maxWidth={840} onBack={handleLeave} backLabel="Sair" backLoading={busy === 'leave'}>
+      <Panel tone="accent" style={[styles.codeBox, desktop && styles.codeBoxDesktop]}>
+        <View style={[styles.codeTexts, desktop && styles.codeTextsDesktop]}>
         <Text style={styles.codeLabel}>CÓDIGO DA SALA</Text>
         {room ? <Text style={styles.codeLabel}>{room.visibility === 'public' ? 'PÚBLICA' : 'PRIVADA'}</Text> : null}
         <Text style={styles.code} accessibilityLabel={`Código ${code?.split('').join(' ')}`} selectable>
           {code}
         </Text>
+        </View>
         {code ? (
           <View style={styles.qrCode} accessible accessibilityLabel={`QR code para entrar na sala ${code}`}>
-            <QRCode value={Linking.createURL('invite', { queryParams: { code } })} size={176} />
+            <QRCode value={Linking.createURL('invite', { queryParams: { code } })} size={desktop ? 112 : 176} />
           </View>
         ) : null}
         <Button
@@ -140,10 +154,20 @@ export default function Lobby() {
         disabled={!!busy}
         // A mesa não senta: para ela, lugar livre só mostra que falta jogador.
         canSit={!!me}
+        onRequestSwap={setSwapTarget}
         onSit={(seat) => room && run(`seat-${seat}`, () => changeSeat(room.id, seat))}
       />
 
       <Notice kind="error" message={error} />
+      <Notice kind="info" message={feedback} />
+      <Dialog open={!!swapTarget && !incoming} title="Enviar pedido de troca de lugar" error={error} message={swapTarget ? `Trocar de lugar com ${swapTarget.displayName}?` : undefined}
+        confirmLabel="Enviar" busy={busy === 'swap-send'} onCancel={() => setSwapTarget(null)}
+        onConfirm={() => { if (room && swapTarget) void run('swap-send', () => requestSeatSwap(room.id, swapTarget.userId)).then(ok => { if (ok) setSwapTarget(null); }); }} />
+      <Dialog open={!!incoming} title="Aceitar pedido de troca de lugar" error={error}
+        message={`${seats.find(s => s.userId === incoming?.fromUserId)?.displayName ?? 'Outro jogador'} quer trocar de lugar com você. O pedido vale por 30 segundos.`}
+        confirmLabel="Aceitar" cancelLabel="Negar" busy={busy === 'swap-response'}
+        onCancel={() => { if (incoming) void run('swap-response', () => respondSeatSwap(incoming.id, false)); }}
+        onConfirm={() => { if (incoming) void run('swap-response', () => respondSeatSwap(incoming.id, true)); }} />
 
       {me ? (
         <Button
@@ -225,6 +249,9 @@ function ModeBox({ capacity, gameMode, mode, isHost, busy, disabled, onSwitch }:
 }
 
 const styles = StyleSheet.create({
+  codeBoxDesktop: { flexDirection: 'row', alignItems: 'center', gap: space.md },
+  codeTexts: { gap: space.xs },
+  codeTextsDesktop: { flex: 1 },
   codeBox: { alignItems: 'stretch' },
   codeLabel: { color: colors.textMuted, fontSize: font.tiny, fontWeight: '700', letterSpacing: 2, textAlign: 'center' },
   code: { color: colors.text, fontSize: font.huge, fontWeight: '800', letterSpacing: 5, textAlign: 'center' },

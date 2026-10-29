@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
+import { useRoomPresence } from '../rooms/useRoomPresence';
 import type { Card, GameResult, MatchPlayer, PrivateHand } from '../contracts/types';
 import { useLiveRefresh, type RefreshHint } from '../lib/useLiveRefresh';
 import { fetchMatch, fetchMatchPlayers, fetchMyHand } from './api';
@@ -13,6 +14,7 @@ export type { MatchData };
  */
 export function useMatch(matchId: string | undefined, userId: string | null) {
   const [data, setData] = useState<MatchData>(EMPTY_MATCH_DATA);
+  useRoomPresence(data.role === 'player' || data.role === 'table' ? data.match?.roomId ?? null : null);
   const latest = useRef(data);
   latest.current = data;
   const handRevision = useRef<number | null>(null);

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { applyAction, newMatch, seededRng } from '../../supabase/functions/_shared/engine/index.ts';
 import type { MatchState } from '../../supabase/functions/_shared/engine/index.ts';
 import { createTestDb, type TestDb } from './db';
@@ -265,3 +265,6 @@ describe('notas do histórico (CRUD)', () => {
     );
   });
 });
+
+// Cada teste libera o Postgres em memória antes de criar outra instância.
+afterEach(async () => { await t?.db.close(); });

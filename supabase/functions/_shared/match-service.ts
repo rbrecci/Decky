@@ -66,7 +66,9 @@ export async function startMatchService(rpc: Rpc, userId: string, body: any, rng
 
   // O primeiro prazo sai do relógio do banco, o mesmo que confere as expirações.
   const now = Number(await rpc('server_now', {}));
-  const state = newMatch(rng, now, room.gameMode);
+  // Reserva quatro segundos para entrega do estado e contagem 3/2/A. O banco fixa o instante sob lock.
+  const state = newMatch(rng, now + 4000, room.gameMode);
+  state.public.startsAt = now + 4000;
   const data = await rpc('internal_start_match', {
     p_room_id: roomId,
     p_user_id: userId,

@@ -23,6 +23,7 @@ interface Props {
   /** Quem olha pode sentar (a mesa central só vê os lugares). */
   canSit: boolean;
   onSit: (seat: Seat) => void;
+  onRequestSwap?: (player: RoomSeat) => void;
 }
 
 /**
@@ -33,7 +34,7 @@ interface Props {
  * "VOCÊ" solto no pé do cartão.
  * A bandeja tem cantos de raio fixo e recuo próprio: nenhum lugar encosta no aro, em qualquer tela.
  */
-export function SeatPicker({ gameMode = '2v2', seats, mySeat, hostId, disabled, canSit, onSit }: Props) {
+export function SeatPicker({ gameMode = '2v2', seats, mySeat, hostId, disabled, canSit, onSit, onRequestSwap }: Props) {
   const [gridW, setGridW] = useState<number | null>(null);
   function onLayout(e: LayoutChangeEvent) {
     const w = e.nativeEvent.layout.width;
@@ -61,6 +62,7 @@ export function SeatPicker({ gameMode = '2v2', seats, mySeat, hostId, disabled, 
                 disabled={disabled}
                 canSit={canSit}
                 onSit={() => onSit(seat)}
+                onRequestSwap={onRequestSwap}
               />
             ))}
           </View>
@@ -80,9 +82,10 @@ interface SeatBoxProps {
   disabled: boolean;
   canSit: boolean;
   onSit: () => void;
+  onRequestSwap?: (player: RoomSeat) => void;
 }
 
-function SeatBox({ gameMode, seat, player, isMe, narrow, hostId, disabled, canSit, onSit }: SeatBoxProps) {
+function SeatBox({ gameMode, seat, player, isMe, narrow, hostId, disabled, canSit, onSit, onRequestSwap }: SeatBoxProps) {
   const team = seatTeam(seat);
   const teamColor = team === 'A' ? colors.teamA : colors.teamB;
   const label = gameMode === '1v1' ? `Jogador ${team}` : `Dupla ${team}`;
@@ -134,7 +137,11 @@ function SeatBox({ gameMode, seat, player, isMe, narrow, hostId, disabled, canSi
     </Text>
   );
   return (
-    <View
+    <Pressable
+      onPress={() => onRequestSwap?.(player)}
+      disabled={disabled || !canSit || isMe || !onRequestSwap}
+      accessibilityRole="button"
+      accessibilityHint={canSit && !isMe ? 'Solicitar troca de lugar' : undefined}
       style={[styles.seat, isMe && styles.seatMe]}
       accessible
       accessibilityLabel={`${header}, ${player.displayName}${isMe ? ', você' : ''}${isHost ? ', dono da sala' : ''}, ${
@@ -161,7 +168,7 @@ function SeatBox({ gameMode, seat, player, isMe, narrow, hostId, disabled, canSi
         </View>
       </View>
       {ready}
-    </View>
+    </Pressable>
   );
 }
 

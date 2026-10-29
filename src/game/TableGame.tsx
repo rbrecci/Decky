@@ -1,10 +1,13 @@
+import { Dialog } from '../ui/Dialog';
 import { router } from 'expo-router';
-import { useCallback, useState } from 'react';
-import { Alert, Platform, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { useCallback, useRef, useState } from 'react';
+import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { MatchPlayer, MatchView, Seat } from '../contracts/types';
 import type { ConnectionStatus } from '../lib/useLiveRefresh';
 import { useScreenAwake } from '../lib/useScreenAwake';
+import { Notice } from '../ui/Notice';
+import { errorMessage } from '../lib/errors';
 import { colors, font, space } from '../ui/theme';
 import { FinishedOverlay } from './components/FinishedOverlay';
 import { ScoreBar } from './components/ScoreBar';
@@ -21,13 +24,15 @@ interface Props {
   connection: ConnectionStatus;
   /** Relógio do servidor. Padrão: server_now. A fixture usa o relógio do próprio aparelho. */
   fetchNow?: () => Promise<number>;
+  spectator?: boolean;
+  onExit?: (home?: boolean) => Promise<void>;
 }
 
 /**
  * Modo mesa: o celular do dono vira a mesa central, só com informações públicas.
  * Não tem mão nem botões de jogo; o servidor recusa ações deste aparelho.
  */
-export function TableGame({ match, players, connection, fetchNow }: Props) {
+export function TableGame({ match, players, connection, fetchNow, spectator = false, onExit }: Props) {
   // Só mostra o prazo; quem pede a expiração são os jogadores (a mesa não joga).
   const clock = useServerClock(fetchNow);
   useScreenAwake();
@@ -35,25 +40,30 @@ export function TableGame({ match, players, connection, fetchNow }: Props) {
   // Placar e banner grandes só em aparelho alto: no celular baixo eles roubavam a altura da mesa
   // e as cartas caíam para o tamanho mínimo.
   const { height, fontScale } = useWindowDimensions();
+  const [leaveOpen, setLeaveOpen] = useState(false);
   const [viewportHeight, setViewportHeight] = useState<number | null>(null);
   const [scoreHeight, setScoreHeight] = useState(0);
   const availableHeight = (viewportHeight ?? height) - insets.top - insets.bottom - space.xs - scoreHeight - space.sm;
   const roomy = height >= 720;
+  const exitPending = useRef(false);
+  const [exiting, setExiting] = useState(false);
+  const [exitError, setExitError] = useState<string | null>(null);
   const state = match.state;
   const deal = useDealAnimation(match.matchId, state);
   const cue = useTableCue(match, connection);
   const nameOf = (seat: Seat) => players.find((p) => p.seat === seat)?.displayName ?? `Lugar ${seat}`;
 
+  const exitSpectator = useCallback(async (home = false) => {
+    if (!onExit || exitPending.current) return;
+    exitPending.current = true; setExiting(true); setExitError(null);
+    try { await onExit(home); }
+    catch (e) { setExitError(errorMessage(e)); }
+    finally { exitPending.current = false; setExiting(false); }
+  }, [onExit]);
   const leaveTable = useCallback(() => {
-    if (Platform.OS === 'web') {
-      if (window.confirm('Sair da mesa?\nA partida continua nos celulares dos jogadores. Você pode abrir a mesa de novo pela sala.')) router.replace('/');
-      return;
-    }
-    Alert.alert('Sair da mesa?', 'A partida continua nos celulares dos jogadores. Você pode abrir a mesa de novo pela sala.', [
-      { text: 'Ficar', style: 'cancel' },
-      { text: 'Sair', onPress: () => router.replace('/') },
-    ]);
-  }, []);
+    if (spectator) { void exitSpectator(); return; }
+    setLeaveOpen(true);
+  }, [spectator, exitSpectator]);
 
   return (
     <View
@@ -69,23 +79,30 @@ export function TableGame({ match, players, connection, fetchNow }: Props) {
       ]}
     >
       <View onLayout={(event) => setScoreHeight(event.nativeEvent.layout.height)} style={styles.fixedScore}>
-        <ScoreBar state={state} viewerTeam={null} players={players} large={roomy} onLeave={leaveTable} />
+        <ScoreBar state={state} viewerTeam={null} players={players} large={roomy} onLeave={leaveTable} leaveLabel={spectator ? 'Sair' : undefined} />
       </View>
       <ScrollView style={styles.scroll} contentContainerStyle={[styles.content, { height: Math.max(availableHeight, 600 * Math.min(fontScale, 1.6) - scoreHeight - space.sm) }]}>
       <ConnectionBanner status={connection} />
+      <Notice kind="error" message={exitError} />
       <StatusBanner status={statusText({ state, viewerSeat: null, nameOf, canRespond: false, phase: deal.phase })} large={roomy} />
       <TableBoard state={state} players={players} bottomSeat={1} viewerSeat={null} deal={deal} variant="large" cue={cue} clockOffset={clock.offset} />
       <Text style={styles.footer} numberOfLines={1}>
-        Mesa{match.roomCode ? ` · sala ${match.roomCode}` : ''} · mostra só o que é público
+        {spectator ? 'Espectador' : 'Mesa'}{match.roomCode ? ` · sala ${match.roomCode}` : ''} · mostra só o que é público
       </Text>
       </ScrollView>
 
+      <Dialog open={leaveOpen} title="Sair da mesa?" message="A partida continua. Para voltar, abra a sala novamente pelo código."
+        confirmLabel="Sair" cancelLabel="Ficar" onCancel={() => setLeaveOpen(false)}
+        onConfirm={() => { setLeaveOpen(false); router.replace('/'); }} />
       {state.status === 'finished' ? (
         <FinishedOverlay
           state={state}
           viewerTeam={null}
-          onRoom={() => router.replace(match.roomCode ? `/room/${match.roomCode}` : '/')}
-          onHome={() => router.replace('/')}
+          roomLabel={spectator ? "Voltar às salas" : undefined}
+          error={exitError}
+          busy={exiting}
+          onRoom={spectator ? leaveTable : () => router.replace(match.roomCode ? `/room/${match.roomCode}` : '/') }
+          onHome={spectator ? () => void exitSpectator(true) : () => router.replace('/')}
         />
       ) : null}
     </View>

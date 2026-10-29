@@ -84,6 +84,8 @@ export interface HandSummary {
 
 /** Estado que qualquer membro da partida pode ver. Nunca contém mãos. */
 export interface PublicGameState {
+  /** Instante único do início após a contagem, em epoch ms do servidor. Ausente em partidas antigas. */
+  startsAt?: number;
   /** Ausente em partidas antigas, que usam 2v2. */
   gameMode?: GameMode;
   status: 'playing' | 'finished';

@@ -20,6 +20,13 @@ const MESSAGES: Record<string, string> = {
   not_host: 'Só quem criou a sala pode iniciar.',
   not_enough_players: 'Ainda faltam jogadores nesta sala.',
   players_not_ready: 'Todos precisam marcar "Pronto".',
+  invalid_swap: 'Escolha outro jogador da sua sala para trocar de lugar.',
+  player_disconnected: 'O jogador está desconectado. Aguarde a reconexão.',
+  swap_conflict: 'Já existe um pedido de troca envolvendo um desses jogadores.',
+  swap_unavailable: 'Este pedido de troca expirou ou não está mais disponível.',
+  not_swap_recipient: 'Só quem recebeu o pedido pode responder.',
+  room_heartbeat_timeout: 'Não foi possível renovar a conexão. Tentaremos novamente.',
+  spectator_unavailable: 'Esta partida não está disponível para espectadores.',
   // Partida
   not_your_turn: 'Não é a sua vez.',
   invalid_card: 'Esta carta não está na sua mão.',

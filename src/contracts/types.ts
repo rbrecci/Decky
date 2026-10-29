@@ -59,6 +59,8 @@ export interface PublicRoom {
   gameMode: GameMode;
   playerCount: number;
   capacity: number;
+  status?: 'lobby' | 'playing';
+  matchId?: string | null;
 }
 
 export interface RoomSeat {
@@ -86,10 +88,12 @@ export interface MatchView {
   state: PublicGameState;
   /** Aparelho que atua como mesa (modo 'table'); null quando o dono joga. */
   tableUserId: string | null;
+  /** Inscrição do usuário autenticado, filtrada por RLS. */
+  spectatorUserId?: string | null;
 }
 
 /** Como este aparelho participa da partida: jogador com mão privada ou mesa só de leitura. */
-export type MatchRole = 'player' | 'table';
+export type MatchRole = 'player' | 'table' | 'spectator';
 
 /** Mão privada: só a do próprio usuário, via get_my_hand. */
 export interface PrivateHand {
@@ -179,4 +183,12 @@ export interface RankingEntry {
 export interface Ranking {
   entries: RankingEntry[];
   myEntry: RankingEntry | null;
+}
+
+export interface SeatSwap {
+  id: string;
+  fromUserId: string;
+  toUserId: string;
+  status: 'pending' | 'accepted' | 'rejected' | 'expired' | 'cancelled';
+  expiresAt: string;
 }

@@ -56,7 +56,7 @@ export async function submitAction(
 export async function fetchMatch(matchId: string): Promise<MatchView | null> {
   const { data, error } = await supabase
     .from('matches')
-    .select('id, room_id, revision, public_state, table_user_id, rooms(code)')
+    .select('id, room_id, revision, public_state, table_user_id, rooms(code), match_spectators(user_id)')
     .eq('id', matchId)
     .maybeSingle();
   if (error) throw error;
@@ -69,6 +69,7 @@ export async function fetchMatch(matchId: string): Promise<MatchView | null> {
     revision: data.revision,
     state: data.public_state,
     tableUserId: data.table_user_id ?? null,
+    spectatorUserId: (data.match_spectators as { user_id: string }[] | null)?.[0]?.user_id ?? null,
   };
 }
 

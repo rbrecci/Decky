@@ -1,10 +1,11 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { Alert, Platform, StyleSheet, Text, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import { useAuth } from '../../src/auth/AuthProvider';
 import type { MatchNote, MatchSummary } from '../../src/contracts/types';
 import { deleteNote, fetchMyMatches, listNotes } from '../../src/history/api';
 import { errorMessage } from '../../src/lib/errors';
+import { Dialog } from '../../src/ui/Dialog';
 import { Button } from '../../src/ui/Button';
 import { Notice } from '../../src/ui/Notice';
 import { Panel } from '../../src/ui/Panel';
@@ -21,25 +22,22 @@ export default function History() {
   const notes = usePagedList(userId ?? '', listNotes);
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<MatchNote | null>(null);
+  const deletePending = useRef(false);
 
-  function confirmDelete(note: MatchNote) {
-    const removeNote = async () => {
-      setDeleting(true); setError(null);
-      try { await deleteNote(note.id); await notes.refresh(); }
-      catch (e) { setError(errorMessage(e)); }
-      finally { setDeleting(false); }
-    };
-    if (Platform.OS === 'web') {
-      if (window.confirm(`Excluir nota?\n"${note.title}" será apagada. Não dá para desfazer.`)) void removeNote();
-      return;
-    }
-    Alert.alert('Excluir nota?', `"${note.title}" será apagada. Não dá para desfazer.`, [
-      { text: 'Cancelar', style: 'cancel' }, { text: 'Excluir', style: 'destructive', onPress: removeNote },
-    ]);
+  function confirmDelete(note: MatchNote) { setError(null); setDeleteTarget(note); }
+  async function removeNote() {
+    if (!deleteTarget || deletePending.current) return;
+    deletePending.current = true; setDeleting(true); setError(null);
+    try { await deleteNote(deleteTarget.id); setDeleteTarget(null); await notes.refresh(); }
+    catch (e) { setError(errorMessage(e)); }
+    finally { deletePending.current = false; setDeleting(false); }
   }
 
   return (
     <Screen title="Histórico" maxWidth={1000} onBack={() => router.canGoBack() ? router.back() : router.replace('/')}>
+      <Dialog open={!!deleteTarget} title="Excluir nota?" message={deleteTarget ? 'A nota "' + deleteTarget.title + '" será apagada. Não dá para desfazer.' : undefined}
+        confirmLabel="Excluir" busy={deleting} error={error} onCancel={() => setDeleteTarget(null)} onConfirm={removeNote} />
       <Notice kind="error" message={error} />
       <Text style={styles.section} accessibilityRole="header">Minhas notas</Text>
       {notes.initialLoading ? <SkeletonCards label="Carregando notas" count={5} /> : null}

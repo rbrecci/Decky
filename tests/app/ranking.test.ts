@@ -5,6 +5,8 @@ const mocks = vi.hoisted(() => ({
   rpc: vi.fn(),
   states: [] as unknown[],
   nextState: 0,
+  refs: [] as any[],
+  nextRef: 0,
   focus: null as (() => void | (() => void)) | null,
 }));
 
@@ -19,6 +21,7 @@ vi.mock('react', async (original) => ({
       mocks.states[index] = typeof value === 'function' ? value(mocks.states[index]) : value;
     }];
   },
+  useRef: (value: unknown) => mocks.refs[mocks.nextRef++] ??= { current: value },
   useCallback: (callback: unknown) => callback,
 }));
 vi.mock('expo-router', () => ({
@@ -31,6 +34,7 @@ vi.mock('react-native', () => ({
   Text: 'Text',
   View: 'View',
 }));
+vi.mock('../../src/ui/IconButton', () => ({ IconButton: 'IconButton' }));
 vi.mock('../../src/ui/Button', () => ({ Button: 'Button' }));
 vi.mock('../../src/ui/Notice', () => ({ Notice: 'Notice' }));
 vi.mock('../../src/ui/Panel', () => ({ Panel: 'Panel' }));
@@ -46,7 +50,7 @@ const entry = {
 };
 
 function render() {
-  mocks.nextState = 0;
+  mocks.nextState = 0; mocks.nextRef = 0;
   return RankingScreen();
 }
 
@@ -65,7 +69,7 @@ function findButton(node: ReactNode, label: string): (() => void) | undefined {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mocks.states = [];
+  mocks.states = []; mocks.refs = [];
   mocks.nextState = 0;
   mocks.focus = null;
 });
@@ -152,4 +156,14 @@ describe('troca de modo no ranking', () => {
     expect(mocks.rpc).toHaveBeenCalledTimes(2);
     expect(findButton(render(), 'Tentar novamente')).toBeUndefined();
   });
+});
+
+it('título anuncia os melhores e atualização usa ícone ao lado da classificação', async () => {
+ mocks.rpc.mockResolvedValue({data:{entries:[entry],myEntry:entry},error:null});render();mocks.focus!();
+ function text(node:ReactNode):string{if(Array.isArray(node))return node.map(text).join('');if(typeof node==='string'||typeof node==='number')return String(node);if(node&&typeof node==='object'&&'props'in node)return text((node as ReactElement<any>).props.children);return '';}
+ await vi.waitFor(()=>expect(text(render())).toContain('50 melhores jogadores · 1v1'));
+ expect(text(render())).not.toContain('Primeiros 50');
+ expect(findButton(render(),'Atualizar ranking')).toBeTypeOf('function');
+ findButton(render(),'2v2: Duplas')!();render();mocks.focus!();
+ await vi.waitFor(()=>expect(text(render())).toContain('50 melhores jogadores · 2v2'));
 });

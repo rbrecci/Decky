@@ -1,8 +1,8 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { Alert, Platform } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
 import { createNote, deleteNote, getNote, updateNote, validateNoteTitle } from '../../src/history/api';
 import { errorMessage } from '../../src/lib/errors';
+import { Dialog } from '../../src/ui/Dialog';
 import { Button } from '../../src/ui/Button';
 import { Notice } from '../../src/ui/Notice';
 import { Screen } from '../../src/ui/Screen';
@@ -19,6 +19,8 @@ export default function NoteForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(editing);
   const [saving, setSaving] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const deletePending = useRef(false);
 
   useEffect(() => {
     if (!id) return;
@@ -50,27 +52,13 @@ export default function NoteForm() {
     }
   }
 
-  function confirmDelete() {
-    const removeNote = async () => {
-      try {
-        await deleteNote(id!);
-        router.back();
-      } catch (e) {
-        setError(errorMessage(e));
-      }
-    };
-    if (Platform.OS === 'web') {
-      if (window.confirm('Excluir nota?\nNão dá para desfazer.')) void removeNote();
-      return;
-    }
-    Alert.alert('Excluir nota?', 'Não dá para desfazer.', [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Excluir',
-        style: 'destructive',
-        onPress: removeNote,
-      },
-    ]);
+  function confirmDelete() { setError(null); setDeleteOpen(true); }
+  async function removeNote() {
+    if (!id || deletePending.current) return;
+    deletePending.current = true; setSaving(true); setError(null);
+    try { await deleteNote(id); setDeleteOpen(false); router.back(); }
+    catch (e) { setError(errorMessage(e)); }
+    finally { deletePending.current = false; setSaving(false); }
   }
 
   if (loading) {
@@ -99,6 +87,8 @@ export default function NoteForm() {
         inputStyle={{ minHeight: 140, textAlignVertical: 'top', paddingTop: 12 }}
         placeholder="O que aconteceu nesta partida?"
       />
+      <Dialog open={deleteOpen} title="Excluir nota?" message="Não dá para desfazer."
+        confirmLabel="Excluir" busy={saving} error={error} onCancel={() => setDeleteOpen(false)} onConfirm={removeNote} />
       <Notice kind="error" message={error} />
       <Button label="Salvar" onPress={save} loading={saving} disabled={!editing && !matchId} />
       {editing ? <Button label="Excluir nota" variant="secondary" onPress={confirmDelete} /> : null}

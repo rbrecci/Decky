@@ -1,5 +1,5 @@
 import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useAuth } from '../src/auth/AuthProvider';
 import type { GameMode, Ranking } from '../src/contracts/types';
@@ -7,6 +7,7 @@ import { errorMessage } from '../src/lib/errors';
 import { fetchRankings } from '../src/ranking/api';
 import { EloBadge } from '../src/ranking/EloBadge';
 import { eloForMmr } from '../src/ranking/elo';
+import { IconButton } from '../src/ui/IconButton';
 import { Button } from '../src/ui/Button';
 import { Notice } from '../src/ui/Notice';
 import { Panel } from '../src/ui/Panel';
@@ -20,15 +21,18 @@ export default function RankingScreen() {
   const key = `${userId}:${gameMode}`;
   const [result, setResult] = useState<{ key: string; ranking: Ranking | null; loading: boolean; error: string | null }>({ key, ranking: null, loading: true, error: null });
   const [attempt, setAttempt] = useState(0);
+  const refreshing = useRef(false);
 
   useFocusEffect(useCallback(() => {
     let active = true;
+    refreshing.current = true;
     setResult((current) => ({ key, ranking: current.key === key ? current.ranking : null, loading: true, error: null }));
     fetchRankings(gameMode)
       .then((ranking) => { if (active) setResult({ key, ranking, loading: false, error: null }); })
       .catch((e) => {
         if (active) setResult((current) => ({ key, ranking: current.key === key ? current.ranking : null, loading: false, error: errorMessage(e) }));
-      });
+      })
+      .finally(() => { if (active) refreshing.current = false; });
     return () => { active = false; };
   }, [key, gameMode, attempt]));
 
@@ -36,6 +40,18 @@ export default function RankingScreen() {
   const loading = result.key !== key || result.loading;
   const error = result.key === key ? result.error : null;
   const mine = ranking?.myEntry;
+  function reload() {
+    if (refreshing.current || loading) return;
+    refreshing.current = true;
+    setAttempt(n => n + 1);
+  }
+
+  const heading = (
+      <View style={styles.rankingHeading}>
+        <Text style={[styles.section, styles.headingText]} accessibilityRole="header">50 melhores jogadores · {gameMode}</Text>
+        <IconButton label="Atualizar ranking" icon="refresh" tooltipAlign="end" loading={loading} disabled={loading} onPress={reload} />
+      </View>
+  );
 
   return (
     <Screen title="Ranking" maxWidth={840} onBack={() => router.back()}>
@@ -50,6 +66,7 @@ export default function RankingScreen() {
           />
         ))}
       </View>
+{!ranking ? heading : null}
       {loading && !ranking ? <Skeleton label="Carregando ranking">
         <Panel tone="accent">
           <SkeletonBlock width="62%" height={28} />
@@ -71,7 +88,7 @@ export default function RankingScreen() {
         </Panel>)}
       </Skeleton> : null}
       <Notice kind="error" message={error} />
-      {error ? <Button label="Tentar novamente" variant="dark" onPress={() => setAttempt((n) => n + 1)} /> : null}
+      {error ? <Button label="Tentar novamente" variant="dark" onPress={reload} /> : null}
 
       {ranking ? (
         <>
@@ -100,7 +117,8 @@ export default function RankingScreen() {
             )}
           </Panel>
 
-          <Text style={styles.section} accessibilityRole="header">Primeiros 50 jogadores · {gameMode}</Text>
+
+          {heading}
           {ranking.entries.length === 0 ? <Text style={styles.meta}>Ninguém concluiu uma partida neste ranking ainda.</Text> : null}
           {ranking.entries.map((entry) => {
             const own = entry.userId === mine?.userId;
@@ -118,7 +136,7 @@ export default function RankingScreen() {
               </Panel>
             );
           })}
-          <Button label="Atualizar ranking" variant="secondary" loading={loading} onPress={() => setAttempt((n) => n + 1)} />
+
         </>
       ) : null}
     </Screen>
@@ -126,6 +144,8 @@ export default function RankingScreen() {
 }
 
 const styles = StyleSheet.create({
+  rankingHeading: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  headingText: { flex: 1, minWidth: 0 },
   modes: { flexDirection: 'row', gap: space.sm },
   flex: { flex: 1 },
   section: { fontFamily: fonts.display, fontSize: font.large, lineHeight: 30, color: colors.text },

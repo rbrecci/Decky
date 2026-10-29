@@ -8,6 +8,7 @@ export function resolveRole(userId: string | null, match: MatchView, players: Ma
   // O papel vem de match_players (gravado pelo servidor), nunca de ter recebido uma mão.
   if (userId && players.some((p) => p.userId === userId)) return 'player';
   if (userId && match.tableUserId === userId) return 'table';
+  if (userId && match.spectatorUserId === userId) return 'spectator';
   return null;
 }
 

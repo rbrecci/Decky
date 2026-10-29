@@ -1,0 +1,21 @@
+import { afterEach, expect, it } from 'vitest';
+import { newMatch, seededRng } from '../../supabase/functions/_shared/engine/index.ts';
+import { createTestDb, type TestDb } from './db';
+let t: TestDb;
+afterEach(async () => { await t?.db.close(); });
+it('banco fixa contagem única e bloqueia marcação automática durante a transição', async () => {
+  t=await createTestDb(); const a=await t.createUser('Ana'), b=await t.createUser('Bia');
+  const [room]=await t.asUser<{id:string;code:string}>(a,"select * from public.create_room('player','1v1')");
+  await t.asUser(b,'select public.join_room($1)',[room.code]);
+  for(const user of [a,b]) await t.asUser(user,'select public.set_ready($1,true)',[room.id]);
+  const game=newMatch(seededRng(2),1,'1v1'); game.public.startsAt=1;
+  const [started]=await t.asService<{r:{matchId:string}}>('select public.internal_start_match($1,$2,$3,$4) as r',[room.id,a,game.public,game.hands]);
+  const [read]=await t.asUser<{public_state:any}>(a,'select public_state from public.matches where id=$1',[started.r.matchId]);
+  const [{now}]=await t.asUser<{now:number}>(a,'select public.server_now() as now');
+  expect(read.public_state.startsAt-now).toBeGreaterThan(2000);
+  expect(read.public_state.startsAt-now).toBeLessThanOrEqual(4000);
+  expect(read.public_state.deadline.startsAt-read.public_state.startsAt).toBe(3500);
+  expect(await t.asUser(b,'select public.set_my_auto_card($1,$2) as r',[started.r.matchId,game.hands[1][0]])).toEqual([{r:{ok:false,error:'too_early'}}]);
+  await t.asService('select public.internal_start_match($1,$2,$3,$4)',[room.id,a,game.public,game.hands]);
+  expect(await t.asUser(a,'select public_state from public.matches where id=$1',[started.r.matchId])).toEqual([read]);
+});

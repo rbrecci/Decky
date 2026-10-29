@@ -1,6 +1,7 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn, ZoomIn } from 'react-native-reanimated';
 import type { PublicGameState, Team } from '../../contracts/types';
+import { Notice } from '../../ui/Notice';
 import { Button } from '../../ui/Button';
 import { Logo } from '../../ui/Logo';
 import { RuledTitle } from '../../ui/Ornament';
@@ -15,10 +16,13 @@ interface Props {
   onHome: () => void;
   /** Só jogadores escrevem nota (a nota é ligada a uma partida que a pessoa jogou). */
   onNote?: () => void;
+  roomLabel?: string;
+  error?: string | null;
+  busy?: boolean;
 }
 
 /** Fim de partida: dupla vencedora e próximos passos. */
-export function FinishedOverlay({ state, viewerTeam, onRoom, onHome, onNote }: Props) {
+export function FinishedOverlay({ state, viewerTeam, onRoom, onHome, onNote, roomLabel = 'Voltar para a sala', error, busy }: Props) {
   const winner = state.winnerTeam;
   const title =
     winner === null
@@ -40,9 +44,10 @@ export function FinishedOverlay({ state, viewerTeam, onRoom, onHome, onNote }: P
         <Text style={styles.score}>
           {teamLabel(left, viewerTeam, state.gameMode)} {state.score[left]} × {state.score[right]} {teamLabel(right, viewerTeam, state.gameMode)}
         </Text>
-        <Button label="Voltar para a sala" onPress={onRoom} />
+        <Notice kind="error" message={error} />
+        <Button label={roomLabel} onPress={onRoom} loading={busy} />
         {onNote ? <Button label="Escrever nota sobre a partida" variant="dark" onPress={onNote} /> : null}
-        <Button label="Início" variant="ghost" onPress={onHome} />
+        <Button label="Início" variant="ghost" onPress={onHome} disabled={busy} />
       </Animated.View>
       </ScrollView>
     </Animated.View>

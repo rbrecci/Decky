@@ -175,6 +175,7 @@ export function applyAction(
   rng: Rng,
   now: number = Date.now(),
 ): ApplyResult {
+  if (state.public.startsAt !== undefined && now < state.public.startsAt) return { ok: false, error: 'too_early' };
   const result = action.type === 'expire' ? expireRule(state, action, rng, now) : applyRule(state, seat, action, rng);
   if (!result.ok) return result;
   const chained = runAutoPlays(result.state, rng);

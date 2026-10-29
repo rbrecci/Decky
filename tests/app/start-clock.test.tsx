@@ -1,0 +1,25 @@
+import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+const h=vi.hoisted(()=>({offset:60000,calibrated:false,sync:vi.fn(),match:null as any}));
+vi.mock('expo-router',()=>({router:{replace:vi.fn()},useLocalSearchParams:()=>({matchId:'match'})}));
+vi.mock('react-native',()=>({StyleSheet:{create:(s:any)=>s},View:'View'}));
+vi.mock('../../src/auth/AuthProvider',()=>({useAuth:()=>({userId:'player'})}));
+vi.mock('../../src/game/useMatch',()=>({useMatch:()=>({match:h.match,role:'player',players:[{userId:'player',seat:1}],loaded:true,refresh:vi.fn(),connection:'online'})}));
+vi.mock('../../src/game/useServerClock',()=>({useServerClock:()=>({offset:h.offset,calibrated:h.calibrated,sync:h.sync})}));
+vi.mock('../../src/lib/useRerenderAt',()=>({useRerenderAt:()=>{}}));
+vi.mock('../../src/game/PlayerGame',()=>({PlayerGame:'PlayerGame'}));
+vi.mock('../../src/game/TableGame',()=>({TableGame:'TableGame'}));
+vi.mock('../../src/game/components/StartTransition',()=>({StartTransition:'StartTransition'}));
+vi.mock('../../src/rooms/api',()=>({leaveSpectator:vi.fn()}));
+vi.mock('../../src/ui/Button',()=>({Button:'Button'}));
+vi.mock('../../src/ui/Notice',()=>({Notice:'Notice'}));
+vi.mock('../../src/ui/Screen',()=>({Screen:'Screen'}));
+vi.mock('../../src/ui/Skeleton',()=>({Skeleton:'Skeleton',SkeletonBlock:'SkeletonBlock'}));
+import Game from '../../app/game/[matchId]';
+beforeEach(()=>{vi.spyOn(Date,'now').mockReturnValue(1000000);h.calibrated=false;h.offset=60000;h.match={matchId:'match',state:{startsAt:1004000}};});
+afterEach(()=>vi.restoreAllMocks());
+it.each([60000,-60000])('aguarda calibração com diferença de %s ms antes de montar jogo ou animação',offset=>{
+ h.offset=offset;expect((Game().type as any).name).toBe('GameLoading');
+ h.calibrated=true;h.offset=0;expect(Game().type).toBe('StartTransition');
+ vi.mocked(Date.now).mockReturnValue(1004000);expect(Game().type).toBe('PlayerGame');
+ expect(Game().type).toBe('PlayerGame');
+});

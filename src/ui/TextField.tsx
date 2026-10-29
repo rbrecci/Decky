@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { Platform, StyleSheet, Text, TextInput, View, type StyleProp, type TextInputProps, type TextStyle } from 'react-native';
+import { MenuDensityContext } from './menuDensity';
 import { colors, font, radius, space, TOUCH_MIN } from './theme';
 
 interface Props extends Omit<TextInputProps, 'style'> {
@@ -10,6 +11,7 @@ interface Props extends Omit<TextInputProps, 'style'> {
 }
 
 export function TextField({ label, error, inputStyle, onFocus, onBlur, required, ...input }: Props) {
+  const dense = useContext(MenuDensityContext);
   const [focused, setFocused] = useState(false);
   const webProps = Platform.OS === 'web' ? { required, 'aria-required': required, name: input.nativeID } : {};
   return (
@@ -22,7 +24,7 @@ export function TextField({ label, error, inputStyle, onFocus, onBlur, required,
         selectionColor={colors.gold}
         cursorColor={colors.gold}
         keyboardAppearance="dark"
-        style={[styles.input, focused && styles.inputFocused, error ? styles.inputError : null, inputStyle]}
+        style={[styles.input, dense && styles.dense, focused && styles.inputFocused, error ? styles.inputError : null, inputStyle]}
         onFocus={(e) => {
           setFocused(true);
           onFocus?.(e);
@@ -43,6 +45,7 @@ export function TextField({ label, error, inputStyle, onFocus, onBlur, required,
 }
 
 const styles = StyleSheet.create({
+  dense: { minHeight: 44, fontSize: 16 },
   wrapper: { gap: space.xs + 2 },
   label: { fontSize: font.small, fontWeight: '700', color: colors.textMuted, letterSpacing: 0.3 },
   input: {

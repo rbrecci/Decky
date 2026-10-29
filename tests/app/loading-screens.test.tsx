@@ -33,6 +33,7 @@ vi.mock('../../src/ranking/api', () => ({ fetchRankings: h.rankings }));
 vi.mock('../../src/rooms/api', () => ({ fetchPublicRooms: h.rooms, joinRoom: vi.fn() }));
 vi.mock('../../src/history/api', () => ({ getNote: h.note, createNote: vi.fn(), updateNote: vi.fn(), deleteNote: vi.fn(), validateNoteTitle: vi.fn() }));
 vi.mock('../../src/lib/useLiveRefresh', () => ({ useLiveRefresh: (_key: any, _tables: any, refresh: any) => { h.refresh = refresh; return { refreshNow: () => h.refresh() }; } }));
+vi.mock('../../src/ui/IconButton', () => ({ IconButton: 'IconButton' }));
 vi.mock('../../src/ui/Button', () => ({ Button: 'Button' }));
 vi.mock('../../src/ui/Notice', () => ({ Notice: 'Notice' }));
 vi.mock('../../src/ui/Panel', () => ({ Panel: 'Panel' }));

@@ -1,7 +1,7 @@
 // Fluxo de partida ponta a ponta: o mesmo código das Edge Functions (match-service.ts)
 // rodando contra as migrations reais. Cada "aparelho" só usa o que o app usa:
 // leitura com RLS, get_my_hand e as funções start-match / submit-action.
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { getLegalActions, seededRng, teamOf } from '../../supabase/functions/_shared/engine/index.ts';
 import type { Card, GameAction, PublicGameState, Rng, Seat } from '../../supabase/functions/_shared/engine/index.ts';
 import { startMatchService, submitActionService, type Rpc } from '../../supabase/functions/_shared/match-service.ts';
@@ -39,6 +39,14 @@ const rpc: Rpc = async (fn, params) => {
   const [row] = await t.asService<{ r: any }>(`select public.${fn}(${placeholders}) as r`, names.map((n) => params[n]));
   return row.r;
 };
+
+/** Estes cenários exercitam o jogo após a contagem real; o bloqueio anterior é testado separadamente. */
+async function waitForStart(matchId: string) {
+  const { rows } = await t.db.query<{ remaining: number }>(
+    "select greatest(0, (public_state ->> 'startsAt')::double precision - public.server_now()) as remaining from public.matches where id = $1", [matchId],
+  );
+  if (rows[0].remaining > 0) await new Promise(resolve => setTimeout(resolve, rows[0].remaining + 10));
+}
 
 type Hand = { revision: number; seat: Seat; cards: Card[]; covered: Card | null; autoCard: Card | null } | null;
 type MatchRow = { revision: number; public_state: PublicGameState; status: string };
@@ -114,6 +122,7 @@ describe('host mesa: 5 aparelhos', () => {
     const host = await setupRoom('table');
     const { body } = await startMatchService(rpc, host, { roomId }, rng);
     matchId = body.matchId as string;
+    await waitForStart(matchId);
   });
 
   it('cada jogador vê só a própria mão; a mesa e quem está de fora não veem nenhuma', async () => {
@@ -434,6 +443,7 @@ describe('carta escondida, jogada automática e prazo (pelo servidor e banco)', 
     const host = await setupRoom('table');
     const { body } = await startMatchService(rpc, host, { roomId }, rng);
     matchId = body.matchId as string;
+    await waitForStart(matchId);
   });
 
   /** Quem tem a vez joga a primeira carta da mão. */
@@ -606,3 +616,6 @@ describe('carta escondida, jogada automática e prazo (pelo servidor e banco)', 
     expect(after.lastEvent).toMatchObject({ action: 'respond_truco', response: 'refuse', timeout: true });
   });
 });
+
+// Cada teste libera o Postgres em memória antes de criar outra instância.
+afterEach(async () => { await t?.db.close(); });

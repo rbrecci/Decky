@@ -5,7 +5,7 @@ import { useAuth } from '../../src/auth/AuthProvider';
 import type { PublicRoom } from '../../src/contracts/types';
 import { errorCode, errorMessage } from '../../src/lib/errors';
 import { useLiveRefresh } from '../../src/lib/useLiveRefresh';
-import { fetchPublicRooms, joinRoom } from '../../src/rooms/api';
+import { fetchPublicRooms, joinRoom, joinSpectator } from '../../src/rooms/api';
 import { RoomScanner } from '../../src/qr/RoomScanner';
 import { Button } from '../../src/ui/Button';
 import { Notice } from '../../src/ui/Notice';
@@ -73,6 +73,13 @@ export default function JoinRoom() {
     }
   }
   const submit = () => enter(code);
+  async function watch(roomId: string) {
+    if (sending.current) return;
+    sending.current = true; setLoading(true); setError(null);
+    try { const matchId = await joinSpectator(roomId); router.replace(`/game/${matchId}`); }
+    catch (e) { setError(errorMessage(e)); void refreshNow(); }
+    finally { sending.current = false; setLoading(false); }
+  }
 
   return (
     <Screen title="Entrar na sala" maxWidth={840} onBack={() => router.back()}>
@@ -102,8 +109,8 @@ export default function JoinRoom() {
       {!listLoading && !listError && rooms.length === 0 ? <Text style={styles.meta}>Nenhuma sala pública disponível.</Text> : null}
       {rooms.map((room) => <Panel key={room.id}>
         <Text style={styles.host}>{room.hostName}</Text>
-        <Text style={styles.meta}>{room.gameMode === '1v1' ? 'Duelo' : 'Duplas'} · {room.playerCount}/{room.capacity} jogadores</Text>
-        <Button label={room.playerCount >= room.capacity ? 'Sala cheia' : 'Entrar na sala'} variant="dark" disabled={loading || room.playerCount >= room.capacity} onPress={() => void enter(room.code)} />
+        <Text style={styles.meta}>{room.gameMode === '1v1' ? 'Duelo' : 'Duplas'} · {room.playerCount}/{room.capacity} jogadores{room.status === 'playing' ? ' · Em andamento' : ''}</Text>
+        {room.status === 'playing' ? <Button label="Assistir" variant="dark" disabled={loading} onPress={() => void watch(room.id)} /> : <Button label={room.playerCount >= room.capacity ? 'Sala cheia' : 'Entrar na sala'} variant="dark" disabled={loading || room.playerCount >= room.capacity} onPress={() => void enter(room.code)} />}
       </Panel>)}
       <Button label="Atualizar salas" variant="secondary" disabled={listLoading} onPress={() => void refreshNow()} />
     </Screen>

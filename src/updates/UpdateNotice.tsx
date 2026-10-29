@@ -7,13 +7,13 @@ import { Button } from '../ui/Button';
 import { colors, space } from '../ui/theme';
 import { createUpdateChecker } from './checker';
 
-const PAGE = 'https://rbrecci.github.io/Decky/';
+import { DECKY_PAGE as PAGE } from './links';
 const installed = !__DEV__ && Platform.OS === 'android' && Application.applicationId === 'br.senai.decky' &&
   Application.nativeApplicationVersion && Application.nativeBuildVersion
   ? { version: Application.nativeApplicationVersion, buildNumber: Number(Application.nativeBuildVersion) } : null;
 const checker = createUpdateChecker(installed, () => fetchRelease(`${PAGE}version.json`));
 
-export function UpdateNotice() {
+export function UpdateNotice({ showPageLink = true }: { showPageLink?: boolean }) {
   const [release, setRelease] = useState<Release | null>(null);
   const [error, setError] = useState(false);
   useEffect(() => {
@@ -34,7 +34,7 @@ export function UpdateNotice() {
         <Text style={styles.title}>Atualização disponível</Text>
         <Button label="Ver atualização" variant="gold" size="compact" onPress={openPage} />
       </View>}
-      <Button label="Página do Decky" variant="ghost" size="compact" onPress={openPage} />
+      {showPageLink ? <Button label="Página do Decky" variant="ghost" size="compact" onPress={openPage} /> : null}
       {error && <Text style={styles.error}>Não foi possível abrir a página. Tente novamente.</Text>}
     </View>
   );

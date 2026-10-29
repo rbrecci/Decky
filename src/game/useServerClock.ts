@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 import { fetchServerNow } from './api';
 import { clockOffset } from './deadline';
@@ -13,19 +13,32 @@ const OFFSET_TOLERANCE_MS = 250;
  */
 export function useServerClock(fetchNow: () => Promise<number> = fetchServerNow) {
   const [offset, setOffset] = useState(0);
+  const [calibrated, setCalibrated] = useState(false);
+  const pending = useRef<Promise<void> | null>(null);
 
   const observe = useCallback((serverNow: number, sentAt: number, receivedAt: number) => {
     const next = clockOffset(sentAt, receivedAt, serverNow);
+    if (!Number.isFinite(next)) return;
+    setCalibrated(true);
     setOffset((current) => (Math.abs(current - next) > OFFSET_TOLERANCE_MS ? next : current));
   }, []);
 
-  const sync = useCallback(async () => {
-    const sentAt = Date.now();
-    try {
-      observe(await fetchNow(), sentAt, Date.now());
-    } catch {
-      // Sem rede: mantém a última diferença conhecida. O servidor confere o prazo do mesmo jeito.
-    }
+  const sync = useCallback((): Promise<void> => {
+    if (pending.current) return pending.current;
+    const run = async () => {
+      const sentAt = Date.now();
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      try {
+        const deadline = new Promise<never>((_, reject) => {
+          timer = setTimeout(() => reject(new Error('clock_timeout')), 10000);
+        });
+        observe(await Promise.race([fetchNow(), deadline]), sentAt, Date.now());
+      } catch {
+        // Mantém a calibração anterior. A primeira leitura pode ser repetida pelo botão de tentativa.
+      } finally { clearTimeout(timer); pending.current = null; }
+    };
+    pending.current = run();
+    return pending.current;
   }, [fetchNow, observe]);
 
   useEffect(() => {
@@ -36,5 +49,5 @@ export function useServerClock(fetchNow: () => Promise<number> = fetchServerNow)
     return () => subscription.remove();
   }, [sync]);
 
-  return { offset, observe };
+  return { offset, observe, calibrated, sync };
 }

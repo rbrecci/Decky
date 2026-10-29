@@ -17,7 +17,7 @@ export function starPath(cx: number, cy: number, outer: number, inner: number, p
 /** Estrela dourada de 5 pontas no quadrado 24 x 24 (selo da manilha). */
 export const STAR_24 = starPath(12, 12.6, 10.5, 4.4);
 
-export type IconName = 'play' | 'raise' | 'fold' | 'accept' | 'no' | 'hidden' | 'bolt';
+export type IconName = 'play' | 'raise' | 'fold' | 'accept' | 'no' | 'hidden' | 'bolt' | 'globe' | 'logout' | 'refresh';
 
 /** Relâmpago da jogada automática (24 x 24). */
 export const BOLT_24 = 'M13.5 2.5 L5.5 13.5 H11 L10 21.5 L18.5 10 H13 Z';
@@ -41,7 +41,12 @@ export function Icon({ name, size = 18, color }: Props) {
   return (
     // Decorativo: quem usa (o botão) já é um único elemento acessível, com o rótulo da ação.
     <Svg width={size} height={size} viewBox="0 0 24 24">
-      {name === 'play' ? (
+      {name === 'globe' ? <>
+        <Circle cx="12" cy="12" r="9" fill="none" stroke={color} strokeWidth="1.8"/>
+        <Path d="M3 12H21 M12 3C7 7 7 17 12 21 M12 3C17 7 17 17 12 21" fill="none" stroke={color} strokeWidth="1.7"/>
+      </> : name === 'logout' ? <Path d="M9 4H4V20H9 M9 12H21 M17 8L21 12L17 16" fill="none" stroke={color} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"/>
+        : name === 'refresh' ? <Path d="M20 7V3 M20 7H16 M20 7A9 9 0 1 0 21 14" fill="none" stroke={color} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"/>
+        : name === 'play' ? (
         <>
           <Rect x="6" y="9" width="12" height="13" rx="2" fill="none" stroke={color} strokeWidth="2" />
           <Path d="M12 2.5 L16.5 7 M12 2.5 L7.5 7 M12 2.5 V14" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />

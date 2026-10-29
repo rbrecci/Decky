@@ -13,10 +13,11 @@ interface Props {
   players: MatchPlayer[];
   large: boolean;
   onLeave: () => void;
+  leaveLabel?: string;
 }
 
 /** Placar das duplas, valor da mão e vazas da mão atual. Só redesenha quando o estado público muda. */
-export const ScoreBar = memo(function ScoreBar({ state, viewerTeam, players, large: requestedLarge, onLeave }: Props) {
+export const ScoreBar = memo(function ScoreBar({ state, viewerTeam, players, large: requestedLarge, onLeave, leaveLabel = 'Voltar' }: Props) {
   // Para o jogador, "Nós" fica sempre à esquerda; na mesa, A à esquerda.
   // Tela estreita na visão neutra: "DUPLA A" não cabe ao lado do selo do valor e quebrava em duas
   // linhas; fica só a letra, junto do ponto da cor da dupla (o rótulo de acessibilidade segue completo).
@@ -74,7 +75,7 @@ export const ScoreBar = memo(function ScoreBar({ state, viewerTeam, players, lar
             ))}
           </View>
         </View>
-        <Button label="Voltar" variant="ghost" size="compact" onPress={onLeave} style={styles.backButton} />
+        <Button label={leaveLabel} variant="ghost" size="compact" onPress={onLeave} style={styles.backButton} />
       </View>
     </LayoutAnimationConfig>
   );

@@ -1,5 +1,6 @@
-import type { ReactNode } from 'react';
+import { useContext, type ReactNode } from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { MenuDensityContext } from './menuDensity';
 import { colors, radius, shadow, space } from './theme';
 
 interface Props {
@@ -11,10 +12,12 @@ interface Props {
 
 /** Superfície grafite das telas: cartões de opção, código da sala, notas e partidas. */
 export function Panel({ children, tone = 'default', style }: Props) {
-  return <View style={[styles.panel, tone === 'accent' && styles.accent, style]}>{children}</View>;
+  const dense = useContext(MenuDensityContext);
+  return <View style={[styles.panel, dense && styles.dense, tone === 'accent' && styles.accent, style]}>{children}</View>;
 }
 
 const styles = StyleSheet.create({
+  dense: { padding: 14, borderRadius: radius.md },
   panel: {
     backgroundColor: colors.surface,
     borderRadius: radius.lg,

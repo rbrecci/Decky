@@ -1,5 +1,5 @@
 // Modo de host: dono jogador (4 aparelhos) ou dono mesa (5 aparelhos), no nível do banco.
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { newMatch, seededRng } from '../../supabase/functions/_shared/engine/index.ts';
 import { createTestDb, type TestDb } from './db';
 
@@ -176,6 +176,7 @@ describe('partida com mesa dedicada', () => {
       { schemaname: 'public', tablename: 'public_room_directory' },
       { schemaname: 'public', tablename: 'room_players' },
       { schemaname: 'public', tablename: 'rooms' },
+      { schemaname: 'public', tablename: 'seat_swap_requests' },
     ]);
   });
 
@@ -213,3 +214,6 @@ describe('partida com mesa dedicada', () => {
     expect(await t.asUser(mesa, 'select id from public.matches where id = $1', [matchId])).toEqual([]);
   });
 });
+
+// Cada teste libera o Postgres em memória antes de criar outra instância.
+afterEach(async () => { await t?.db.close(); });

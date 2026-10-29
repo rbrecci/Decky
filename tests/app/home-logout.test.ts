@@ -7,10 +7,11 @@ vi.mock('react', async (original) => ({ ...await original<typeof import('react')
   return [state.values[index], (next: unknown) => { state.values[index] = next; }];
 }, useRef: (value: unknown) => ({ current: value }) }));
 vi.mock('expo-router', () => ({ router: { push: vi.fn() } }));
-vi.mock('react-native', () => ({ StyleSheet:{ create:(value:unknown)=>value }, Text:'Text', View:'View' }));
+vi.mock('react-native', () => ({ StyleSheet:{ create:(value:unknown)=>value }, Text:'Text', View:'View', Platform:{OS:'web'}, useWindowDimensions:()=>({width:390}), Linking:{openURL:vi.fn()}  }));
 vi.mock('react-native-reanimated', () => ({ default:{ View:'AnimatedView' }, FadeIn:{duration:()=>undefined}, FadeInDown:{duration:()=>({delay:()=>undefined})} }));
 vi.mock('../../src/auth/AuthProvider', () => ({ signOut:state.signOut, useAuth:()=>({displayName:'Ana'}) }));
 vi.mock('../../src/lib/errors', () => ({errorMessage:()=> 'Não foi possível sair. Tente novamente.'}));
+vi.mock('../../src/ui/IconButton', () => ({IconButton:'IconButton'}));
 vi.mock('../../src/ui/Button', () => ({Button:'Button'}));
 vi.mock('../../src/ui/Logo', () => ({Logo:'Logo'}));
 vi.mock('../../src/ui/Ornament', () => ({Ornament:'Ornament'}));
@@ -21,9 +22,9 @@ import Home from '../../app/index';
 function render() { state.index=0; return Home(); }
 function button(node: ReactNode): ReactElement<{label:string;onPress:()=>Promise<void>;loading?:boolean}> | null {
   if (!node || typeof node!=='object' || !('props' in node)) return null;
-  const element=node as ReactElement<{label?:string;children?:ReactNode}>;
+  const element=node as ReactElement<{label?:string;children?:ReactNode;cornerActions?:ReactNode}>;
   if (element.props.label==='Sair da conta') return element as ReturnType<typeof button>;
-  for (const child of [element.props.children].flat()) { const result=button(child); if(result) return result; }
+  for (const child of [element.props.children,element.props.cornerActions].flat()) { const result=button(child); if(result) return result; }
   return null;
 }
 beforeEach(()=>{state.values=[];state.index=0;vi.resetAllMocks();});

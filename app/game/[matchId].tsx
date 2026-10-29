@@ -1,5 +1,10 @@
+import { StartTransition } from '../../src/game/components/StartTransition';
+import { startCardAt } from '../../src/game/startTransition';
+import { useServerClock } from '../../src/game/useServerClock';
+import { useRerenderAt } from '../../src/lib/useRerenderAt';
 import { router, useLocalSearchParams } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
+import { leaveSpectator } from '../../src/rooms/api';
 import { useAuth } from '../../src/auth/AuthProvider';
 import { PlayerGame } from '../../src/game/PlayerGame';
 import { TableGame } from '../../src/game/TableGame';
@@ -22,6 +27,11 @@ export default function Game() {
     userId,
   );
 
+  const clock = useServerClock();
+  const startsAt = match?.state.startsAt;
+  useRerenderAt(clock.calibrated && startsAt ? [startsAt-2000-clock.offset,startsAt-1000-clock.offset,startsAt-clock.offset] : []);
+  const startRank = clock.calibrated ? startCardAt(startsAt,Date.now()+clock.offset) : null;
+
   if (!loaded) {
     return <GameLoading reconnecting={connection === 'reconnecting'} retry={refresh} />;
   }
@@ -32,6 +42,16 @@ export default function Game() {
         <Notice kind="info" message="Esta partida não existe ou você não participa dela." />
       </Screen>
     );
+  }
+
+  if (startsAt && !clock.calibrated) {
+    return <GameLoading reconnecting retry={async () => { await Promise.all([refresh(), clock.sync()]); }} />;
+  }
+
+  if (startRank) return <StartTransition rank={startRank} />;
+
+  if (role === 'spectator') {
+    return <TableGame match={match} players={players} connection={connection} spectator onExit={async home => { await leaveSpectator(match.matchId); router.replace(home ? '/' : '/room/join'); }} />;
   }
 
   if (role === 'table') {

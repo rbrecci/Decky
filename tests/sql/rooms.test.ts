@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createTestDb, type TestDb } from './db';
 
 let t: TestDb;
@@ -117,3 +117,6 @@ describe('RLS das salas', () => {
     ).rejects.toThrow(/permission denied/);
   });
 });
+
+// Cada teste libera o Postgres em memória antes de criar outra instância.
+afterEach(async () => { await t?.db.close(); });

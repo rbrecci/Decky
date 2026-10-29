@@ -1,3 +1,5 @@
+import { useContext } from 'react';
+import { MenuDensityContext } from './menuDensity';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Icon, type IconName } from './icons';
 import { colors, font, radius, shadow, space, TOUCH_MIN } from './theme';
@@ -30,6 +32,7 @@ interface Props {
 }
 
 export function Button({ label, onPress, variant = 'primary', disabled, loading, hint, size = 'normal', icon, style }: Props) {
+  const dense = useContext(MenuDensityContext);
   const inactive = disabled || loading;
   const palette = VARIANTS[variant];
   const compact = size === 'compact';
@@ -46,6 +49,7 @@ export function Button({ label, onPress, variant = 'primary', disabled, loading,
       style={({ pressed }) => [
         styles.base,
         compact && styles.compact,
+        dense && styles.dense,
         compact && icon && styles.compactIcon,
         { backgroundColor: palette.bg, borderColor: palette.border },
         palette.raised && !inactive && styles.raised,
@@ -60,7 +64,7 @@ export function Button({ label, onPress, variant = 'primary', disabled, loading,
         <View style={[styles.texts, icon && !compact && styles.inline]}>
           {icon ? <Icon name={icon} size={compact ? 18 : 20} color={palette.text} /> : null}
           <Text
-            style={[styles.label, compact && styles.labelCompact, compact && icon && styles.labelIcon, { color: palette.text }]}
+            style={[styles.label, compact && styles.labelCompact, dense && styles.denseLabel, compact && icon && styles.labelIcon, { color: palette.text }]}
           >
             {label}
           </Text>
@@ -88,6 +92,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  dense: { minHeight: 44, paddingVertical: 6, paddingHorizontal: 16 },
+  denseLabel: { fontSize: 16 },
   raised: { boxShadow: shadow.button },
   compact: { minHeight: TOUCH_MIN + 4, paddingHorizontal: space.sm, paddingVertical: space.xs },
   texts: { alignItems: 'center', gap: 2, minWidth: 0, flexShrink: 1 },

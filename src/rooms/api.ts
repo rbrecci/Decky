@@ -81,9 +81,10 @@ export async function fetchRoomByCode(code: string): Promise<Room | null> {
 export async function fetchPublicRooms(): Promise<PublicRoom[]> {
   const { data, error } = await supabase.rpc('get_public_rooms');
   if (error) throw error;
-  return (data ?? []).map((row: { id: string; code: string; host_name: string; game_mode: GameMode; player_count: number; capacity: number }) => ({
+  return (data ?? []).map((row: { id: string; code: string; host_name: string; game_mode: GameMode; player_count: number; capacity: number; status?: PublicRoom['status']; match_id?: string | null }) => ({
     id: row.id, code: row.code, hostName: row.host_name, gameMode: row.game_mode,
     playerCount: row.player_count, capacity: row.capacity,
+    ...(row.status ? { status: row.status, matchId: row.match_id ?? null } : {}),
   }));
 }
 
@@ -113,4 +114,43 @@ export async function fetchActiveMatchId(roomId: string): Promise<string | null>
     .maybeSingle();
   if (error) throw error;
   return data?.id ?? null;
+}
+
+export async function heartbeatRoom(roomId: string): Promise<void> {
+  const controller = new AbortController();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const deadline = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => { controller.abort(); reject(new Error('room_heartbeat_timeout')); }, 10000);
+  });
+  try {
+    const { error } = await Promise.race([
+      supabase.rpc('heartbeat_room', { p_room_id: roomId }).abortSignal(controller.signal), deadline,
+    ]);
+    if (error) throw error;
+  } finally { clearTimeout(timer); }
+}
+
+export async function requestSeatSwap(roomId: string, targetUserId: string): Promise<void> {
+  const { error } = await supabase.rpc('request_seat_swap', { p_room_id: roomId, p_target_user_id: targetUserId });
+  if (error) throw error;
+}
+export async function respondSeatSwap(requestId: string, accept: boolean): Promise<string> {
+  const { data, error } = await supabase.rpc('respond_seat_swap', { p_request_id: requestId, p_accept: accept });
+  if (error) throw error;
+  return data as string;
+}
+export async function fetchSeatSwaps(roomId: string): Promise<import('../contracts/types').SeatSwap[]> {
+  const { data, error } = await supabase.rpc('get_seat_swaps', { p_room_id: roomId });
+  if (error) throw error;
+  return (data ?? []).map((row: any) => ({ id: row.id, fromUserId: row.from_user_id, toUserId: row.to_user_id, status: row.status, expiresAt: row.expires_at }));
+}
+
+export async function joinSpectator(roomId: string): Promise<string> {
+  const { data, error } = await supabase.rpc('join_spectator', { p_room_id: roomId });
+  if (error) throw error;
+  return data as string;
+}
+export async function leaveSpectator(matchId: string): Promise<void> {
+  const { error } = await supabase.rpc('leave_spectator', { p_match_id: matchId });
+  if (error) throw error;
 }

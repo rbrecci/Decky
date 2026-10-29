@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { MenuDensityContext } from './menuDensity';
 import { Backdrop } from './Backdrop';
 import { Button } from './Button';
 import { RuledTitle } from './Ornament';
@@ -14,6 +15,7 @@ interface Props {
   /** Conteúdo rolável (formulários e listas). */
   scroll?: boolean;
   fixedHeader?: ReactNode;
+  cornerActions?: ReactNode;
   onBack?: () => void;
   backLabel?: string;
   backDisabled?: boolean;
@@ -22,12 +24,15 @@ interface Props {
 }
 
 /** Moldura das telas fora da partida: salão escuro, área segura e título com filete dourado. */
-export function Screen({ title, subtitle, children, scroll = true, fixedHeader, onBack, backLabel = 'Voltar', backDisabled, backLoading, maxWidth = 560 }: Props) {
+export function Screen({ title, subtitle, children, scroll = true, fixedHeader, cornerActions, onBack, backLabel = 'Voltar', backDisabled, backLoading, maxWidth = 560 }: Props) {
+  const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const dense = Platform.OS === 'web' && width >= 1024;
   const hasBackHeader = !!onBack && fixedHeader == null;
   const header = fixedHeader ?? (onBack ? (
     <View style={styles.headerRow}>
       <View style={styles.headerCopy}>
-        {title ? <RuledTitle style={styles.fixedTitle}>{title}</RuledTitle> : null}
+        {title ? <RuledTitle style={[styles.fixedTitle, dense && styles.denseTitle]}>{title}</RuledTitle> : null}
         {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
       </View>
       <Button label={backLabel} variant="ghost" size="compact" onPress={onBack} disabled={backDisabled} loading={backLoading} style={styles.backButton} />
@@ -35,10 +40,10 @@ export function Screen({ title, subtitle, children, scroll = true, fixedHeader, 
   ) : null);
 
   const body = (
-    <View style={[styles.content, { maxWidth }]}>
+    <View style={[styles.content, dense && styles.denseContent, !!cornerActions && styles.withCorners, { maxWidth }]}>
       {title && !hasBackHeader ? (
         <View style={styles.head}>
-          <RuledTitle style={styles.title}>{title}</RuledTitle>
+          <RuledTitle style={[styles.title, dense && styles.denseTitle]}>{title}</RuledTitle>
           {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
         </View>
       ) : null}
@@ -47,8 +52,10 @@ export function Screen({ title, subtitle, children, scroll = true, fixedHeader, 
   );
 
   return (
+    <MenuDensityContext.Provider value={dense}>
     <View style={styles.root}>
       <Backdrop />
+      {cornerActions ? <View style={[styles.cornerActions, { top: insets.top + space.sm, left: insets.left + space.md }]}>{cornerActions}</View> : null}
       <SafeAreaView style={styles.flex}>
         {header ? <View style={[styles.fixedHeader, { maxWidth }]}>{header}</View> : null}
         <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -67,10 +74,15 @@ export function Screen({ title, subtitle, children, scroll = true, fixedHeader, 
         </KeyboardAvoidingView>
       </SafeAreaView>
     </View>
+    </MenuDensityContext.Provider>
   );
 }
 
 const styles = StyleSheet.create({
+  denseContent: { padding: 20, gap: 12 },
+  denseTitle: { fontSize: 26, lineHeight: 34 },
+  withCorners: { paddingTop: 64 },
+  cornerActions: { position: 'absolute', zIndex: 10, flexDirection: 'row', gap: space.sm },
   root: { flex: 1, backgroundColor: colors.bg },
   flex: { flex: 1 },
   scroll: { flexGrow: 1 },

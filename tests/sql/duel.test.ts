@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { newMatch, seededRng, type Card, type PublicGameState } from '../../supabase/functions/_shared/engine/index.ts';
 import { startMatchService, submitActionService, type Rpc } from '../../supabase/functions/_shared/match-service.ts';
 import { createTestDb, type TestDb } from './db';
@@ -94,6 +94,10 @@ describe('salas 1v1', () => {
     const started = await startMatchService(rpc, host, { roomId: room.id }, rng);
     const matchId = started.body.matchId;
     expect((await startMatchService(rpc, guest, { roomId: room.id }, rng)).body).toEqual({ ok: true, matchId });
+    // Este cenário exercita o jogo depois da contagem real; o bloqueio anterior tem suíte própria.
+    const [{ remaining }] = await t.asUser<{ remaining: number }>(host,
+      "select greatest(0, (public_state ->> 'startsAt')::double precision - public.server_now()) as remaining from public.matches where id = $1", [matchId]);
+    if (remaining > 0) await new Promise(resolve => setTimeout(resolve, remaining + 10));
     let actions = 0;
     let state: PublicGameState;
     do {
@@ -122,5 +126,8 @@ describe('salas 1v1', () => {
       .toEqual([{ status: 'lobby', game_mode: '1v1' }]);
     expect(await t.asUser(host, 'select ready from public.room_players where room_id = $1', [room.id]))
       .toEqual([{ ready: false }, { ready: false }]);
-  });
+  }, 20000);
 });
+
+// Cada teste libera o Postgres em memória antes de criar outra instância.
+afterEach(async () => { await t?.db.close(); });
