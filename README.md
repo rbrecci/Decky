@@ -26,8 +26,8 @@ Os diretórios `app/` e `src/` contêm o cliente; `supabase/`, o backend e as mi
 
 Documentos substituídos e saídas antigas de QA foram retirados da árvore ativa. O histórico Git preserva as versões publicadas anteriores; cópias locais de arquivo ficam em `discarted/`, ignorada pelo Git. Novas evidências dos verificadores ficam em `.expo/validation-v2/public/`, também ignorada.
 
-## Melhorias locais de multiplayer e interface (29/10/2026)
+## Melhorias de multiplayer e interface (29/10/2026)
 
-Esta branch acrescenta presença expirá­vel, troca consentida de lugares, espectadores de partidas públicas, contagem sincronizada e ajustes de menus. Veja o [relatório do implementador](docs/reports/2026-10-29-implementation.md) e o [parecer crítico independente](docs/reports/2026-10-29-critical-review.md). A entrega publicada de 25/10 continua sendo a referência anterior; estas mudanças ainda não foram publicadas.
+As melhorias acrescentam presença com prazo de reconexão, troca consentida de lugares, espectadores de partidas públicas, contagem sincronizada e ajustes de menus. O backend foi publicado pela integração Supabase em 29/10; a versão web e o [APK 2.0.0 build 9](https://github.com/rbrecci/Decky/releases/tag/v2.0.0-build9) foram publicados em 30/10. Veja as [evidências da publicação](docs/reports/2026-10-30-publicacao.md), o [relatório do implementador](docs/reports/2026-10-29-implementation.md) e o [parecer crítico independente](docs/reports/2026-10-29-critical-review.md).
 
-As cinco migrations de 29/10 e as funções `start-match`/`submit-action` exigem implantação coordenada com o cliente atualizado. Sem `pg_cron` habilitado, a limpeza física depende da consulta à descoberta. Consulte as limitações e os ensaios remotos pendentes nos relatórios antes de aplicar o backend.
+As cinco migrations de 29/10 e as funções `start-match`/`submit-action` foram conferidas no servidor real. O projeto não tem `pg_cron`: a limpeza física depende da consulta à descoberta. Clientes anteriores às melhorias não renovam presença e precisam ser atualizados para evitar a expiração de salas durante o uso.
